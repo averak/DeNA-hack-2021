@@ -1,11 +1,9 @@
 const Error = () => {
-  return (
-    <div>error</div>
-  )
-}
+  return <div>error</div>;
+};
 
 Error.getInitialProps = () => {
-  return
-}
+  return;
+};
 
-export default Error
+export default Error;
