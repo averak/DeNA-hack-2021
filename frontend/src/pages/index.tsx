@@ -1,10 +1,9 @@
 const HomePage = () => {
-  return <main>Hello World</main>
-}
+  return <main>Hello World</main>;
+};
 
 HomePage.getInitialProps = () => {
-  return 
-}
+  return;
+};
 
-
-export default HomePage
+export default HomePage;
