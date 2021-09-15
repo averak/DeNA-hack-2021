@@ -17,7 +17,6 @@
     "react-dom": "17.0.2"
   },
   "devDependencies": {
-    "@tailwindcss/jit": "^0.1.18",
     "@types/camelcase-keys": "^5.1.1",
     "@types/react": "17.0.15",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
