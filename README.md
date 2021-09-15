@@ -1,5 +1,11 @@
 # DeNA 2021 オータムハッカソン
 
+![build](https://github.com/averak/DeNA-hack-2021/workflows/build/badge.svg)
+![code check](https://github.com/averak/DeNA-hack-2021/workflows/code%20check/badge.svg)
+![deploy](https://github.com/averak/DeNA-hack-2021/workflows/test/badge.svg)
+![Version 1.0](https://img.shields.io/badge/version-1.0-yellow.svg)
+[![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
+
 ## 概要
 
 本プロジェクトは、ユーザが考案した旅行プランをシェアするサービスです。
