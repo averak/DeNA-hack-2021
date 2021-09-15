@@ -42,3 +42,4 @@ jobs:
           yarn
           yarn build
           yarn export
+          yarn run export
