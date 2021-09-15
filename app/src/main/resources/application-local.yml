@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/dena-hack?useSSL=false&allowPublicKeyRetrieval=true
+    username: dena-hack
+    password: dena-hack
+    driver: com.mysql.cj.jdbc.Driver
+
+slack:
+  enabled: false
+  webhook-url:
