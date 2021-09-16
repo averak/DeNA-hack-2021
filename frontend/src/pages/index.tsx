@@ -1,9 +1,7 @@
-const HomePage = () => {
-  return <main>Hello World</main>;
-};
+import type { VFC } from "react";
 
-HomePage.getInitialProps = () => {
-  return;
+const HomePage: VFC = () => {
+  return <main>Hello World</main>;
 };
 
 export default HomePage;
