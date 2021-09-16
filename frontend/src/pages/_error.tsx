@@ -1,11 +1,7 @@
-const Error = () => {
-  return (
-    <div>error</div>
-  )
-}
+import type { VFC } from "react";
 
-Error.getInitialProps = () => {
-  return
-}
+const Error: VFC = () => {
+  return <div>error</div>;
+};
 
-export default Error
+export default Error;
