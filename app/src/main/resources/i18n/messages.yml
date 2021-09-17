@@ -10,6 +10,7 @@ exception:
     user_has_no_permission: "User has no permission."
   bad_request:
     validation_error: "Validation error has occurred."
+    invalid_request_parameter: "Request parameter is invalid."
     invalid_password_size: "Password size is invalid."
     too_simple_password: "Password is too simple."
   unauthorized:
