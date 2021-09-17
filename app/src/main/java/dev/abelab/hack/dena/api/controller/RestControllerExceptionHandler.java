@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import springfox.documentation.annotations.ApiIgnore;
 
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import dev.abelab.hack.dena.api.response.ErrorResponse;
  * Rest controller exception handler
  */
 @Slf4j
+@ApiIgnore
 @Controller
 @RestControllerAdvice
 @RequiredArgsConstructor

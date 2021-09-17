@@ -31,10 +31,11 @@ public class SwaggerConfig {
             .protocols(Collections.singleton(this.projectProperty.getProtocol())) //
             .host(this.projectProperty.getHostname()) //
             .select() //
-            .apis(RequestHandlerSelectors.basePackage("dev.abelab.hack.dena.api.controller.internal")) //
+            .apis(RequestHandlerSelectors.basePackage("dev.abelab.hack.dena.api.controller")) //
             .build() //
             .apiInfo(apiInfo()) //
             .tags( //
+                new Tag("Health", "ヘルスチェック"), //
                 new Tag("Auth", "認証"), //
                 new Tag("User", "ユーザ"), //
                 new Tag("TripPlan", "旅行プラン") //
