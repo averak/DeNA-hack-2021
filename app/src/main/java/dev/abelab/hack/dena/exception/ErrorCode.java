@@ -36,9 +36,11 @@ public enum ErrorCode {
      */
     VALIDATION_ERROR(1400, "exception.bad_request.validation_error"),
 
-    INVALID_PASSWORD_SIZE(1401, "exception.bad_request.invalid_password_size"),
+    INVALID_REQUEST_PARAMETER(1401, "exception.bad_request.invalid_request_parameter"),
 
-    TOO_SIMPLE_PASSWORD(1402, "exception.bad_request.too_simple_password"),
+    INVALID_PASSWORD_SIZE(1402, "exception.bad_request.invalid_password_size"),
+
+    TOO_SIMPLE_PASSWORD(1403, "exception.bad_request.too_simple_password"),
 
     /**
      * Unauthorized: 1500~1599

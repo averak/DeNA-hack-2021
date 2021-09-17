@@ -2,9 +2,10 @@ package dev.abelab.hack.dena.api.response;
 
 import lombok.*;
 
-@Value
+@Data
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class ErrorResponse {
 
     /**

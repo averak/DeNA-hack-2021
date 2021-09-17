@@ -3,11 +3,16 @@ package dev.abelab.hack.dena.api.controller;
 import java.util.Locale;
 
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import javax.validation.ConstraintViolationException;
 import springfox.documentation.annotations.ApiIgnore;
 
 import lombok.*;
@@ -51,7 +56,7 @@ public class RestControllerExceptionHandler extends ResponseEntityExceptionHandl
     @RequestMapping("/api/**")
     public ResponseEntity<ErrorResponse> handleApiNotFoundException() {
         final var errorCode = ErrorCode.NOT_FOUND_API;
-        final var message = messageSource.getMessage(errorCode.getMessageKey(), null, Locale.ENGLISH);
+        final var message = this.messageSource.getMessage(errorCode.getMessageKey(), null, Locale.ENGLISH);
         final var errorResponse = ErrorResponse.builder().message(message).code(errorCode.getCode()).build();
 
         log.warn(message);
@@ -69,7 +74,7 @@ public class RestControllerExceptionHandler extends ResponseEntityExceptionHandl
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(final Exception exception) {
         final var errorCode = ErrorCode.UNEXPECTED_ERROR;
-        final var message = messageSource.getMessage(errorCode.getMessageKey(), null, Locale.ENGLISH);
+        final var message = this.messageSource.getMessage(errorCode.getMessageKey(), null, Locale.ENGLISH);
         final var errorResponse = ErrorResponse.builder().message(message).code(errorCode.getCode()).build();
 
         log.error(exception.getMessage(), exception);
@@ -97,6 +102,67 @@ public class RestControllerExceptionHandler extends ResponseEntityExceptionHandl
         }
 
         return new ResponseEntity<>(errorResponse, exception.getHttpStatus());
+    }
+
+    /**
+     * Handle constraint violation exception
+     *
+     * @param exception exception
+     *
+     * @return response entity
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolationException(final ConstraintViolationException exception) {
+        System.out.println("ここだよ！");
+        final var errorCode = ErrorCode.VALIDATION_ERROR;
+        final var message = this.messageSource.getMessage(errorCode.getMessageKey(), null, Locale.ENGLISH);
+        final var errorResponse = ErrorResponse.builder().message(message).code(errorCode.getCode()).build();
+
+        log.warn(String.format("%d: %s", errorCode.getCode(), message));
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle metod argument type mismatch exception
+     *
+     * @param exception exception
+     *
+     * @return response entity
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(final MethodArgumentTypeMismatchException exception) {
+        System.out.println("ここだよ！");
+        final var errorCode = ErrorCode.INVALID_REQUEST_PARAMETER;
+        final var message = this.messageSource.getMessage(errorCode.getMessageKey(), null, Locale.ENGLISH);
+        final var errorResponse = ErrorResponse.builder().message(message).code(errorCode.getCode()).build();
+
+        log.warn(String.format("%d: %s", errorCode.getCode(), message));
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    /**
+     * Handle method argument not valid exception
+     *
+     * @param exception exception
+     *
+     * @param headers   headers
+     *
+     * @param status    status
+     *
+     * @param request   request
+     *
+     * @return the response entity
+     */
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpHeaders headers,
+        HttpStatus status, WebRequest request) {
+        System.out.println("ここだよ！");
+        final var errorCode = ErrorCode.INVALID_REQUEST_PARAMETER;
+        final var message = this.messageSource.getMessage(errorCode.getMessageKey(), null, Locale.ENGLISH);
+        final var errorResponse = ErrorResponse.builder().message(message).code(errorCode.getCode()).build();
+
+        log.warn(String.format("%d: %s", errorCode.getCode(), message));
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
 }
