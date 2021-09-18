@@ -259,8 +259,6 @@ public abstract class AbstractRestController_IT {
 		.createdAt(SAMPLE_DATE) //
 		.updatedAt(SAMPLE_DATE) //
 		.build();
-		System.out.println(loginUser);
-		System.out.println(userTripPlan);
 		int res = this.tripPlanRepository.insert(userTripPlan);
 
 		return userTripPlan;
@@ -277,9 +275,6 @@ public abstract class AbstractRestController_IT {
 		.userId(loginUser.getId()) //
 		.tripPlanId(tripPlan.getId()) //
 		.build();
-		System.out.println(loginUser);
-		System.out.println(tripPlan);
-		System.out.println(userLike);
 		int res = this.userLikeRepository.insert(userLike);
 
 		return userLike;

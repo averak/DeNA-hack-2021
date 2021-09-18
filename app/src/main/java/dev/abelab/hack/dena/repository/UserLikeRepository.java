@@ -26,12 +26,11 @@ public class UserLikeRepository {
      *
      * @return ユーザ
      */
-    public UserLike selectById(final int userId) {
+    public List<UserLike> selectById(final int userId) {
         final var example = new UserLikeExample();
         example.createCriteria().andUserIdEqualTo(userId);
         System.out.println(example);
-        return this.userLikeMapper.selectByExample(example).stream().findFirst() //
-        .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_USER));
+        return this.userLikeMapper.selectByExample(example);
     }
 
     /**
@@ -42,9 +41,27 @@ public class UserLikeRepository {
      * @return ユーザID
      */
     public int insert(final UserLike userLike) {
-        // if (this.existsByEmail(userLike.getEmail())) {
-        //     throw new ConflictException(ErrorCode.CONFLICT_EMAIL);
-        // }
+        if (this.existsByUserLike(userLike)) {
+            throw new ConflictException(ErrorCode.CONFLICT_USER_LIKE_PLAN);
+        }
         return this.userLikeMapper.insertSelective(userLike);
+    }
+
+    /**
+     * userLikeの存在確認
+     *
+     * @param userLike ユーザライク
+     *
+     * @return ユーザID
+     */
+    public boolean existsByUserLike(final UserLike userLike) {
+        final var example = new UserLikeExample();
+        example.createCriteria().andUserIdEqualTo(userLike.getUserId()).andTripPlanIdEqualTo(userLike.getTripPlanId());
+        final var likes = this.userLikeMapper.selectByExample(example);
+        if (!likes.isEmpty()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

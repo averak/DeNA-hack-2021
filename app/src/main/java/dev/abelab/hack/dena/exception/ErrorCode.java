@@ -26,6 +26,8 @@ public enum ErrorCode {
      */
     CONFLICT_EMAIL(1200, "exception.conflict.email"),
 
+    CONFLICT_USER_LIKE_PLAN(1201, "exception.conflict.user.like.plan"),
+
     /**
      * Forbidden: 1300~1399
      */

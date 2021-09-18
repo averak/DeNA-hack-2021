@@ -62,6 +62,8 @@ public class UserRestController_IT extends AbstractRestController_IT {
 			final var credentials = getLoginUserCredentials(loginUser);
 			final var tripPlan = createTripPlan(loginUser);
 			final var userLike = createUserLike(loginUser, tripPlan);
+			final var tripPlan2 = createTripPlan(loginUser);
+			final var userLike2 = createUserLike(loginUser, tripPlan2);
 
 			// test
 			final var request = getRequest(GET_USER_LIKE_PATH);

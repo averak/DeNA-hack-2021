@@ -3,7 +3,7 @@ package dev.abelab.hack.dena.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.modelmapper.ModelMapper;
-
+import java.util.List;
 
 import lombok.*;
 import dev.abelab.hack.dena.db.entity.User;
@@ -69,9 +69,9 @@ public class UserService {
     @Transactional
     public UserLikesResponse getUserLikes(final User loginUser) {
         System.out.println("test");
-        System.out.println(loginUser.getId());
-        UserLike userLike = this.userLikeRepository.selectById(loginUser.getId());
-        System.out.println(userLike);
+        List<UserLike> userLikes = this.userLikeRepository.selectById(loginUser.getId());
+        // forEachメソッドでループ
+        userLikes.forEach(item -> System.out.println(item));
         return new UserLikesResponse();
     }
 
