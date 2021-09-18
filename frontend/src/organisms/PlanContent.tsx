@@ -1,10 +1,10 @@
 import { HeartIcon as OutlineHeartIcon } from "@heroicons/react/outline";
 import { HeartIcon as SolidHeartIcon } from "@heroicons/react/solid";
-import axios from "axios";
 import Link from "next/link";
-import Router from "next/router";
 import type { VFC } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
+import { usePutLikes } from "src/utils/hooks/planApi";
 
 type PlanProps = {
   planId: number;
@@ -15,35 +15,47 @@ type PlanProps = {
   price: number;
   likes: number;
   planner: string;
+  isLike: boolean;
 };
 
 export const PlanContent: VFC<PlanProps> = (props) => {
-  const [likes, setLikes] = useState(props.likes);
-  const [isMyLike, setIsMyLike] = useState<boolean>(false);
-  const postLike = () => {
-    axios
-      .put(
-        `${process.env.NEXT_PUBLIC_BASE_URI}/api/travel_plans/${props.planId}/likes`
-      )
-      .then(() => {
-        setLikes(likes + 1);
-      })
-      .catch(() => {
-        Router.push("_error");
-      });
-  };
+  const { loading, error, response, putFn } = usePutLikes();
+  const [likes, setLikes] = useState<number>(props.likes);
+  const [isMyLike, setIsMyLike] = useState<boolean>(props.isLike);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+    console.error(error);
+  }, [error]);
+
+  // いいねの数が変化して存在すれば代入
+  useEffect(() => {
+    if (!response) {
+      return;
+    }
+    setLikes(response);
+  }, [response]);
 
   const ShowMyLike = () => {
     return isMyLike ? (
-      <SolidHeartIcon className="mr-1.5 w-5" />
+      <SolidHeartIcon className="mr-1.5 w-5 text-red-500" />
     ) : (
       <OutlineHeartIcon className="mr-1.5 w-5" />
     );
   };
 
   const toggleMyLike = () => {
-    isMyLike ? setLikes(likes - 1) : setLikes(likes + 1);
-    setIsMyLike(!isMyLike);
+    if (!loading) {
+      putFn(props.planId, { isLike: props.isLike }).then(() => {
+        // console.log(res);
+      });
+      if (response) {
+        setLikes(response);
+        setIsMyLike(!isMyLike);
+      }
+    }
   };
 
   return (
