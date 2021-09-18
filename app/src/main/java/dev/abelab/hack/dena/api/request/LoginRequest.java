@@ -25,7 +25,7 @@ public class LoginRequest {
      * パスワード
      */
     @NotNull
-    @Size(max = 32)
+    @Size(max = 255)
     String password;
 
 }
