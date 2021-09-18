@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.commons.net.util.Base64;
 import org.modelmapper.ModelMapper;
 
 import lombok.*;
@@ -43,6 +44,13 @@ public class TripPlanService {
 
     private final TripPlanTaggingRepository tripPlanTaggingRepository;
 
+    /**
+     * 旅行プランを作成
+     *
+     * @param requestBody 旅行プラン作成リクエスト
+     * @param loginUser   ログインユーザ
+     */
+    @Transactional
     public void createTripPlan(final TripPlanCreateRequest requestBody, final User loginUser) {
         // 都道府県IDが存在するかチェック
         this.regionRepository.selectById(requestBody.getRegionId());
@@ -62,9 +70,12 @@ public class TripPlanService {
 
         // 添付ファイルを保存
         if (requestBody.getAttachment() != null) {
-            final var attachment = this.modelMapper.map(requestBody.getAttachment(), TripPlanAttachment.class);
-            attachment.setTripPlanId(tripPlan.getId());
-            attachment.setUuid(UUID.randomUUID().toString());
+            final var attachment = TripPlanAttachment.builder() //
+                .uuid(UUID.randomUUID().toString()) //
+                .tripPlanId(tripPlan.getId()) //
+                .fileName(requestBody.getAttachment().getFileName()) //
+                .content(Base64.decodeBase64(requestBody.getAttachment().getContent())) //
+                .build();
             this.tripPlanAttachmentRepository.insert(attachment);
         }
 

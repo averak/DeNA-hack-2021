@@ -7,7 +7,6 @@ import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachmentExample;
 import dev.abelab.hack.dena.db.mapper.TripPlanAttachmentMapper;
 import dev.abelab.hack.dena.exception.ErrorCode;
-import dev.abelab.hack.dena.exception.NotFoundException;
 import dev.abelab.hack.dena.exception.ConflictException;
 
 @RequiredArgsConstructor
@@ -56,12 +55,7 @@ public class TripPlanAttachmentRepository {
      * @return 添付ファイルが存在するか
      */
     public boolean existsByTripPlanId(final int tripPlanId) {
-        try {
-            this.selectByTripPlanId(tripPlanId);
-            return true;
-        } catch (NotFoundException e) {
-            return false;
-        }
+        return this.selectByTripPlanId(tripPlanId) != null;
     }
 
 }

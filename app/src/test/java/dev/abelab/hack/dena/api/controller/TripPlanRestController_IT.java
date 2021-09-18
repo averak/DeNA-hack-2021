@@ -6,6 +6,7 @@ import static org.junit.jupiter.params.provider.Arguments.*;
 
 import java.util.Arrays;
 import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -16,12 +17,16 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.net.util.Base64;
 import org.modelmapper.ModelMapper;
 
 import dev.abelab.hack.dena.db.entity.TripPlan;
 import dev.abelab.hack.dena.db.entity.TripPlanSample;
 import dev.abelab.hack.dena.db.entity.TripPlanItemSample;
+import dev.abelab.hack.dena.db.entity.TripPlanAttachmentSample;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
+import dev.abelab.hack.dena.model.TripPlanItemModel;
+import dev.abelab.hack.dena.model.TripPlanAttachmentSubmitModel;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.BaseException;
@@ -60,9 +65,18 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			final var credentials = getLoginUserCredentials(loginUser);
 
 			final var tripPlan = TripPlanSample.builder().build();
+			final var items = Arrays.asList( //
+				TripPlanItemSample.builder().itemOrder(1).tripPlanId(tripPlan.getId()).build(), //
+				TripPlanItemSample.builder().itemOrder(2).tripPlanId(tripPlan.getId()).build() //
+			);
+			final var attachment = TripPlanAttachmentSample.builder().build();
+			final var attachmentSubmitmodel = modelMapper.map(attachment, TripPlanAttachmentSubmitModel.class);
+			attachmentSubmitmodel.setContent(Base64.encodeBase64String(attachment.getContent()));
+
 			final var requestBody = modelMapper.map(tripPlan, TripPlanCreateRequest.class);
 			requestBody.setTags(Arrays.asList(SAMPLE_STR));
-			requestBody.setItems(Arrays.asList());
+			requestBody.setItems(items.stream().map(item -> modelMapper.map(item, TripPlanItemModel.class)).collect(Collectors.toList()));
+			requestBody.setAttachment(attachmentSubmitmodel);
 
 			// test
 			final var request = postRequest(CREATE_TRIP_PLAN_PATH, requestBody);
@@ -76,7 +90,6 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 				.containsExactlyInAnyOrder(
 					tuple(tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId(), loginUser.getId()));
 			// TODO: plan itemについてもテスト
-			execute(request, HttpStatus.CREATED);
 		}
 
 		@Test

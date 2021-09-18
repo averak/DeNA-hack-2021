@@ -17,7 +17,7 @@ public class TripPlanAttachmentSubmitModel {
      * ファイル名
      */
     @NotNull
-    String name;
+    String fileName;
 
     /**
      * ファイル内容 (Base64)
