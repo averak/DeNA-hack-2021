@@ -23,13 +23,18 @@ import org.modelmapper.ModelMapper;
 import dev.abelab.hack.dena.db.entity.TripPlan;
 import dev.abelab.hack.dena.db.entity.TripPlanSample;
 import dev.abelab.hack.dena.db.entity.TripPlanItemSample;
+import dev.abelab.hack.dena.db.entity.TripPlanItem;
+import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachmentSample;
+import dev.abelab.hack.dena.db.entity.Tag;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
 import dev.abelab.hack.dena.model.TripPlanAttachmentSubmitModel;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
+import dev.abelab.hack.dena.repository.TripPlanItemRepository;
+import dev.abelab.hack.dena.repository.TripPlanAttachmentRepository;
+import dev.abelab.hack.dena.repository.TagRepository;
 import dev.abelab.hack.dena.exception.ErrorCode;
-import dev.abelab.hack.dena.exception.BaseException;
 import dev.abelab.hack.dena.exception.NotFoundException;
 import dev.abelab.hack.dena.exception.UnauthorizedException;
 
@@ -51,6 +56,15 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 	@Autowired
 	TripPlanRepository tripPlanRepository;
 
+	@Autowired
+	TripPlanItemRepository tripPlanItemRepository;
+
+	@Autowired
+	TripPlanAttachmentRepository tripPlanAttachmentRepository;
+
+	@Autowired
+	TagRepository tagRepository;
+
 	/**
 	 * 旅行プラン作成APIのテスト
 	 */
@@ -70,13 +84,14 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 				TripPlanItemSample.builder().itemOrder(2).tripPlanId(tripPlan.getId()).build() //
 			);
 			final var attachment = TripPlanAttachmentSample.builder().build();
-			final var attachmentSubmitmodel = modelMapper.map(attachment, TripPlanAttachmentSubmitModel.class);
-			attachmentSubmitmodel.setContent(Base64.encodeBase64String(attachment.getContent()));
+			final var attachmentSubmitModel = modelMapper.map(attachment, TripPlanAttachmentSubmitModel.class);
+			attachmentSubmitModel.setContent(Base64.encodeBase64String(attachment.getContent()));
+			final var tags = Arrays.asList("タグ1", "タグ2");
 
 			final var requestBody = modelMapper.map(tripPlan, TripPlanCreateRequest.class);
-			requestBody.setTags(Arrays.asList(SAMPLE_STR));
+			requestBody.setTags(tags);
 			requestBody.setItems(items.stream().map(item -> modelMapper.map(item, TripPlanItemModel.class)).collect(Collectors.toList()));
-			requestBody.setAttachment(attachmentSubmitmodel);
+			requestBody.setAttachment(attachmentSubmitModel);
 
 			// test
 			final var request = postRequest(CREATE_TRIP_PLAN_PATH, requestBody);
@@ -84,12 +99,33 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			execute(request, HttpStatus.CREATED);
 
 			// verify
+			// 旅行プラン
 			final var createdTripPlans = tripPlanRepository.selectAll();
 			assertThat(createdTripPlans)
 				.extracting(TripPlan::getTitle, TripPlan::getDescription, TripPlan::getRegionId, TripPlan::getUserId) //
 				.containsExactlyInAnyOrder(
 					tuple(tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId(), loginUser.getId()));
-			// TODO: plan itemについてもテスト
+
+			// 旅行プラン項目
+			final var createdTripPlanItems = tripPlanItemRepository.selectByTripPlanId(tripPlan.getId());
+			assertThat(createdTripPlanItems)
+				.extracting(TripPlanItem::getTripPlanId, TripPlanItem::getItemOrder, TripPlanItem::getTitle, TripPlanItem::getDescription,
+					TripPlanItem::getPrice) //
+				.containsExactlyInAnyOrderElementsOf(items.stream()
+					.map(item -> tuple(tripPlan.getId(), item.getItemOrder(), item.getTitle(), item.getDescription(), item.getPrice()))
+					.collect(Collectors.toList()));
+
+			// タグ
+			final var createdTags = tagRepository.selectByTripPlanId(tripPlan.getId());
+			assertThat(createdTags.size()).isEqualTo(tags.size());
+
+			// 添付ファイル
+			final var createdTripPlanAttactments = tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
+			assertThat(createdTripPlanAttactments)
+				.extracting(TripPlanAttachment::getTripPlanId, TripPlanAttachment::getFileName) //
+				.containsExactlyInAnyOrder( //
+					tuple(tripPlan.getId(), attachment.getFileName()) //
+				);
 		}
 
 		@Test

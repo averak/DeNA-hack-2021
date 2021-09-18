@@ -9,4 +9,6 @@ public interface TagMapper extends TagBaseMapper {
 
     void bulkInsert(List<Tag> tags);
 
+    List<Tag> selectByTripPlanId(int tripPlanId);
+
 }

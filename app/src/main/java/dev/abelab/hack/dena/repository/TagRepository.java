@@ -98,4 +98,15 @@ public class TagRepository {
         }
     }
 
+    /**
+     * 旅行プランIDからタグリストを取得
+     *
+     * @param tripPlanId 旅行プランID
+     *
+     * @return タグリスト
+     */
+    public List<Tag> selectByTripPlanId(final int tripPlanId) {
+        return this.tagMapper.selectByTripPlanId(tripPlanId);
+    }
+
 }

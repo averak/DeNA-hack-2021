@@ -10,4 +10,14 @@
         </foreach>
     </insert>
 
+    <select id="selectByTripPlanId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT
+
+        tag.*
+
+        FROM tag
+        LEFT JOIN trip_plan_tagging AS tpt ON tpt.tag_id = tag.id
+        WHERE tpt.trip_plan_id = #{trip_plan_id}
+    </select>
+
 </mapper>
