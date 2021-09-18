@@ -26,7 +26,7 @@ public class TripPlanRepository {
     public List<TripPlan> selectAll() {
         final var example = new TripPlanExample();
         example.setOrderByClause("updated_at desc");
-        return this.tripPlanMapper.selectByExample(example);
+        return this.tripPlanMapper.selectByExampleWithBLOBs(example);
     }
 
     /**

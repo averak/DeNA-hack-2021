@@ -25,6 +25,8 @@ public enum ErrorCode {
 
     NOT_FOUND_TRIP_PLAN(1103, "exception.not_found.trip_plan"),
 
+    NOT_FOUND_TAG(1104, "exception.not_found.tag"),
+
     /**
      * Conflict: 1200~1299
      */

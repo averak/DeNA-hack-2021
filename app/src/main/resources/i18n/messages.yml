@@ -6,6 +6,7 @@ exception:
     user: "User does not exists."
     region: "Region does not exists."
     trip_plan: "Trip plan does not exists."
+    tag: "Tag does not exists."
   conflict:
     email: "Email already exists."
   forbidden:
