@@ -3,6 +3,10 @@ import { useCallback, useState } from "react";
 
 const hostname = process.env.NEXT_PUBLIC_BASE_URI;
 
+const tokenType = localStorage.getItem("tokenType");
+const accessToken = localStorage.getItem("accessToken");
+axios.defaults.headers.common["Autorization"] = `${tokenType} ${accessToken}`;
+
 export type TripPlanParam = {
   title: string;
   description: string;
