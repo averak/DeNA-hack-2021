@@ -171,6 +171,57 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 	}
 
 	/**
+	 * お気に入り取得APIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class PutUserLikesTest extends AbstractRestControllerInitialization_IT {
+
+		@Test
+		void 正_お気に入り追加() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+			final var tripPlan = createTripPlan(loginUser);
+			final var requestBody = UserLikeRequest.builder() //
+				.isLike(true) //
+				.build();
+
+
+			System.out.println(requestBody);
+			// test
+			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
+			System.out.println(response);
+
+			// verify
+			assertThat(response).isEqualTo(new UserLikesResponse(1));
+		}
+
+		@Test
+		void 正_お気に入り削除() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+			final var tripPlan = createTripPlan(loginUser);
+			final var userLike = createUserLike(loginUser,tripPlan);
+			final var requestBody = UserLikeRequest.builder() //
+				.isLike(false) //
+				.build();
+
+
+			// test
+			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
+
+			// verify
+			assertThat(response).isEqualTo(new UserLikesResponse(0));
+		}
+	}
+
+	/**
 	 * 旅行プラン作成APIのテスト
 	 */
 	@Nested
@@ -262,38 +313,6 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
 		}
 
-	}
-
-	/**
-	 * お気に入り取得APIのテスト
-	 */
-	@Nested
-	@TestInstance(PER_CLASS)
-	class PutUserLikesTest extends AbstractRestControllerInitialization_IT {
-
-		@Test
-		void 正_お気に入り取得() throws Exception {
-			// setup
-			final var loginUser = createLoginUser();
-			final var credentials = getLoginUserCredentials(loginUser);
-			final var tripPlan = createTripPlan(loginUser);
-			final var userLike = createUserLike(loginUser, tripPlan);
-			final var tripPlan2 = createTripPlan(loginUser);
-			final var userLike2 = createUserLike(loginUser, tripPlan2);
-			final var requestBody = UserLikeRequest.builder() //
-				.isLike(true) //
-				.build();
-
-			System.out.println(requestBody);
-			// test
-			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan2.getId()), requestBody);
-			request.header(HttpHeaders.AUTHORIZATION, credentials);
-			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
-			System.out.println(response);
-
-			// verify
-			assertThat(response).isEqualTo(new UserLikesResponse(1));
-		}
 	}
 
 }

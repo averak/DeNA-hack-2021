@@ -155,10 +155,7 @@ public class TripPlanService {
      */
     @Transactional
     public UserLikesResponse putUserLike(final User loginUser,final UserLikeRequest requestBody, final int tripPlanId) {
-        System.out.println("test");
-        System.out.println(requestBody);
-        System.out.println(requestBody.isLike());
-        if (requestBody.isLike()) {
+        if (requestBody.getIsLike()) {
             this.userLikeRepository.insert(new UserLike(loginUser.getId(), tripPlanId));
         } else {
             this.userLikeRepository.deleteByPrimaryKey(loginUser.getId(), tripPlanId);

@@ -18,5 +18,5 @@ public class UserLikeRequest {
      * like
      */
     @NotNull
-    boolean isLike;
+    Boolean isLike;
 }

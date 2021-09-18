@@ -99,8 +99,6 @@ public class TripPlanRestController {
         @Validated @ApiParam(name = "body", required = true, value = "いいね") //
         @RequestBody final UserLikeRequest requestBody //
     ) {
-        System.out.println(requestBody);
-        System.out.println(tripPlanId);
         return this.tripPlanService.putUserLike(loginUser, requestBody, tripPlanId);
     }
 
