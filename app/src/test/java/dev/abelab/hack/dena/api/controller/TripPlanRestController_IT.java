@@ -120,11 +120,11 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			assertThat(createdTags.size()).isEqualTo(tags.size());
 
 			// 添付ファイル
-			final var createdTripPlanAttactments = tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
-			assertThat(createdTripPlanAttactments)
-				.extracting(TripPlanAttachment::getTripPlanId, TripPlanAttachment::getFileName) //
+			final var createdTripPlanAttachments = tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
+			assertThat(createdTripPlanAttachments)
+				.extracting(TripPlanAttachment::getTripPlanId, TripPlanAttachment::getFileName, TripPlanAttachment::getContent) //
 				.containsExactlyInAnyOrder( //
-					tuple(tripPlan.getId(), attachment.getFileName()) //
+					tripPlan.getId(), attachment.getFileName(), attachment.getContent() //
 				);
 		}
 
