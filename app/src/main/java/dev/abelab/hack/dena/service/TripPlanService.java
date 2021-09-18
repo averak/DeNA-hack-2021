@@ -75,11 +75,16 @@ public class TripPlanService {
      * 旅行プラン一覧を取得
      *
      * @param loginUser ログインユーザ
+     * @param maxPrice  上限金額
+     * @param tag       タグ名
+     * @param userId    作成者ID
+     * @param regionId  都道府県ID
      *
      * @return 旅行プラン一覧
      */
     @Transactional
-    public TripPlansResponse getTripPlans(final User loginUser) {
+    public TripPlansResponse getTripPlans(final User loginUser, final Integer maxPrice, final String tag, final Integer userId,
+        final Integer regionId) {
         // 旅行プラン一覧を取得
         final var tripPlans = this.tripPlanRepository.selectAll();
         final var tripPlanResponses = tripPlans.stream() //
