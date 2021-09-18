@@ -1,4 +1,5 @@
-import { Menu } from '@headlessui/react'
+import { Menu } from "@headlessui/react"
+import { XIcon } from "@heroicons/react/solid"
 import type { VFC } from "react";
 import type { FormEvent } from "react";
 import { useState } from "react";
@@ -9,6 +10,7 @@ const SearchPage: VFC = () => {
   const [minPrice, setMinPrice] = useState<number>(0)
   const [maxPrice, setMaxPrice] = useState<number>(0)
   const [tags, setTags] = useState<string[]>([])
+  const [inputTag, setInputTag] = useState<string>("")
   
   const [isOpenPrefectureDrop, setIsOpenPrefectureDrop] = useState<boolean>(false)
 
@@ -27,52 +29,87 @@ const SearchPage: VFC = () => {
     setMaxPrice(parseInt(e.currentTarget.value))
   }
 
-  const changeTags = (e: FormEvent<HTMLInputElement>) => {
-    setTags([e.currentTarget.value])
+  const changeInputTag = (e: FormEvent<HTMLInputElement>) => {
+    setInputTag(e.currentTarget.value)
   }
 
   const clickPrefectureDropDown = () => {
     setIsOpenPrefectureDrop(!isOpenPrefectureDrop)
   }
 
-  const prefectureData: string[] = ["北海道", "沖縄"];
+  const prefectures: string[] = ["山形", "神奈川"]
+
+  const changePrefecture = (e: FormEvent<HTMLButtonElement>) => {
+    if(e.currentTarget.textContent){
+      setPrefecture(e.currentTarget.textContent)
+    }
+  }
+
+  const addTagToTags = (addtag: string) => {
+    const newTags: string[] = tags.concat()
+    newTags.push(addtag)
+    setTags(newTags)
+    setInputTag("")
+  }
+
+  const removeTagFromTags = (removeTag: string) => {
+    setTags(tags.filter((tag) => {
+      if(tag !== removeTag){
+        return tag
+      }
+    }))
+}
 
   return (
   <main>
     <div>
-      <div className="bg-blue-600 text-center pb-3 shadow-lg">
-
-        <button className="m-3 text-left bg-white rounded-lg px-2 py-1.5 w-3/4 font-bold text-sm inline-flex justify-between" onClick={clickPrefectureDropDown}>
-          {prefecture}
-          <p className="ml-2">v</p>
-        </button>
-
-        {isOpenPrefectureDrop && (
-                    <div className="origin-top-right absolute right-0 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" aria-orientation="vertical" aria-labelledby="menu-button" tabIndex={-1}>
-                      <div className="py-1" role="none">
-                        {
-                          prefectureData.map((prefecture) => {
-                            return <button className="text-gray-700 block px-4 py-2 text-sm">{prefecture}</button>
-                          })
-                        }
-                        <p className="text-gray-700 block px-4 py-2 text-sm" tabIndex={-1} >ccount settings</p>
-                        <p className="text-gray-700 block px-4 py-2 text-sm" tabIndex={-1}>Account settings</p>
-                        <p className="text-gray-700 block px-4 py-2 text-sm" tabIndex={-1}>Account settings</p>
-                      </div>
-                    </div>
-                )}
+      <div className="pb-3 text-center bg-blue-600 shadow-lg">
+        <Menu>
+          <Menu.Button className="inline-flex justify-between py-1.5 px-2 m-3 w-3/4 text-sm font-bold text-left bg-white rounded-lg" onClick={clickPrefectureDropDown}>{prefecture}</Menu.Button>
+          <Menu.Items>
+            {prefectures.map((prefecture, i) => {
+              return (
+                <Menu.Item key={i}>
+                    <button onClick={changePrefecture}>
+                      {prefecture}
+                    </button>
+                </Menu.Item>
+              )
+            })
+          }
+          </Menu.Items>
+        </Menu>
 
         <div className="flex justify-center">
-          <input className="m-3 rounded-lg px-2 py-1.5 w-1/4 font-bold text-right text-sm" type="text" placeholder="指定なし" value={minPrice} onChange={changeMinPrice}></input>
-          <p className="text-white text-xl pt-2.5">~</p>
-          <input className="m-3 rounded-lg px-2 py-1.5 w-1/4 font-bold text-right  text-sm" type="text" placeholder="指定なし" value={maxPrice} onChange={changeMaxPrice}></input>
-          <p className="text-white text-sm pt-6">円</p>
+          <input className="py-1.5 px-2 m-3 w-1/4 text-sm font-bold text-right rounded-lg" type="text" placeholder="指定なし" value={minPrice} onChange={changeMinPrice}/>
+          <p className="pt-2.5 text-xl text-white">~</p>
+          <input className="py-1.5 px-2 m-3 w-1/4 text-sm font-bold text-right rounded-lg" type="text" placeholder="指定なし" value={maxPrice} onChange={changeMaxPrice}/>
+          <p className="pt-6 text-sm text-white">円</p>
         </div>
 
-        <input className="m-3 rounded-lg px-2 py-1.5 w-3/4" type="text" placeholder="なし" value={tags} onChange={changeTags}/>
+        <div className="flex justify-center">
+          <input className="py-1.5 px-2 m-3 w-7/12 text-sm font-bold text-left bg-white rounded-lg" type="text" placeholder="タグ検索" value={inputTag} onChange={changeInputTag}/>
+          <button className="py-1 px-2 my-3 text-sm font-bold text-left bg-white rounded-lg" onClick={() => {addTagToTags(inputTag)}}>追加</button>
+        </div>
+
+        <div className="">
+          { tags.map((tag, i) => {
+            return (
+            <div key={i} className="inline-flex items-center py-1 px-3 ml-4 text-xs font-bold text-gray-700 bg-white rounded-full border">
+              <button onClick={() => {removeTagFromTags(tag)}}>
+                <XIcon className="w-4"/>
+              </button>
+              {tag}
+            </div>)
+            })
+          }
+        </div>
       </div>
 
-      <p className="font-bold text-center text-lg m-4">検索結果</p>
+      <p className="m-4 text-lg font-bold text-center">検索結果</p>
+
+      {/* write componets */}
+
     </div>
   </main>
   );
