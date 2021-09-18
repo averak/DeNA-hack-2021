@@ -163,7 +163,7 @@ public class TripPlanService {
             this.userLikeRepository.deleteByPrimaryKey(loginUser.getId(), tripPlanId);
         }
         List<UserLike> userLikes = this.userLikeRepository.selectByTripPlanId(tripPlanId);
-        // forEachメソッドでループ
+
         return new UserLikesResponse(userLikes.size());
     }
     /**
