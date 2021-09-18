@@ -39,11 +39,11 @@ public class TripPlanAttachmentRepository {
     public TripPlanAttachment selectByTripPlanId(final int tripPlanId) {
         final var example = new TripPlanAttachmentExample();
         example.createCriteria().andTripPlanIdEqualTo(tripPlanId);
-        final var taggings = this.tripPlanAttachmentMapper.selectByExampleWithBLOBs(example);
-        if (taggings.isEmpty()) {
+        final var attachments = this.tripPlanAttachmentMapper.selectByExampleWithBLOBs(example);
+        if (attachments.isEmpty()) {
             return null;
         } else {
-            return taggings.get(0);
+            return attachments.get(0);
         }
     }
 

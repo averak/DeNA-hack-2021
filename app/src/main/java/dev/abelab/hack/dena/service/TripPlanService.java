@@ -15,7 +15,12 @@ import dev.abelab.hack.dena.db.entity.TripPlanItem;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanTagging;
 import dev.abelab.hack.dena.db.entity.Tag;
+import dev.abelab.hack.dena.model.TripPlanItemModel;
+import dev.abelab.hack.dena.model.TripPlanAttachmentModel;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
+import dev.abelab.hack.dena.api.response.TripPlanResponse;
+import dev.abelab.hack.dena.api.response.TripPlansResponse;
+import dev.abelab.hack.dena.api.response.UserResponse;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
 import dev.abelab.hack.dena.repository.TripPlanItemRepository;
 import dev.abelab.hack.dena.repository.TripPlanAttachmentRepository;
@@ -23,6 +28,7 @@ import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.repository.RegionRepository;
 import dev.abelab.hack.dena.repository.TagRepository;
 import dev.abelab.hack.dena.repository.TripPlanTaggingRepository;
+import dev.abelab.hack.dena.repository.UserLikeRepository;
 
 @RequiredArgsConstructor
 @Service
@@ -43,6 +49,50 @@ public class TripPlanService {
     private final TagRepository tagRepository;
 
     private final TripPlanTaggingRepository tripPlanTaggingRepository;
+
+    private final UserLikeRepository userLikeRepository;
+
+    /**
+     * 旅行プラン一覧を取得
+     *
+     * @param loginUser ログインユーザ
+     *
+     * @return 旅行プラン一覧
+     */
+    @Transactional
+    public TripPlansResponse getTripPlans(final User loginUser) {
+        // 旅行プラン一覧を取得
+        final var tripPlans = this.tripPlanRepository.selectAll();
+        final var tripPlanResponses = tripPlans.stream().map(tripPlan -> {
+            final var response = this.modelMapper.map(tripPlan, TripPlanResponse.class);
+
+            // 作成者を取得
+            final var author = this.userRepository.selectById(tripPlan.getUserId());
+            response.setAuthor(this.modelMapper.map(author, UserResponse.class));
+
+            // いいね数を取得
+            final var userLikes = this.userLikeRepository.selectByTripPlanId(tripPlan.getId());
+            response.setLikes(userLikes.size());
+
+            // タグリストを取得
+            final var tags = this.tagRepository.selectByTripPlanId(tripPlan.getId());
+            response.setTags(tags.stream().map(Tag::getName).collect(Collectors.toList()));
+
+            // 項目リストを取得
+            final var items = this.tripPlanItemRepository.selectByTripPlanId(tripPlan.getId());
+            response.setItems(items.stream() //
+                .map(item -> this.modelMapper.map(item, TripPlanItemModel.class)) //
+                .collect(Collectors.toList()));
+
+            // 添付ファイルを取得
+            final var attachment = this.tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
+            response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
+
+            return response;
+        }).collect(Collectors.toList());
+
+        return new TripPlansResponse(tripPlanResponses);
+    }
 
     /**
      * 旅行プランを作成

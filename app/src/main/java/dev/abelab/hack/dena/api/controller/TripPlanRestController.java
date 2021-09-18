@@ -10,6 +10,7 @@ import lombok.*;
 import dev.abelab.hack.dena.annotation.Authenticated;
 import dev.abelab.hack.dena.db.entity.User;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
+import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.service.TripPlanService;
 
 @Api(tags = "TripPlan")
@@ -21,6 +22,29 @@ import dev.abelab.hack.dena.service.TripPlanService;
 public class TripPlanRestController {
 
     private final TripPlanService tripPlanService;
+
+    /**
+     * 旅行プランの一覧取得API
+     *
+     * @param loginUser ログインユーザ
+     */
+    @ApiOperation( //
+        value = "旅行プランの一覧取得", //
+        notes = "旅行プランを一覧取得する" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 200, message = "取得成功", response = TripPlansResponse.class), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+        } //
+    )
+    @GetMapping
+    @ResponseStatus(HttpStatus.OK)
+    public TripPlansResponse getTripPlans( //
+        @ModelAttribute("LoginUser") final User loginUser //
+    ) {
+        return this.tripPlanService.getTripPlans(loginUser);
+    }
 
     /**
      * 旅行プランの作成API
@@ -41,7 +65,7 @@ public class TripPlanRestController {
     )
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public void updateLoginUserPassword( //
+    public void createTripPlan( //
         @ModelAttribute("LoginUser") final User loginUser, //
         @Validated @ApiParam(name = "body", required = true, value = "旅行プラン作成情報") @RequestBody final TripPlanCreateRequest requestBody //
     ) {
