@@ -4,7 +4,7 @@ import java.util.List;
 
 import lombok.*;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
-import dev.abelab.hack.dena.model.TripPlanAttachmentSubmitModel;
+import dev.abelab.hack.dena.model.TripPlanAttachmentModel;
 
 /**
  * 旅行プランレスポンス
@@ -54,5 +54,10 @@ public class TripPlanResponse {
      * 項目リスト
      */
     List<TripPlanItemModel> items;
+
+    /**
+     * 添付ファイル
+     */
+    TripPlanAttachmentModel attachment;
 
 }

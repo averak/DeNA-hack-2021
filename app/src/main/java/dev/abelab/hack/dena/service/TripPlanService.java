@@ -16,6 +16,7 @@ import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanTagging;
 import dev.abelab.hack.dena.db.entity.Tag;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
+import dev.abelab.hack.dena.model.TripPlanAttachmentModel;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.api.response.TripPlanResponse;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
@@ -83,7 +84,9 @@ public class TripPlanService {
                 .map(item -> this.modelMapper.map(item, TripPlanItemModel.class)) //
                 .collect(Collectors.toList()));
 
-            // TODO: 添付ファイルを取得
+            // 添付ファイルを取得
+            final var attachment = this.tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
+            response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
 
             return response;
         }).collect(Collectors.toList());

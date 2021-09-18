@@ -29,6 +29,7 @@ import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.api.response.TripPlanResponse;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
+import dev.abelab.hack.dena.model.TripPlanAttachmentModel;
 import dev.abelab.hack.dena.model.TripPlanAttachmentSubmitModel;
 import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
@@ -151,7 +152,10 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			// いいね数
 			assertThat(response.getTripPlans().get(0).getLikes()).isEqualTo(userLikes.size());
 
-			// TODO: 添付ファイル
+			// 添付ファイル
+			assertThat(response.getTripPlans().get(0).getAttachment())
+				.extracting(TripPlanAttachmentModel::getFileName, TripPlanAttachmentModel::getUuid) //
+				.containsExactlyInAnyOrder(attachment.getFileName(), attachment.getUuid());
 		}
 
 		@Test
