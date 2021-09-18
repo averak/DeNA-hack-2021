@@ -53,8 +53,9 @@ public class TripPlanTaggingRepository {
      */
     public boolean exists(final TripPlanTagging tripPlanTagging) {
         final var example = new TripPlanTaggingExample();
-        example.createCriteria().andTripPlanIdEqualTo(tripPlanTagging.getTripPlanId());
-        example.createCriteria().andTagIdEqualTo(tripPlanTagging.getTagId());
+        example.createCriteria() //
+            .andTripPlanIdEqualTo(tripPlanTagging.getTripPlanId()) //
+            .andTagIdEqualTo(tripPlanTagging.getTagId());
 
         return !this.tripPlanTaggingMapper.selectByExample(example).isEmpty();
     }

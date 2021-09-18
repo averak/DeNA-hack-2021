@@ -98,4 +98,27 @@ public class TripPlanRestController {
         this.tripPlanService.deleteTripPlan(tripPlanId, loginUser);
     }
 
+    /**
+     * いいねした旅行プランの一覧取得API
+     *
+     * @param loginUser ログインユーザ
+     */
+    @ApiOperation( //
+        value = "いいねした旅行プランの一覧取得", //
+        notes = "いいねした旅行プランを一覧取得する" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 200, message = "取得成功", response = TripPlansResponse.class), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+        } //
+    )
+    @GetMapping("/likes/me")
+    @ResponseStatus(HttpStatus.OK)
+    public TripPlansResponse getLikedTripPlans( //
+        @ModelAttribute("LoginUser") final User loginUser //
+    ) {
+        return this.tripPlanService.getLikedTripPlans(loginUser);
+    }
+
 }
