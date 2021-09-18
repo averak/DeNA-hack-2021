@@ -21,6 +21,10 @@ public enum ErrorCode {
 
     NOT_FOUND_USER(1101, "exception.not_found.user"),
 
+    NOT_FOUND_REGION(1102, "exception.not_found.region"),
+
+    NOT_FOUND_TRIP_PLAN(1103, "exception.not_found.trip_plan"),
+
     /**
      * Conflict: 1200~1299
      */
