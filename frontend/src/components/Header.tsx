@@ -12,29 +12,36 @@ type HeaderProps = {
 export const Header: VFC<HeaderProps> = (props) => {
   return (
     <header className="fixed z-50 w-screen">
-      <div className="flex justify-between w-screen bg-blue-200">
-        <Link href="/">
-          <a className="block align-middle">Logo</a>
-        </Link>
-        <h1 className="block">{props.title}</h1>
+      <div className="flex relative justify-between p-2 w-screen h-12 text-white align-middle bg-gradient-to-r from-blue-c2 to-blue-c1">
+        <div className="flex">
+          <Link href="/">
+            <a className="block align-middle">
+              <img src="/white_logo_title.png" alt="logo" className="h-8"></img>
+            </a>
+          </Link>
+        </div>
+        <p className="absolute top-1/2 left-1/2 text-xl font-bold transform -translate-x-1/2 -translate-y-1/2">
+          {props.title}
+        </p>
         <Link href="/user/mypage">
-          <a className="block">
-            <UserIcon className="w-10 h-10" />
+          <a className="">
+            <UserIcon className="w-8 h-8" />
           </a>
         </Link>
       </div>
-      <div className="flex justify-start w-screen bg-white">
+
+      <div className="flex justify-start p-2 w-screen h-10 text-gray-700 bg-gray-100">
         <Link href="/">
-          <a className="m-0">
-            <HomeIcon className="w-5 h-5" />
+          <a>
+            <HomeIcon className="w-6 h-6" />
           </a>
         </Link>
         {props.pathList.map((path, i) => {
           return (
             <div key={i} className="flex justify-start">
-              <ChevronRightIcon className="w-5 h-5" />
+              <ChevronRightIcon className="mx-1 mt-1 w-5 h-5" />
               <Link href={path.pathLink}>
-                <a>{path.pathTitle}</a>
+                <a className="">{path.pathTitle}</a>
               </Link>
             </div>
           );

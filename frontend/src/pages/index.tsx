@@ -5,6 +5,8 @@ import type { FormEvent } from "react";
 import { useCallback, useState } from "react";
 import AREA from "src/utils/static/area.json";
 
+import { PlanContent } from "../organisms/PlanContent";
+
 // type Area = {
 //   [key: string]: string;
 // };
@@ -188,6 +190,19 @@ const HomePage: VFC = () => {
       </div>
       <div className="mx-auto w-11/12">
         <p className="py-4 font-bold">新着トリップ</p>
+      </div>
+
+      <div className="m-3">
+        <PlanContent
+          planId={12}
+          imgSrc="https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D"
+          title="〇〇プラン！"
+          description="清水寺と食い倒れたい！そんなあなたにオススメ！貴方が求める旅行がきっとできるはず！"
+          tags={["清水寺", "男子会", "楽しい"]}
+          price={10000}
+          likes={100}
+          planner="まっさん"
+        />
       </div>
     </div>
   );
