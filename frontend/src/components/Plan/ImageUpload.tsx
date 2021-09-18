@@ -17,7 +17,6 @@ export const ImageUpload: VFC<UploadProps> = ({
 }: UploadProps) => {
   const [isFileTypeError, setIsFileTypeError] = useState(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  console.log(imageUrl);
 
   const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null || event.target.files.length === 0) {
@@ -36,7 +35,6 @@ export const ImageUpload: VFC<UploadProps> = ({
     ) {
       setIsFileTypeError(true);
     }
-    console.log(file);
     setImage(file);
   };
 
@@ -47,7 +45,6 @@ export const ImageUpload: VFC<UploadProps> = ({
   };
 
   useEffect(() => {
-    console.log(image);
     if (!image) return;
     setImageUrl(URL.createObjectURL(image));
   }, [image]);
@@ -67,7 +64,7 @@ export const ImageUpload: VFC<UploadProps> = ({
 
       <div>
         <label htmlFor={name}>
-          写真を選択
+          写真を選択(1枚のみ選択可能です)
           <input
             type="file"
             name={name}
@@ -76,6 +73,7 @@ export const ImageUpload: VFC<UploadProps> = ({
             accept="image/*"
             onChange={handleFile}
             multiple
+            className="pt-3"
           />
         </label>
       </div>

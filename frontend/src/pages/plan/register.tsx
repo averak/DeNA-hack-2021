@@ -37,7 +37,7 @@ type RegisterForm = {
 };
 
 const inputStyle =
-  "font-normal rounded border border-solid border-gray-300 w-full";
+  "font-normal rounded border border-solid border-gray-300 w-full bg-blue-c3 text-gray-800 pl-2 text-base";
 
 const AREA_ARR = Object.values(AREA)
   .map((v) => {
@@ -52,6 +52,7 @@ const suggestion = [
   { id: 4, name: "昨日の朝" },
   { id: 5, name: "あいうえお" },
   { id: 6, name: "明日の朝" },
+  { id: 7, name: "明日の夜" },
 ];
 
 const pathList: PathData[] = [
@@ -66,7 +67,7 @@ const PlanRegisterPage: VFC = () => {
     formState: { errors },
   } = useForm<RegisterForm>();
 
-  const { response, postFn } = usePostPlan();
+  const { postFn } = usePostPlan();
 
   const [prefecture, setPrefecture] = useState<Prefecture>(AREA_ARR[0]);
   const [tags, setTags] = useState<Tag[] | []>([]);
@@ -79,15 +80,17 @@ const PlanRegisterPage: VFC = () => {
       root: styles.tagInput,
       rootFocused: "",
       selected: "",
-      selectedTag: "",
-      selectedTagName: "",
+      selectedTag:
+        "w-20 h-8 mr-1 rounded-lg bg-white border border-solid border-gray-300",
+      selectedTagName:
+        "bg-gradient-to-r font-bold from-blue-c2 to-blue-c1 text-transparent bg-clip-text",
       search: "",
       searchWrapper:
-        "font-normal rounded border border-solid border-gray-300 w-full h-9",
-      searchInput: "",
-      suggestions: "",
+        "font-normal rounded border border-solid border-gray-300 w-full h-9 mt-2",
+      searchInput: "pl-2",
+      suggestions: "text-sm border-b border-solid border-gray-300",
       suggestionActive: "",
-      suggestionDisabled: "",
+      suggestionDisabled: "w-4 h-4",
     };
   }, []);
   const handleDelete = (i: number) => {
@@ -118,9 +121,9 @@ const PlanRegisterPage: VFC = () => {
 
     const params = {
       ...data,
+      regionId: Number(data.regionId),
       attachment,
       tags: strTags,
-      regionId: 2,
     };
 
     postFn(params);
@@ -130,77 +133,127 @@ const PlanRegisterPage: VFC = () => {
     setTags([...tags, formatTag]);
   };
 
-  console.log(response);
   return (
     <Layout title="プラン登録" pathList={pathList}>
-      <div className="py-4 mx-auto w-full max-w-[330px] text-sm font-bold">
-        <div>
-          <ImageUpload
-            name="サムネイル画像"
-            image={thumbnail}
-            setImage={setThumbnail}
-          />
-        </div>
-        <div className="py-5">
-          <p className="pt-6 pb-2">タイトル</p>
-          <input {...register("title")} className={`h-9 ${inputStyle}`} />
-
-          <p className="pt-6 pb-2">都道府県</p>
-          <Listbox value={prefecture} onChange={setPrefecture}>
-            <Listbox.Button className={`relative h-9 text-left ${inputStyle}`}>
-              <span className="block leading-9 truncate">
-                {prefecture.name}
-              </span>
-              <span className="flex absolute inset-y-0 right-0 items-center pr-2 pointer-events-none">
-                <SelectorIcon
-                  className="w-5 h-5 text-gray-400"
-                  aria-hidden="true"
-                />
-              </span>
-            </Listbox.Button>
-            <Listbox.Options className="grid overflow-y-scroll grid-cols-3 w-full h-28">
-              {AREA_ARR.map((area) => {
-                return (
-                  <Listbox.Option
-                    {...register("regionId")}
-                    key={area.id}
-                    value={area.id}
-                    className="col-span-1 h-7 font-normal text-center border-[0.1px] border-gray-300 border-solid"
-                  >
-                    {area.name}
-                  </Listbox.Option>
-                );
-              })}
-            </Listbox.Options>
-          </Listbox>
-
-          <p className="pt-7 pb-2">タグ設定</p>
-          <div className="w-full">
-            <ReactTags
-              ref={reactTagsRef}
-              tags={tags}
-              suggestions={suggestion}
-              onDelete={handleDelete}
-              onAddition={handleAddition}
-              classNames={reactTagsClassNames}
+      <div className="py-12">
+        <div className="pt-4 pb-10 mx-auto w-full max-w-[330px] text-sm font-bold">
+          <div>
+            <ImageUpload
+              name="サムネイル画像"
+              image={thumbnail}
+              setImage={setThumbnail}
             />
           </div>
-          <p className="pt-4 text-xs">
-            当てはまるタグがない..? タグ作成にご協力ください
-          </p>
-          <WatchedInput onClick={handleMakeTag} />
+          <div className="py-5">
+            <p className="pt-6 pb-2">タイトル</p>
+            <input
+              {...register("title", {
+                required: true,
+                minLength: 4,
+                maxLength: 100,
+              })}
+              className={`h-9 ${inputStyle}`}
+            />
+            {errors.title?.type == "required" && (
+              <div className="py-1 text-xs text-red-500">
+                タイトルは必須です
+              </div>
+            )}
+            {errors.title?.type == "minLength" && (
+              <div className="py-1 text-xs text-red-500">
+                4文字以上で入力してください
+              </div>
+            )}
+            {errors.title?.type == "maxLength" && (
+              <div className="py-1 text-xs text-red-500">
+                100字以内で入力してくださ
+              </div>
+            )}
 
-          <p className="pt-8 pb-2">説明文</p>
-          <textarea
-            {...register("description")}
-            className={`min-h-[120px] ${inputStyle}`}
-          />
+            <p className="pt-6 pb-2">都道府県</p>
+            <Listbox value={prefecture} onChange={setPrefecture}>
+              <Listbox.Button
+                className={`relative h-9 text-left ${inputStyle}`}
+              >
+                <span className="block leading-9 truncate">
+                  {prefecture.name}
+                </span>
+                <span className="flex absolute inset-y-0 right-0 items-center pr-2 pointer-events-none">
+                  <SelectorIcon
+                    className="w-5 h-5 text-gray-400"
+                    aria-hidden="true"
+                  />
+                </span>
+              </Listbox.Button>
+              <Listbox.Options className="grid overflow-y-scroll grid-cols-3 w-full h-28">
+                {AREA_ARR.map((area) => {
+                  return (
+                    <Listbox.Option
+                      {...register("regionId", { required: true })}
+                      key={area.id}
+                      value={area}
+                      className="col-span-1 h-7 font-normal text-center border-[0.1px] border-gray-300 border-solid"
+                    >
+                      {area.name}
+                    </Listbox.Option>
+                  );
+                })}
+              </Listbox.Options>
+            </Listbox>
+
+            <p className="pt-10 pb-2">
+              タグ設定
+              <span className="pl-1 text-xs font-normal">
+                (タグをもう一度タップすると取り消されます)
+              </span>
+            </p>
+            <div className="w-full">
+              <ReactTags
+                ref={reactTagsRef}
+                tags={tags}
+                suggestions={suggestion}
+                onDelete={handleDelete}
+                onAddition={handleAddition}
+                classNames={reactTagsClassNames}
+              />
+            </div>
+            <p className="pt-4 text-xs">
+              当てはまるタグがない..? タグ作成にご協力ください
+            </p>
+            <WatchedInput onClick={handleMakeTag} />
+
+            <p className="pt-10 pb-2">説明文</p>
+            <textarea
+              {...register("description", {
+                required: true,
+                minLength: 30,
+                maxLength: 1000,
+              })}
+              className={`min-h-[120px] ${inputStyle}`}
+            />
+            {errors.description?.type == "required" && (
+              <div className="py-1 text-xs text-red-500">説明文は必須です</div>
+            )}
+            {errors.description?.type == "minLength" && (
+              <div className="py-1 text-xs text-red-500">
+                30字以上で入力してください
+              </div>
+            )}
+            {errors.description?.type == "maxLength" && (
+              <div className="py-1 text-xs text-red-500">
+                1000字以内で入力してください
+              </div>
+            )}
+          </div>
+          <StepForm register={register} errors={errors.items} />
         </div>
-        <StepForm register={register} errors={errors} />
+        <button
+          className="block mx-auto w-[280px] h-14 text-lg font-bold text-gray-800 bg-gradient-to-br from-[#e8c246] to-[#e3e846] rounded-lg"
+          onClick={handleSubmit(onSubmit)}
+        >
+          プランを公開する
+        </button>
       </div>
-      <button className="w-full h-12 bg-white" onClick={handleSubmit(onSubmit)}>
-        登録
-      </button>
     </Layout>
   );
 };
