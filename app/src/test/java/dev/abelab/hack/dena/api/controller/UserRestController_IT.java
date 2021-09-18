@@ -1,6 +1,7 @@
 package dev.abelab.hack.dena.api.controller;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
 import static org.junit.jupiter.params.provider.Arguments.*;
 
@@ -27,6 +28,7 @@ import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.BaseException;
 import dev.abelab.hack.dena.exception.BadRequestException;
+import dev.abelab.hack.dena.exception.NotFoundException;
 import dev.abelab.hack.dena.exception.UnauthorizedException;
 
 /**
@@ -38,6 +40,7 @@ public class UserRestController_IT extends AbstractRestController_IT {
 	static final String BASE_PATH = "/api/users";
 	static final String GET_LOGIN_USER_PATH = BASE_PATH + "/me";
 	static final String UPDATE_LOGIN_USER_PATH = BASE_PATH + "/me";
+	static final String DELETE_LOGIN_USER_PATH = BASE_PATH + "/me";
 	static final String UPDATE_LOGIN_USER_PASSWORD_PATH = BASE_PATH + "/me/password";
 
 	@Autowired
@@ -125,6 +128,39 @@ public class UserRestController_IT extends AbstractRestController_IT {
 
 			// test
 			final var request = putRequest(UPDATE_LOGIN_USER_PATH, requestBody);
+			request.header(HttpHeaders.AUTHORIZATION, "");
+			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
+		}
+
+	}
+
+	/**
+	 * ログインユーザ削除APIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class DeleteLoginUserTest extends AbstractRestControllerInitialization_IT {
+
+		@Test
+		void 正_ログインユーザを削除() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			// test
+			final var request = deleteRequest(DELETE_LOGIN_USER_PATH);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			execute(request, HttpStatus.OK);
+
+			// verify
+			final var occurredException = assertThrows(NotFoundException.class, () -> userRepository.selectById(loginUser.getId()));
+			assertThat(occurredException.getErrorCode()).isEqualTo(ErrorCode.NOT_FOUND_USER);
+		}
+
+		@Test
+		void 異_無効な認証ヘッダ() throws Exception {
+			// test
+			final var request = deleteRequest(DELETE_LOGIN_USER_PATH);
 			request.header(HttpHeaders.AUTHORIZATION, "");
 			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
 		}
