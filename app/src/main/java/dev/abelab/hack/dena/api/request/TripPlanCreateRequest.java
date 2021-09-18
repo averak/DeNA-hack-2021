@@ -4,7 +4,6 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.validation.constraints.Min;
 
 import lombok.*;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
@@ -42,7 +41,6 @@ public class TripPlanCreateRequest {
     /**
      * 添付ファイル
      * */
-    @NotNull
     TripPlanAttachmentSubmitModel attachment;
 
     /**
