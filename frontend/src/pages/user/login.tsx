@@ -7,7 +7,7 @@ import type { LoginParam } from "../../utils/hooks/userApi";
 import { useLogin as UseLogin } from "../../utils/hooks/userApi";
 
 const LoginPage: VFC = () => {
-  const { getFn, response, error } = UseLogin();
+  const { postFn, response, error } = UseLogin();
 
   const router = useRouter();
 
@@ -29,7 +29,7 @@ const LoginPage: VFC = () => {
       email: mail,
       password: password,
     };
-    getFn(param);
+    postFn(param);
     return;
   };
   return (

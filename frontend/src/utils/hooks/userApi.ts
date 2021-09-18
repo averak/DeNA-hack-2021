@@ -47,7 +47,7 @@ export const useSignUp = () => {
   const [response, setResponse] = useState<UserResponse | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(
+  const postFn = useCallback(
     async (params: SignUpParam) => {
       setLoading(true);
       await axios
@@ -70,7 +70,7 @@ export const useSignUp = () => {
     },
     [url]
   );
-  return { loading, error, response, getFn };
+  return { loading, error, response, postFn };
 };
 
 // ログイン
@@ -80,7 +80,7 @@ export const useLogin = () => {
   const [response, setResponse] = useState<UserResponse | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(
+  const postFn = useCallback(
     async (params: LoginParam) => {
       setLoading(true);
       await axios
@@ -103,7 +103,7 @@ export const useLogin = () => {
     },
     [url]
   );
-  return { loading, error, response, getFn };
+  return { loading, error, response, postFn };
 };
 
 // ユーザ情報の取得
@@ -141,7 +141,7 @@ export const usePutUserProfile = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(
+  const putFn = useCallback(
     async (params: UserParam) => {
       setLoading(true);
       await axios
@@ -162,7 +162,7 @@ export const usePutUserProfile = () => {
     },
     [url]
   );
-  return { loading, error, response, getFn };
+  return { loading, error, response, putFn };
 };
 
 // ユーザ削除
@@ -172,7 +172,7 @@ export const useDeleteUser = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
+  const deleteFn = useCallback(async () => {
     setLoading(true);
     await axios
       .delete(url, {
@@ -190,7 +190,7 @@ export const useDeleteUser = () => {
         setLoading(false);
       });
   }, [url]);
-  return { loading, error, response, getFn };
+  return { loading, error, response, deleteFn };
 };
 
 // パスワードの更新
@@ -200,7 +200,7 @@ export const usePutPassword = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(
+  const putFn = useCallback(
     async (params: PasswordParam) => {
       setLoading(true);
       await axios
@@ -223,5 +223,5 @@ export const usePutPassword = () => {
     },
     [url]
   );
-  return { loading, error, response, getFn };
+  return { loading, error, response, putFn };
 };

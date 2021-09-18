@@ -7,7 +7,7 @@ import type { SignUpParam } from "../../utils/hooks/userApi";
 import { useSignUp as UseSignUp } from "../../utils/hooks/userApi";
 
 const UserRegisterPage: VFC = () => {
-  const { getFn, response, error } = UseSignUp();
+  const { postFn, response, error } = UseSignUp();
 
   const router = useRouter();
 
@@ -37,7 +37,7 @@ const UserRegisterPage: VFC = () => {
       password: password,
     };
 
-    getFn(param);
+    postFn(param);
     return;
   };
   return (
