@@ -184,8 +184,8 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 
 			final var tripPlan = TripPlanSample.builder().build();
 			final var items = Arrays.asList( //
-				TripPlanItemSample.builder().itemOrder(1).tripPlanId(tripPlan.getId()).build(), //
-				TripPlanItemSample.builder().itemOrder(2).tripPlanId(tripPlan.getId()).build() //
+				TripPlanItemSample.builder().itemOrder(1).build(), //
+				TripPlanItemSample.builder().itemOrder(2).build() //
 			);
 			final var attachment = TripPlanAttachmentSample.builder().build();
 			final var attachmentSubmitModel = modelMapper.map(attachment, TripPlanAttachmentSubmitModel.class);
@@ -211,24 +211,24 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 					tuple(tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId(), loginUser.getId()));
 
 			// 旅行プラン項目
-			final var createdTripPlanItems = tripPlanItemRepository.selectByTripPlanId(tripPlan.getId());
+			final var createdTripPlanItems = tripPlanItemRepository.selectByTripPlanId(createdTripPlans.get(0).getId());
 			assertThat(createdTripPlanItems)
 				.extracting(TripPlanItem::getTripPlanId, TripPlanItem::getItemOrder, TripPlanItem::getTitle, TripPlanItem::getDescription,
 					TripPlanItem::getPrice) //
 				.containsExactlyInAnyOrderElementsOf(items.stream()
-					.map(item -> tuple(tripPlan.getId(), item.getItemOrder(), item.getTitle(), item.getDescription(), item.getPrice()))
+					.map(item -> tuple(createdTripPlans.get(0).getId(), item.getItemOrder(), item.getTitle(), item.getDescription(), item.getPrice()))
 					.collect(Collectors.toList()));
 
 			// タグ
-			final var createdTags = tagRepository.selectByTripPlanId(tripPlan.getId());
+			final var createdTags = tagRepository.selectByTripPlanId(createdTripPlans.get(0).getId());
 			assertThat(createdTags.size()).isEqualTo(tags.size());
 
 			// 添付ファイル
-			final var createdTripPlanAttachments = tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
+			final var createdTripPlanAttachments = tripPlanAttachmentRepository.selectByTripPlanId(createdTripPlans.get(0).getId());
 			assertThat(createdTripPlanAttachments)
 				.extracting(TripPlanAttachment::getTripPlanId, TripPlanAttachment::getFileName, TripPlanAttachment::getContent) //
 				.containsExactlyInAnyOrder( //
-					tripPlan.getId(), attachment.getFileName(), attachment.getContent() //
+					createdTripPlans.get(0).getId(), attachment.getFileName(), attachment.getContent() //
 				);
 		}
 
