@@ -18,9 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.modelmapper.ModelMapper;
 
-import dev.abelab.hack.dena.repository.UserRepository;
+import dev.abelab.hack.dena.db.entity.User;
+import dev.abelab.hack.dena.db.entity.UserSample;
+import dev.abelab.hack.dena.api.request.LoginUserUpdateRequest;
 import dev.abelab.hack.dena.api.request.LoginUserPasswordUpdateRequest;
 import dev.abelab.hack.dena.api.response.UserResponse;
+import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.BaseException;
 import dev.abelab.hack.dena.exception.BadRequestException;
@@ -75,6 +78,53 @@ public class UserRestController_IT extends AbstractRestController_IT {
 		void 異_無効な認証ヘッダ() throws Exception {
 			// test
 			final var request = getRequest(GET_LOGIN_USER_PATH);
+			request.header(HttpHeaders.AUTHORIZATION, "");
+			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
+		}
+
+	}
+
+	/**
+	 * ログインユーザ更新APIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class UpdateLoginUserTest extends AbstractRestControllerInitialization_IT {
+
+		@Test
+		void 正_ログインユーザを更新() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var user = UserSample.builder().password(LOGIN_USER_PASSWORD).build();
+			userRepository.insert(user);
+
+			user.setEmail(user.getEmail() + "xxx");
+			user.setFirstName(user.getFirstName() + "xxx");
+			user.setLastName(user.getLastName() + "xxx");
+			final var requestBody = modelMapper.map(user, LoginUserUpdateRequest.class);
+
+			// test
+			final var request = putRequest(UPDATE_LOGIN_USER_PATH, requestBody);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			execute(request, HttpStatus.OK);
+
+			// verify
+			final var updatedUser = userRepository.selectByEmail(requestBody.getEmail());
+			assertThat(updatedUser) //
+				.extracting(User::getEmail, User::getFirstName, User::getLastName) //
+				.containsExactly(user.getEmail(), user.getFirstName(), user.getLastName());
+		}
+
+		@Test
+		void 異_無効な認証ヘッダ() throws Exception {
+			// setup
+			final var user = UserSample.builder().password(LOGIN_USER_PASSWORD).build();
+			final var requestBody = modelMapper.map(user, LoginUserUpdateRequest.class);
+
+			// test
+			final var request = putRequest(UPDATE_LOGIN_USER_PATH, requestBody);
 			request.header(HttpHeaders.AUTHORIZATION, "");
 			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
 		}
