@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dev.abelab.hack.dena.db.mapper.TripPlanItemMapper">
+    <resultMap id="BaseResultMap" type="dev.abelab.hack.dena.db.entity.TripPlanItem" extends="dev.abelab.hack.dena.db.mapper.base.TripPlanItemBaseMapper.ResultMapWithBLOBs"></resultMap>
+
+    <insert id="bulkInsert" parameterType="java.util.List" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO trip_plan_item(trip_plan_id, item_order, title, description, price, start_at, finish_at) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.tripPlanId}, #{item.itemOrder}, #{item.title}, #{item.description}, #{item.price}, #{item.startAt}, #{item.finishAt})
+        </foreach>
+    </insert>
+
+</mapper>

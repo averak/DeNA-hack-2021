@@ -32,6 +32,10 @@ public enum ErrorCode {
      */
     CONFLICT_EMAIL(1200, "exception.conflict.email"),
 
+    CONFLICT_TAG_NAME(1201, "exception.conflict.tag_name"),
+
+    CONFLICT_TRIP_PLAN_TAGGING(1202, "exception.conflict.trip_plan_tagging"),
+
     /**
      * Forbidden: 1300~1399
      */

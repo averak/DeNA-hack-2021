@@ -76,6 +76,7 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 				.containsExactlyInAnyOrder(
 					tuple(tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId(), loginUser.getId()));
 			// TODO: plan itemについてもテスト
+			execute(request, HttpStatus.CREATED);
 		}
 
 		@Test
