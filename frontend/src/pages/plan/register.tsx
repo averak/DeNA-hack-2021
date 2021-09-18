@@ -1,11 +1,13 @@
 import { Listbox } from "@headlessui/react";
-import { PlusIcon, SelectorIcon, XIcon } from "@heroicons/react/solid";
+import { SelectorIcon } from "@heroicons/react/solid";
 import type { VFC } from "react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
 import type { Tag } from "react-tag-autocomplete";
 import ReactTags from "react-tag-autocomplete";
 import type { PathData } from "src/components/Layout";
 import { Layout } from "src/components/Layout";
+import { StepFormWrapper } from "src/components/Plan/StepFormWrapper";
 import styles from "src/styles/register.module.css";
 import AREA from "src/utils/static/area.json";
 
@@ -27,55 +29,27 @@ const suggestion = [
   { id: 6, name: "明日の朝" },
 ];
 
-type StepInputFormProps = {
-  onClick: () => void;
-};
-
-const StepInputForm: VFC<StepInputFormProps> = ({ onClick }) => {
-  return (
-    <div className="relative py-6">
-      <button onClick={onClick} className="absolute top-0 right-0 w-4 h-4">
-        {" "}
-        <XIcon />
-      </button>
-      <p className="pb-2 text-left">目的地名</p>
-      <input className={`h-9 ${inputStyle}`} />
-
-      <p className="pt-6 text-left">説明文</p>
-      <textarea className={`min-h-[90px] ${inputStyle}`} />
-
-      <p className="pt-6 text-left">想定金額</p>
-      <div className="flex gap-3 justify-start items-end h-9">
-        <input className={`h-9 ${inputStyle}`} />
-        <p>円</p>
-      </div>
-    </div>
-  );
-};
-
 type Prefecture = {
   id: string;
   name: string;
 };
 
+const pathList: PathData[] = [
+  { pathTitle: "マイページ", pathLink: "/user/mypage" },
+  { pathTitle: "プラン登録", pathLink: "/plan/register" },
+];
+
 const PlanRegisterPage: VFC = () => {
-  const pathList: PathData[] = [
-    { pathTitle: "マイページ", pathLink: "/user/mypage" },
-    { pathTitle: "プラン登録", pathLink: "/plan/register" },
-  ];
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const [prefecture, setPrefecture] = useState<Prefecture>(AREA_ARR[0]);
   const [tags, setTags] = useState<Tag[] | []>([]);
-  const [items, setItems] = useState<number>(0);
+
   const reactTagsRef = useRef(null);
-
-  const addItems = useCallback(() => {
-    setItems(items + 1);
-  }, [items]);
-
-  const deleteItem = useCallback(() => {
-    setItems(items - 1);
-  }, [items]);
 
   const reactTagsClassNames = useMemo(() => {
     return {
@@ -161,18 +135,6 @@ const PlanRegisterPage: VFC = () => {
           <p className="pt-8 pb-2">説明文</p>
           <textarea className={`min-h-[120px] ${inputStyle}`} />
         </div>
-        <div>
-          {[...Array(items + 1).keys()].map((i) => {
-            return <StepInputForm key={i} onClick={deleteItem} />;
-          })}
-        </div>
-        <button
-          className="flex gap-3 justify-center items-center w-full h-10 text-base text-gray-600 rounded border border-gray-400 border-dashed"
-          onClick={addItems}
-        >
-          目的地を追加
-          <PlusIcon className="w-5 h-5" />
-        </button>
       </div>
     </Layout>
   );
