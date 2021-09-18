@@ -46,11 +46,6 @@ public class TripPlanResponse {
     Integer likes;
 
     /**
-     * 添付ファイル
-     * */
-    TripPlanAttachmentSubmitModel attachment;
-
-    /**
      * タグリスト
      */
     List<String> tags;

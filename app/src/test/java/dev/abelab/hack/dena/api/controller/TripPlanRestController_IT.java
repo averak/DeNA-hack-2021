@@ -27,13 +27,19 @@ import dev.abelab.hack.dena.db.entity.TripPlanItem;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachmentSample;
 import dev.abelab.hack.dena.db.entity.Tag;
+import dev.abelab.hack.dena.db.entity.TagSample;
+import dev.abelab.hack.dena.db.entity.TripPlanTagging;
+import dev.abelab.hack.dena.db.entity.TripPlanTaggingSample;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
+import dev.abelab.hack.dena.api.response.TripPlanResponse;
+import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
 import dev.abelab.hack.dena.model.TripPlanAttachmentSubmitModel;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
 import dev.abelab.hack.dena.repository.TripPlanItemRepository;
 import dev.abelab.hack.dena.repository.TripPlanAttachmentRepository;
 import dev.abelab.hack.dena.repository.TagRepository;
+import dev.abelab.hack.dena.repository.TripPlanTaggingRepository;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.NotFoundException;
 import dev.abelab.hack.dena.exception.UnauthorizedException;
@@ -64,6 +70,75 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 
 	@Autowired
 	TagRepository tagRepository;
+
+	@Autowired
+	TripPlanTaggingRepository tripPlanTaggingRepository;
+
+	/**
+	 * 旅行プラン一覧取得APIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class GetTripPlansTest extends AbstractRestControllerInitialization_IT {
+
+		@Test
+		void 正_旅行プラン一覧を取得() throws Exception {
+			// login user
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var tripPlan = TripPlanSample.builder().build();
+			tripPlanRepository.insert(tripPlan);
+			final var items = Arrays.asList( //
+				TripPlanItemSample.builder().itemOrder(1).tripPlanId(tripPlan.getId()).build(), //
+				TripPlanItemSample.builder().itemOrder(2).tripPlanId(tripPlan.getId()).build() //
+			);
+			tripPlanItemRepository.bulkInsert(items);
+			final var attachment = TripPlanAttachmentSample.builder().tripPlanId(tripPlan.getId()).build();
+			tripPlanAttachmentRepository.insert(attachment);
+			final var tags = Arrays.asList( //
+				TagSample.builder().name("タグ1").build(), //
+				TagSample.builder().name("タグ2").build() //
+			);
+			tagRepository.bulkInsert(tags);
+			final var tripPlanTaggings = tags.stream() //
+				.map(tag -> TripPlanTaggingSample.builder().tripPlanId(tripPlan.getId()).tagId(tag.getId()).build()) //
+				.collect(Collectors.toList());
+			tripPlanTaggingRepository.bulkInsert(tripPlanTaggings);
+
+			// test
+			final var request = getRequest(GET_TRIP_PLANS_PATH);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			final var response = execute(request, HttpStatus.OK, TripPlansResponse.class);
+
+			// verify
+			// 旅行プラン
+			assertThat(response.getTripPlans())
+				.extracting(TripPlanResponse::getId, TripPlanResponse::getTitle, TripPlanResponse::getDescription,
+					TripPlanResponse::getRegionId) //
+				.containsExactlyInAnyOrder(tuple(tripPlan.getId(), tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId()));
+
+			// 旅行プラン項目
+			assertThat(response.getTripPlans().get(0).getItems())
+				.extracting(TripPlanItemModel::getItemOrder, TripPlanItemModel::getTitle, TripPlanItemModel::getDescription,
+					TripPlanItemModel::getPrice) //
+				.containsExactlyInAnyOrderElementsOf(
+					items.stream().map(item -> tuple(item.getItemOrder(), item.getTitle(), item.getDescription(), item.getPrice()))
+						.collect(Collectors.toList()));
+
+			// タグ
+			assertThat(response.getTripPlans().get(0).getTags().size()).isEqualTo(tags.size());
+		}
+
+		@Test
+		void 異_無効な認証ヘッダ() throws Exception {
+			// test
+			final var request = getRequest(GET_TRIP_PLANS_PATH);
+			request.header(HttpHeaders.AUTHORIZATION, "");
+			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
+		}
+
+	}
 
 	/**
 	 * 旅行プラン作成APIのテスト
