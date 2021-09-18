@@ -102,4 +102,28 @@ public class UserRestController {
         this.userService.updateLoginUser(requestBody, loginUser);
     }
 
+    /**
+     * ログインユーザ削除API
+     *
+     * @param loginUser ログインユーザ
+     */
+    @ApiOperation( //
+        value = "ログインユーザの削除", //
+        notes = "ログインユーザを削除する。" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 200, message = "削除成功"), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+                @ApiResponse(code = 404, message = "ユーザが存在しない"), //
+        } //
+    )
+    @DeleteMapping(value = "/me")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteUser( //
+        @ModelAttribute("LoginUser") final User loginUser //
+    ) {
+        this.userService.deleteLoginUser(loginUser);
+    }
+
 }
