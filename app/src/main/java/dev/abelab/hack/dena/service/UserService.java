@@ -7,11 +7,14 @@ import org.modelmapper.ModelMapper;
 
 import lombok.*;
 import dev.abelab.hack.dena.db.entity.User;
+import dev.abelab.hack.dena.db.entity.UserLike;
 import dev.abelab.hack.dena.api.request.LoginUserPasswordUpdateRequest;
 import dev.abelab.hack.dena.repository.UserRepository;
+import dev.abelab.hack.dena.repository.UserLikeRepository;
 import dev.abelab.hack.dena.logic.UserLogic;
 import dev.abelab.hack.dena.util.AuthUtil;
 import dev.abelab.hack.dena.api.response.UserResponse;
+import dev.abelab.hack.dena.api.response.UserLikesResponse;
 
 @RequiredArgsConstructor
 @Service
@@ -20,6 +23,8 @@ public class UserService {
     private final ModelMapper modelMapper;
 
     private final UserRepository userRepository;
+
+    private final UserLikeRepository userLikeRepository;
 
     private final UserLogic userLogic;
 
@@ -54,5 +59,20 @@ public class UserService {
         return this.modelMapper.map(loginUser, UserResponse.class);
     }
 
+    /**
+     * お気に入り取得
+     *
+     * @param loginUser ログインユーザ
+     *
+     * @return お気に入り情報レスポンス
+     */
+    @Transactional
+    public UserLikesResponse getUserLikes(final User loginUser) {
+        System.out.println("test");
+        System.out.println(loginUser.getId());
+        UserLike userLike = this.userLikeRepository.selectById(loginUser.getId());
+        System.out.println(userLike);
+        return new UserLikesResponse();
+    }
 
 }

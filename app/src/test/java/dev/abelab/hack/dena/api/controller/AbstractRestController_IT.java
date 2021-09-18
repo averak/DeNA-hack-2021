@@ -27,8 +27,14 @@ import org.springframework.web.context.WebApplicationContext;
 
 import dev.abelab.hack.dena.annotation.IntegrationTest;
 import dev.abelab.hack.dena.db.entity.User;
+import dev.abelab.hack.dena.db.entity.UserLike;
+import dev.abelab.hack.dena.db.entity.TripPlan;
 import dev.abelab.hack.dena.db.entity.UserSample;
+import dev.abelab.hack.dena.db.entity.UserLikeSample;
+import dev.abelab.hack.dena.db.entity.TripPlanSample;
 import dev.abelab.hack.dena.repository.UserRepository;
+import dev.abelab.hack.dena.repository.UserLikeRepository;
+import dev.abelab.hack.dena.repository.TripPlanRepository;
 import dev.abelab.hack.dena.logic.UserLogic;
 import dev.abelab.hack.dena.util.ConvertUtil;
 import dev.abelab.hack.dena.exception.BaseException;
@@ -59,6 +65,12 @@ public abstract class AbstractRestController_IT {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private UserLikeRepository userLikeRepository;
+
+	@Autowired
+	private TripPlanRepository tripPlanRepository;
 
 	@Autowired
 	private UserLogic userLogic;
@@ -230,6 +242,47 @@ public abstract class AbstractRestController_IT {
 		this.userRepository.insert(loginUser);
 
 		return loginUser;
+	}
+
+	/**
+	 * ログインユーザのお気に入り作成
+	 *
+	 * @return loginUser
+	 */
+	public TripPlan createTripPlan(User loginUser) {
+
+		final var userTripPlan = TripPlanSample.builder() //
+		.userId(loginUser.getId()) //
+		.title(SAMPLE_STR) //
+		.description(SAMPLE_STR) //
+		.regionId(SAMPLE_INT) //
+		.createdAt(SAMPLE_DATE) //
+		.updatedAt(SAMPLE_DATE) //
+		.build();
+		System.out.println(loginUser);
+		System.out.println(userTripPlan);
+		int res = this.tripPlanRepository.insert(userTripPlan);
+
+		return userTripPlan;
+	}
+
+	/**
+	 * ログインユーザのお気に入り作成
+	 *
+	 * @return loginUser
+	 */
+	public UserLike createUserLike(User loginUser, TripPlan tripPlan) {
+
+		final var userLike = UserLikeSample.builder() //
+		.userId(loginUser.getId()) //
+		.tripPlanId(tripPlan.getId()) //
+		.build();
+		System.out.println(loginUser);
+		System.out.println(tripPlan);
+		System.out.println(userLike);
+		int res = this.userLikeRepository.insert(userLike);
+
+		return userLike;
 	}
 
 	/**

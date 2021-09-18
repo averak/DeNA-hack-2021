@@ -98,8 +98,7 @@ public class UserRestController {
     public UserLikesResponse getUserLikes( //
         @ModelAttribute("LoginUser") final User loginUser //
     ) {
-        UserLikesResponse like = new UserLikesResponse();
-        return like;
+        return this.userService.getUserLikes(loginUser);
     }
 
 }
