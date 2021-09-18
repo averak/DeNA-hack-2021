@@ -42,6 +42,8 @@ import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.NotFoundException;
 import dev.abelab.hack.dena.exception.ForbiddenException;
 import dev.abelab.hack.dena.exception.UnauthorizedException;
+import dev.abelab.hack.dena.api.response.UserLikesResponse;
+import dev.abelab.hack.dena.api.request.UserLikeRequest;
 
 /**
  * TripPlanRestController Integration Test
@@ -168,6 +170,55 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
 		}
 
+	}
+
+	/**
+	 * お気に入り取得APIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class PutUserLikesTest extends AbstractRestControllerInitialization_IT {
+
+		@Test
+		void 正_お気に入り追加() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+			final var tripPlan = createTripPlan(loginUser);
+			final var requestBody = UserLikeRequest.builder() //
+				.isLike(true) //
+				.build();
+
+
+			// test
+			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
+
+			// verify
+			assertThat(response).isEqualTo(new UserLikesResponse(1));
+		}
+
+		@Test
+		void 正_お気に入り削除() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+			final var tripPlan = createTripPlan(loginUser);
+			final var userLike = createUserLike(loginUser,tripPlan);
+			final var requestBody = UserLikeRequest.builder() //
+				.isLike(false) //
+				.build();
+
+
+			// test
+			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
+
+			// verify
+			assertThat(response).isEqualTo(new UserLikesResponse(0));
+		}
 	}
 
 	/**
