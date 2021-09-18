@@ -28,7 +28,7 @@ const UserRegisterPage: VFC = () => {
   };
   return (
     <div className="flex relative justify-center items-center w-full h-screen bg-blue-500">
-      <div className="w-full h-auto max-w-[320px]">
+      <div className="w-full max-w-[320px] h-auto">
         <RegistAuthField submitText="新規登録" handleSubmit={authResiter} />
       </div>
     </div>

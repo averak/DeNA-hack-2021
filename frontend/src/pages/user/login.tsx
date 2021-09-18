@@ -20,7 +20,7 @@ const LoginPage: VFC = () => {
   };
   return (
     <div className="flex relative justify-center items-center w-full h-screen bg-blue-500">
-      <div className="w-full h-auto max-w-[320px]">
+      <div className="w-full max-w-[320px] h-auto">
         <LoginAuthField submitText="ログイン" handleSubmit={authLogin} />
       </div>
     </div>
