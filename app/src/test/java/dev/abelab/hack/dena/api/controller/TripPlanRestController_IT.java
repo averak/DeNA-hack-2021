@@ -57,7 +57,7 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 	static final String DELETE_TRIP_PLAN_PATH = BASE_PATH + "/%d";
 	static final String LIKE_TRIP_PLAN_PATH = BASE_PATH + "/%d/likes";
 	static final String GET_LIKE_TRIP_PLANS_PATH = BASE_PATH + "/likes/me";
-	static final String DOWNLOAD_ATTACHMENT_PATH = BASE_PATH + "/attachment/%s";
+	static final String DOWNLOAD_ATTACHMENT_PATH = BASE_PATH + "/attachments/%s";
 
 	@Autowired
 	ModelMapper modelMapper;
