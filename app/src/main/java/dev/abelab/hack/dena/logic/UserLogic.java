@@ -47,17 +47,11 @@ public class UserLogic {
     /**
      * ログインユーザを取得
      *
-     * @param credentials 資格情報
+     * @param jwt JWT
      *
      * @return ユーザ
      */
-    public User getLoginUser(final String credentials) {
-        // 資格情報の構文チェック
-        if (!credentials.startsWith("Bearer ")) {
-            throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN);
-        }
-        final var jwt = credentials.substring(7);
-
+    public User getLoginUser(final String jwt) {
         // JWTの有効性を検証
         try {
             final var claim = Jwts.parser().setSigningKey(this.jwtProperty.getSecret().getBytes()).parseClaimsJws(jwt).getBody();
