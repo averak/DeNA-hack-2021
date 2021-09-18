@@ -6,6 +6,8 @@ import { useEffect } from "react";
 import { useState } from "react";
 import type { PathData } from "src/components/Layout";
 import { Layout } from "src/components/Layout";
+import { useGetAllPlans, useGetLikePlans, useGetFiles } from "src/utils/hooks/planApi";
+import { PlanContent } from "src/organisms/PlanContent";
 
 import { isAccessToken } from "../../utils/libs/accessToken";
 
@@ -23,7 +25,17 @@ const MyPage: VFC = () => {
     }
   }, []);
 
+  const likePlansState = useGetLikePlans();
+
+  const allPlansState = useGetAllPlans();
+
+
   const [selected, setSelected] = useState(planOption[0]);
+
+  useEffect(() => {
+    likePlansState.getFn();
+    allPlansState.getFn();
+  }, []);
 
   const pathList: PathData[] = [
     { pathTitle: "マイページ", pathLink: "/user/mypage" },
@@ -91,6 +103,15 @@ const MyPage: VFC = () => {
             </Listbox.Options>
           </Transition>
         </Listbox>
+      </div>
+      <div className="py-6">
+          { selected.id == 1 && !likePlansState.loading && (
+            likePlansState.response?.tripPlans.map((v,i) => {
+              return (
+                <PlanContent planId={v.id} imgSrc={v.attachment.fileName} 
+              )
+            })
+          )}
       </div>
     </Layout>
   );
