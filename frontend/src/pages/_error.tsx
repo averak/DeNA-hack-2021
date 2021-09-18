@@ -1,7 +1,12 @@
 import type { VFC } from "react";
+import { Layout } from "src/components/Layout";
 
 const Error: VFC = () => {
-  return <div>error</div>;
+  return (
+    <Layout title="エラー" pathList={[]}>
+      <div>error</div>;
+    </Layout>
+  );
 };
 
 export default Error;
