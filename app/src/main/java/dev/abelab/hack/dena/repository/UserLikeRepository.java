@@ -32,6 +32,12 @@ public class UserLikeRepository {
         this.userLikeMapper.insertSelective(userLike);
     }
 
+    /**
+     * 複合主キーからいいねを削除
+     *
+     * @param userId     ユーザID
+     * @param tripPlanId 旅行プランID
+     */
     public void deleteByPrimaryKey(final int userId, final int tripPlanId) {
         this.userLikeMapper.deleteByPrimaryKey(userId, tripPlanId);
     }
@@ -87,7 +93,6 @@ public class UserLikeRepository {
     public boolean exists(final UserLike userLike) {
         final var example = new UserLikeExample();
         example.createCriteria().andTripPlanIdEqualTo(userLike.getTripPlanId()).andUserIdEqualTo(userLike.getUserId());
-
 
         return !this.userLikeMapper.selectByExample(example).isEmpty();
     }

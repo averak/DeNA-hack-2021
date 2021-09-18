@@ -174,29 +174,37 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 	}
 
 	/**
-	 * お気に入り取得APIのテスト
+	 * 旅行プランのいいね登録APIのテスト
 	 */
 	@Nested
 	@TestInstance(PER_CLASS)
-	class PutUserLikesTest extends AbstractRestControllerInitialization_IT {
+	class LikeTripPlanTest extends AbstractRestControllerInitialization_IT {
 
 		@Test
-		void 正_お気に入り追加() throws Exception {
+		void 正_旅行プランをいいねする() throws Exception {
 			// setup
 			final var loginUser = createLoginUser();
 			final var credentials = getLoginUserCredentials(loginUser);
-			final var tripPlan = createTripPlan(loginUser);
+
+			final var tripPlans = Arrays.asList( //
+				TripPlanSample.builder().userId(loginUser.getId()).build(), //
+				TripPlanSample.builder().userId(loginUser.getId()).build() //
+			);
+			tripPlans.forEach(tripPlanRepository::insert);
+
 			final var requestBody = UserLikeRequest.builder() //
 				.isLike(true) //
 				.build();
 
 			// test
-			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
+			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlans.get(0).getId()), requestBody);
 			request.header(HttpHeaders.AUTHORIZATION, credentials);
 			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
 
 			// verify
-			assertThat(response).isEqualTo(new UserLikesResponse(1));
+			assertThat(response.getLikes()).isEqualTo(1);
+			final var existsUserLikes = userLikeRepository.selectByUserId(loginUser.getId());
+			assertThat(existsUserLikes.size()).isEqualTo(1);
 		}
 
 		@Test
@@ -204,19 +212,33 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			// setup
 			final var loginUser = createLoginUser();
 			final var credentials = getLoginUserCredentials(loginUser);
-			final var tripPlan = createTripPlan(loginUser);
-			final var userLike = createUserLike(loginUser, tripPlan);
+
+			final var tripPlans = Arrays.asList( //
+				TripPlanSample.builder().userId(loginUser.getId()).build(), //
+				TripPlanSample.builder().userId(loginUser.getId()).build() //
+			);
+			tripPlans.forEach(tripPlanRepository::insert);
+
+			// いいね済みにする
+			final var userLikes = Arrays.asList( //
+				UserLikeSample.builder().userId(loginUser.getId()).tripPlanId(tripPlans.get(0).getId()).build(), //
+				UserLikeSample.builder().userId(loginUser.getId()).tripPlanId(tripPlans.get(1).getId()).build() //
+			);
+			userLikes.forEach(userLikeRepository::insert);
+
 			final var requestBody = UserLikeRequest.builder() //
 				.isLike(false) //
 				.build();
 
 			// test
-			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
+			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlans.get(0).getId()), requestBody);
 			request.header(HttpHeaders.AUTHORIZATION, credentials);
 			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
 
 			// verify
-			assertThat(response).isEqualTo(new UserLikesResponse(0));
+			assertThat(response.getLikes()).isEqualTo(0);
+			final var existsUserLikes = userLikeRepository.selectByUserId(loginUser.getId());
+			assertThat(existsUserLikes.size()).isEqualTo(1);
 		}
 	}
 

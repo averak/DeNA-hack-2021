@@ -79,20 +79,20 @@ public class TripPlanRestController {
     }
 
     /**
-     * いいねAPI
+     * 旅行プランのいいね登録API
      *
-     * @param requestBody 旅行プラン作成リクエスト
+     * @param requestBody 旅行プランいいねリクエスト
      * @param loginUser   ログインユーザ
      *
      * @return いいねレスポンス
      */
     @ApiOperation( //
-        value = "いいね", //
-        notes = "いいねをする。" //
+        value = "旅行プランのいいね登録", //
+        notes = "旅行プランのいいね登録をする。" //
     )
     @ApiResponses( //
         value = { //
-                @ApiResponse(code = 200, message = "いいね成功", response = UserLikesResponse.class), //
+                @ApiResponse(code = 200, message = "成功", response = UserLikesResponse.class), //
                 @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
                 @ApiResponse(code = 404, message = "ユーザが存在しない") //
         })
@@ -100,10 +100,9 @@ public class TripPlanRestController {
     @ResponseStatus(HttpStatus.OK)
     public UserLikesResponse putUserLikes( //
         @ModelAttribute("LoginUser") final User loginUser, @PathVariable("trip_plan_id") final int tripPlanId, //
-        @Validated @ApiParam(name = "body", required = true, value = "いいね") //
-        @RequestBody final UserLikeRequest requestBody //
+        @Validated @ApiParam(name = "body", required = true, value = "いいね情報") @RequestBody final UserLikeRequest requestBody //
     ) {
-        return this.tripPlanService.putUserLike(loginUser, requestBody, tripPlanId);
+        return this.tripPlanService.likeTripPlan(tripPlanId, requestBody, loginUser);
     }
 
     /**

@@ -1,6 +1,5 @@
 package dev.abelab.hack.dena.service;
 
-import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -120,21 +119,29 @@ public class TripPlanService {
     }
 
     /**
-     * お気に入り取得
+     * 旅行プランをいいね登録する
      *
-     * @param loginUser ログインユーザ
+     * @param tripPlanId  旅行プランID
+     * @param requestBody 旅行プランいいねリクエスト
+     * @param loginUser   ログインユーザ
      *
-     * @return お気に入り情報レスポンス
+     * @return いいね情報レスポンス
      */
     @Transactional
-    public UserLikesResponse putUserLike(final User loginUser, final UserLikeRequest requestBody, final int tripPlanId) {
+    public UserLikesResponse likeTripPlan(final int tripPlanId, final UserLikeRequest requestBody, final User loginUser) {
+        final var userLike = UserLike.builder() //
+            .userId(loginUser.getId()) //
+            .tripPlanId(tripPlanId) //
+            .build();
+
+        // いいね登録
         if (requestBody.getIsLike()) {
-            this.userLikeRepository.insert(new UserLike(loginUser.getId(), tripPlanId));
+            this.userLikeRepository.insert(userLike);
         } else {
             this.userLikeRepository.deleteByPrimaryKey(loginUser.getId(), tripPlanId);
         }
-        List<UserLike> userLikes = this.userLikeRepository.selectByTripPlanId(tripPlanId);
 
+        final var userLikes = this.userLikeRepository.selectByTripPlanId(tripPlanId);
         return new UserLikesResponse(userLikes.size());
     }
 
