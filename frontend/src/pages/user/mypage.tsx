@@ -1,9 +1,13 @@
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, SelectorIcon } from "@heroicons/react/solid";
+import { useRouter } from "next/router";
 import type { VFC } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import type { PathData } from "src/components/Layout";
 import { Layout } from "src/components/Layout";
+
+import { isAccessToken } from "../../utils/libs/accessToken";
 
 const planOption = [
   { id: 1, name: "いいねしたトリップ" },
@@ -11,6 +15,14 @@ const planOption = [
 ];
 
 const MyPage: VFC = () => {
+  const router = useRouter();
+  // ログインしていなければログインページに遷移
+  useEffect(() => {
+    if (!isAccessToken()) {
+      router.replace("/user/login");
+    }
+  }, []);
+
   const [selected, setSelected] = useState(planOption[0]);
 
   const pathList: PathData[] = [
