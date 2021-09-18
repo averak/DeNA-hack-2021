@@ -1,7 +1,14 @@
-import { ChevronRightIcon, HomeIcon, UserIcon } from "@heroicons/react/solid";
+import {
+  ChevronRightIcon,
+  HomeIcon,
+  LoginIcon,
+  UserIcon,
+} from "@heroicons/react/solid";
 import Link from "next/link";
 import type { VFC } from "react";
+import { useEffect, useState } from "react";
 
+import { isAccessToken } from "../utils/libs/accessToken";
 import type { PathData } from "./Layout";
 
 type HeaderProps = {
@@ -10,6 +17,20 @@ type HeaderProps = {
 };
 
 export const Header: VFC<HeaderProps> = (props) => {
+  const [url, setUrl] = useState<string>("/user/login");
+
+  useEffect(() => {
+    isAccessToken() ? setUrl("/user/mypage") : setUrl("/user/login");
+  }, []);
+
+  const ShowUser = () => {
+    return isAccessToken() ? (
+      <UserIcon className="w-8 h-8" />
+    ) : (
+      <LoginIcon className="w-8 h-8" />
+    );
+  };
+
   return (
     <header className="fixed z-50 w-screen">
       <div className="flex relative justify-between p-2 w-screen h-12 text-white align-middle bg-gradient-to-r from-blue-c2 to-blue-c1">
@@ -23,9 +44,9 @@ export const Header: VFC<HeaderProps> = (props) => {
         <p className="absolute top-1/2 left-1/2 text-xl font-bold transform -translate-x-1/2 -translate-y-1/2">
           {props.title}
         </p>
-        <Link href="/user/mypage">
-          <a className="">
-            <UserIcon className="w-8 h-8" />
+        <Link href={url}>
+          <a>
+            <ShowUser />
           </a>
         </Link>
       </div>

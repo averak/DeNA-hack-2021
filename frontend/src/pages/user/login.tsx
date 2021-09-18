@@ -1,21 +1,35 @@
+import { useRouter } from "next/router";
 import type { VFC } from "react";
+import { useEffect } from "react";
 import { LoginAuthField } from "src/components/User/AuthField";
 
 import type { LoginParam } from "../../utils/hooks/userApi";
 import { useLogin as UseLogin } from "../../utils/hooks/userApi";
 
 const LoginPage: VFC = () => {
-  // const { getFn, response } = UseLogin();
-  const { getFn } = UseLogin();
+  const { getFn, response, error } = UseLogin();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!response) {
+      return;
+    }
+    router.push("/");
+  }, [response, router]);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+  }, [error]);
 
   const authLogin = (mail: string, password: string) => {
     const param: LoginParam = {
       email: mail,
       password: password,
     };
-    getFn(param).then(() => {
-      // console.log(response)
-    });
+    getFn(param);
     return;
   };
   return (
