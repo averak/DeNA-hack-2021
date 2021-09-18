@@ -18,6 +18,7 @@ import dev.abelab.hack.dena.db.entity.Tag;
 import dev.abelab.hack.dena.db.entity.UserLike;
 import dev.abelab.hack.dena.model.FileDownloadModel;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
+import dev.abelab.hack.dena.api.request.TripPlanUpdateRequest;
 import dev.abelab.hack.dena.api.request.UserLikeRequest;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.api.response.UserLikesResponse;
@@ -119,6 +120,66 @@ public class TripPlanService {
     }
 
     /**
+     * 旅行プランを更新
+     *
+     * @param tripPlanId  旅行プランID
+     * @param requestBody 旅行プラン更新リクエスト
+     * @param loginUser   ログインユーザ
+     */
+    @Transactional
+    public void updateTripPlan(final int tripPlanId, final TripPlanUpdateRequest requestBody, final User loginUser) {
+        // 更新する権限があるかチェック
+        final var existsTripPlan = this.tripPlanRepository.selectById(tripPlanId);
+        if (existsTripPlan.getUserId() != loginUser.getId()) {
+            throw new ForbiddenException(ErrorCode.USER_HAS_NO_PERMISSION);
+        }
+
+        // 都道府県IDが存在するかチェック
+        this.regionRepository.selectById(requestBody.getRegionId());
+
+        // 旅行プランを更新
+        final var tripPlan = this.modelMapper.map(requestBody, TripPlan.class);
+        tripPlan.setId(tripPlanId);
+        tripPlan.setUserId(loginUser.getId());
+        this.tripPlanRepository.update(tripPlan);
+
+        // プラン内訳を更新
+        this.tripPlanItemRepository.deleteByTripPlanId(tripPlanId);
+        final var tripPlanItems = requestBody.getItems().stream().map(item -> {
+            final var result = this.modelMapper.map(item, TripPlanItem.class);
+            result.setTripPlanId(tripPlan.getId());
+            return result;
+        }).collect(Collectors.toList());
+        this.tripPlanItemRepository.bulkInsert(tripPlanItems);
+
+        // 添付ファイルを更新
+        if (requestBody.getAttachment() != null) {
+            this.tripPlanAttachmentRepository.deleteByTripPlanId(tripPlanId);
+            final var attachment = TripPlanAttachment.builder() //
+                .uuid(UUID.randomUUID().toString()) //
+                .tripPlanId(tripPlan.getId()) //
+                .fileName(requestBody.getAttachment().getFileName()) //
+                .content(Base64.decodeBase64(requestBody.getAttachment().getContent())) //
+                .build();
+            this.tripPlanAttachmentRepository.insert(attachment);
+        }
+
+        // タグ一覧を作成
+        final var tags = requestBody.getTags().stream() //
+            .map(tagName -> Tag.builder().name(tagName).build()).collect(Collectors.toList());
+        this.tagRepository.bulkInsert(tags);
+
+        // 旅行プランタギング一覧を更新
+        this.tripPlanTaggingRepository.deleteByTripPlanId(tripPlanId);
+        final var tripPlanTaggings = tags.stream() //
+            .map(tag -> TripPlanTagging.builder().tripPlanId(tripPlan.getId()).tagId(tag.getId()).build()) //
+            .filter(tagging -> tagging.getTagId() != null) //
+            .collect(Collectors.toList());
+        this.tripPlanTaggingRepository.bulkInsert(tripPlanTaggings);
+
+    }
+
+    /**
      * 旅行プランをいいね登録する
      *
      * @param tripPlanId  旅行プランID
@@ -129,6 +190,9 @@ public class TripPlanService {
      */
     @Transactional
     public UserLikesResponse likeTripPlan(final int tripPlanId, final UserLikeRequest requestBody, final User loginUser) {
+        // いいね対象の旅行プランを取得する
+        this.tripPlanRepository.selectById(tripPlanId);
+
         final var userLike = UserLike.builder() //
             .userId(loginUser.getId()) //
             .tripPlanId(tripPlanId) //

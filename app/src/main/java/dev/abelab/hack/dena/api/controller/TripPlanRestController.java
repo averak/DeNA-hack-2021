@@ -14,6 +14,7 @@ import lombok.*;
 import dev.abelab.hack.dena.annotation.Authenticated;
 import dev.abelab.hack.dena.db.entity.User;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
+import dev.abelab.hack.dena.api.request.TripPlanUpdateRequest;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.service.TripPlanService;
 import dev.abelab.hack.dena.api.request.UserLikeRequest;
@@ -79,6 +80,34 @@ public class TripPlanRestController {
     }
 
     /**
+     * 旅行プランの更新API
+     *
+     * @param tripPlanId  旅行プランID
+     * @param requestBody 旅行プラン作成リクエスト
+     * @param loginUser   ログインユーザ
+     */
+    @ApiOperation( //
+        value = "旅行プランの更新", //
+        notes = "旅行プランを更新する" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 201, message = "更新成功"), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+                @ApiResponse(code = 404, message = "旅行プランが存在しない / 都道府県IDが存在しない"), //
+        } //
+    )
+    @PutMapping(value = "/{trip_plan_id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateTripPlan( //
+        @ModelAttribute("LoginUser") final User loginUser, //
+        @ApiParam(name = "trip_plan_id", required = true, value = "旅行プランID") @PathVariable("trip_plan_id") final int tripPlanId, //
+        @Validated @ApiParam(name = "body", required = true, value = "旅行プラン更新情報") @RequestBody final TripPlanUpdateRequest requestBody //
+    ) {
+        this.tripPlanService.updateTripPlan(tripPlanId, requestBody, loginUser);
+    }
+
+    /**
      * 旅行プランのいいね登録API
      *
      * @param requestBody 旅行プランいいねリクエスト
@@ -99,7 +128,8 @@ public class TripPlanRestController {
     @PutMapping(value = "/{trip_plan_id}/likes")
     @ResponseStatus(HttpStatus.OK)
     public UserLikesResponse putUserLikes( //
-        @ModelAttribute("LoginUser") final User loginUser, @PathVariable("trip_plan_id") final int tripPlanId, //
+        @ModelAttribute("LoginUser") final User loginUser, //
+        @ApiParam(name = "trip_plan_id", required = true, value = "旅行プランID") @PathVariable("trip_plan_id") final int tripPlanId, //
         @Validated @ApiParam(name = "body", required = true, value = "いいね情報") @RequestBody final UserLikeRequest requestBody //
     ) {
         return this.tripPlanService.likeTripPlan(tripPlanId, requestBody, loginUser);
