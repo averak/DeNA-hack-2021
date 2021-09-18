@@ -12,6 +12,8 @@ import dev.abelab.hack.dena.api.response.AccessTokenResponse;
 import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.logic.UserLogic;
 import dev.abelab.hack.dena.util.AuthUtil;
+import dev.abelab.hack.dena.exception.ErrorCode;
+import dev.abelab.hack.dena.exception.UnauthorizedException;
 
 @RequiredArgsConstructor
 @Service
@@ -69,6 +71,25 @@ public class AuthService {
             .accessToken(jwt) //
             .tokenType("Bearer") //
             .build();
+    }
+
+    /**
+     * ログインユーザを取得
+     *
+     * @param credentials 資格情報
+     *
+     * @return ログインユーザ
+     */
+    @Transactional
+    public User getLoginUser(final String credentials) {
+        // 資格情報の構文チェック
+        if (!credentials.startsWith("Bearer ")) {
+            throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN);
+        }
+        final var jwt = credentials.substring(7);
+
+        // ログインユーザを取得
+        return this.userLogic.getLoginUser(jwt);
     }
 
 }
