@@ -2,18 +2,13 @@ package dev.abelab.hack.dena.api.controller;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
-import static org.junit.jupiter.params.provider.Arguments.*;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +21,7 @@ import dev.abelab.hack.dena.db.entity.TripPlanItemSample;
 import dev.abelab.hack.dena.db.entity.TripPlanItem;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachmentSample;
-import dev.abelab.hack.dena.db.entity.Tag;
 import dev.abelab.hack.dena.db.entity.TagSample;
-import dev.abelab.hack.dena.db.entity.TripPlanTagging;
 import dev.abelab.hack.dena.db.entity.TripPlanTaggingSample;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.api.response.TripPlanResponse;
@@ -87,20 +80,24 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			final var loginUser = createLoginUser();
 			final var credentials = getLoginUserCredentials(loginUser);
 
-			final var tripPlan = TripPlanSample.builder().build();
+			final var tripPlan = TripPlanSample.builder().userId(loginUser.getId()).build();
 			tripPlanRepository.insert(tripPlan);
+
 			final var items = Arrays.asList( //
 				TripPlanItemSample.builder().itemOrder(1).tripPlanId(tripPlan.getId()).build(), //
 				TripPlanItemSample.builder().itemOrder(2).tripPlanId(tripPlan.getId()).build() //
 			);
 			tripPlanItemRepository.bulkInsert(items);
+
 			final var attachment = TripPlanAttachmentSample.builder().tripPlanId(tripPlan.getId()).build();
 			tripPlanAttachmentRepository.insert(attachment);
+
 			final var tags = Arrays.asList( //
 				TagSample.builder().name("タグ1").build(), //
 				TagSample.builder().name("タグ2").build() //
 			);
 			tagRepository.bulkInsert(tags);
+
 			final var tripPlanTaggings = tags.stream() //
 				.map(tag -> TripPlanTaggingSample.builder().tripPlanId(tripPlan.getId()).tagId(tag.getId()).build()) //
 				.collect(Collectors.toList());
@@ -128,6 +125,9 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 
 			// タグ
 			assertThat(response.getTripPlans().get(0).getTags().size()).isEqualTo(tags.size());
+
+			// TODO: いいね数
+			// TODO: 添付ファイル
 		}
 
 		@Test
