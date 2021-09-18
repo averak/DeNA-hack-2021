@@ -1,11 +1,9 @@
 import axios from "axios";
 import { useCallback, useState } from "react";
 
-const hostname = process.env.NEXT_PUBLIC_BASE_URI;
+import { cookieSet, getTokenHeader } from "../libs/accessToken";
 
-// const tokenType = localStorage.getItem("tokenType");
-// const accessToken = localStorage.getItem("accessToken");
-// axios.defaults.headers.common["Autorization"] = `${tokenType} ${accessToken}`;
+const hostname = process.env.NEXT_PUBLIC_BASE_URI;
 
 export type SignUpParam = {
   email: string;
@@ -22,6 +20,12 @@ export type LoginParam = {
 export type PasswordParam = {
   currentPassword: string;
   newPassword: string;
+};
+
+export type UserParam = {
+  email: string;
+  firstName: string;
+  lastName: string;
 };
 
 export type UserResponse = {
@@ -47,9 +51,13 @@ export const useSignUp = () => {
     async (params: SignUpParam) => {
       setLoading(true);
       await axios
-        .post<UserResponse>(url, params)
+        .post<UserResponse>(url, params, {
+          headers: { Authorization: getTokenHeader() },
+        })
         .then(async (res) => {
           const responseData = await res.data;
+          cookieSet("tokenType", responseData.tokenType);
+          cookieSet("accessToken", responseData.accessToken);
           setResponse(responseData);
         })
         .catch((err) => {
@@ -76,9 +84,13 @@ export const useLogin = () => {
     async (params: LoginParam) => {
       setLoading(true);
       await axios
-        .post<UserResponse>(url, params)
+        .post<UserResponse>(url, params, {
+          headers: { Authorization: getTokenHeader() },
+        })
         .then(async (res) => {
           const responseData = await res.data;
+          cookieSet("tokenType", responseData.tokenType);
+          cookieSet("accessToken", responseData.accessToken);
           setResponse(responseData);
         })
         .catch((err) => {
@@ -104,10 +116,40 @@ export const useGetUserProfile = () => {
   const getFn = useCallback(async () => {
     setLoading(true);
     await axios
-      .post<ProfileResponse>(url)
+      .get<ProfileResponse>(url, {
+        headers: { Authorization: getTokenHeader() },
+      })
       .then(async (res) => {
         const responseData = await res.data;
         setResponse(responseData);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [url]);
+  return { loading, error, response, getFn };
+};
+
+// ユーザ情報の更新
+export const usePutUserProfile = () => {
+  const url = `${hostname}/api/users/me`;
+  const [loading, setLoading] = useState<boolean>(false);
+  const [response, setResponse] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  const getFn = useCallback(async () => {
+    setLoading(true);
+    await axios
+      .put<UserParam>(url, {
+        headers: { Authorization: getTokenHeader() },
+      })
+      .then(async (res) => {
+        const responseStatusCode = await res.status;
+        if (responseStatusCode === 200) setResponse("success");
       })
       .catch((err) => {
         console.error(err);
@@ -131,7 +173,9 @@ export const usePutPassword = () => {
     async (params: PasswordParam) => {
       setLoading(true);
       await axios
-        .put(url, params)
+        .put(url, params, {
+          headers: { Authorization: getTokenHeader() },
+        })
         .then(async (res) => {
           const statusCode = await res.status;
           if (statusCode === 200) {

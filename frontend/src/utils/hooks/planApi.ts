@@ -1,11 +1,9 @@
 import axios from "axios";
 import { useCallback, useState } from "react";
 
-const hostname = process.env.NEXT_PUBLIC_BASE_URI;
+import { getTokenHeader } from "../libs/accessToken";
 
-const tokenType = localStorage.getItem("tokenType");
-const accessToken = localStorage.getItem("accessToken");
-axios.defaults.headers.common["Autorization"] = `${tokenType} ${accessToken}`;
+const hostname = process.env.NEXT_PUBLIC_BASE_URI;
 
 export type TripPlanParam = {
   title: string;
@@ -63,7 +61,9 @@ export const useGetAllPlan = () => {
   const getFn = useCallback(async () => {
     setLoading(true);
     await axios
-      .get<TripPlanResponse[]>(url)
+      .get<TripPlanResponse[]>(url, {
+        headers: { Authorization: getTokenHeader() },
+      })
       .then(async (res) => {
         const responseData = await res.data;
         setResponse(responseData);
@@ -89,7 +89,9 @@ export const useGetPlanDetail = () => {
     const url = `${hostname}/api/trip_plans/${tripPlanId}`;
     setLoading(true);
     await axios
-      .get<TripDetailResponse>(url)
+      .get<TripDetailResponse>(url, {
+        headers: { Authorization: getTokenHeader() },
+      })
       .then(async (res) => {
         const responseData = await res.data;
         setResponse(responseData);
@@ -116,7 +118,9 @@ export const usePostPlan = () => {
     async (params: TripPlanParam) => {
       setLoading(true);
       await axios
-        .post<TripDetailResponse>(url, params)
+        .post<TripDetailResponse>(url, params, {
+          headers: { Authorization: getTokenHeader() },
+        })
         .then(async (res) => {
           const responseStatusCode = await res.status;
           if (responseStatusCode === 200) {
@@ -147,7 +151,9 @@ export const usePutPlan = () => {
     async (params: TripPlanParam) => {
       setLoading(true);
       await axios
-        .put(url, params)
+        .put(url, params, {
+          headers: { Authorization: getTokenHeader() },
+        })
         .then(async (res) => {
           const responseStatusCode = await res.status;
           if (responseStatusCode === 200) {
@@ -177,7 +183,9 @@ export const useDeletePlan = () => {
     const url = `${hostname}/api/trip_plans/${tripPlanId}`;
     setLoading(true);
     await axios
-      .delete(url)
+      .delete(url, {
+        headers: { Authorization: getTokenHeader() },
+      })
       .then(async (res) => {
         const responseStatusCode = await res.status;
         if (responseStatusCode === 200) {
@@ -205,7 +213,9 @@ export const usePutLikes = () => {
     const url = `${hostname}/api/trip_plans/${tripPlanId}/likes`;
     setLoading(true);
     await axios
-      .put(url, params)
+      .put(url, params, {
+        headers: { Authorization: getTokenHeader() },
+      })
       .then(async (res) => {
         const responseStatusCode = await res.status;
         if (responseStatusCode === 200) {
