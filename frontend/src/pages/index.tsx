@@ -5,7 +5,7 @@ import type { FormEvent } from "react";
 import { useCallback, useState } from "react";
 import AREA from "src/utils/static/area.json";
 
-import { PlanContent } from "../organisms/PlanContent"
+import { PlanContent } from "../organisms/PlanContent";
 
 // type Area = {
 //   [key: string]: string;
@@ -204,7 +204,6 @@ const HomePage: VFC = () => {
           planner="まっさん"
         />
       </div>
-
     </div>
   );
 };

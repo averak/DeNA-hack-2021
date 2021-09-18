@@ -5,8 +5,6 @@ import type { FormEvent } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 
-import { PlanContent } from "../organisms/PlanContent"
-
 const SearchPage: VFC = () => {
   const [prefecture, setPrefecture] = useState<string>("");
   const [minPrice, setMinPrice] = useState<number>(0);
