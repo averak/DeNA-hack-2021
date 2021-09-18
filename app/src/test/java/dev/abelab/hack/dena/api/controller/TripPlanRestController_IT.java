@@ -56,6 +56,7 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 	static final String CREATE_TRIP_PLAN_PATH = BASE_PATH;
 	static final String DELETE_TRIP_PLAN_PATH = BASE_PATH + "/%d";
 	static final String LIKE_TRIP_PLAN_PATH = BASE_PATH + "/%d/likes";
+	static final String GET_LIKE_TRIP_PLANS_PATH = BASE_PATH + "/likes/me";
 
 	@Autowired
 	ModelMapper modelMapper;
@@ -266,9 +267,8 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			assertThat(createdTripPlanItems)
 				.extracting(TripPlanItem::getTripPlanId, TripPlanItem::getItemOrder, TripPlanItem::getTitle, TripPlanItem::getDescription,
 					TripPlanItem::getPrice) //
-				.containsExactlyInAnyOrderElementsOf(items.stream()
-					.map(item -> tuple(createdTripPlans.get(0).getId(), item.getItemOrder(), item.getTitle(), item.getDescription(), item.getPrice()))
-					.collect(Collectors.toList()));
+				.containsExactlyInAnyOrderElementsOf(items.stream().map(item -> tuple(createdTripPlans.get(0).getId(), item.getItemOrder(),
+					item.getTitle(), item.getDescription(), item.getPrice())).collect(Collectors.toList()));
 
 			// タグ
 			final var createdTags = tagRepository.selectByTripPlanId(createdTripPlans.get(0).getId());
@@ -358,6 +358,61 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 		void 異_無効な認証ヘッダ() throws Exception {
 			// test
 			final var request = deleteRequest(String.format(DELETE_TRIP_PLAN_PATH, SAMPLE_INT));
+			request.header(HttpHeaders.AUTHORIZATION, "");
+			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
+		}
+
+	}
+
+	/**
+	 * お気に入り旅行プラン一覧取得APIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class GetLikeTripPlansTest extends AbstractRestControllerInitialization_IT {
+
+		@Test
+		void 正_お気に入りにの旅行プラン一覧を取得() throws Exception {
+
+			// login user
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var tripPlans = Arrays.asList( //
+				TripPlanSample.builder().userId(loginUser.getId()).build(), //
+				TripPlanSample.builder().userId(loginUser.getId()).build(), //
+				TripPlanSample.builder().userId(loginUser.getId()).build() //
+			);
+			tripPlans.forEach(tripPlanRepository::insert);
+
+			final var otherUser = UserSample.builder().build();
+			userRepository.insert(otherUser);
+
+			// 旅行プラン0と2をいいねする
+			final var userLikes = Arrays.asList( //
+				// login user
+				UserLikeSample.builder().userId(loginUser.getId()).tripPlanId(tripPlans.get(0).getId()).build(), //
+				UserLikeSample.builder().userId(loginUser.getId()).tripPlanId(tripPlans.get(2).getId()).build(), //
+				// other user
+				UserLikeSample.builder().userId(otherUser.getId()).tripPlanId(tripPlans.get(0).getId()).build(), //
+				UserLikeSample.builder().userId(otherUser.getId()).tripPlanId(tripPlans.get(1).getId()).build() //
+			);
+			userLikes.forEach(userLikeRepository::insert);
+
+			// test
+			final var request = getRequest(GET_LIKE_TRIP_PLANS_PATH);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			final var response = execute(request, HttpStatus.OK, TripPlansResponse.class);
+
+			// verify
+			assertThat(response.getTripPlans()).extracting(TripPlanResponse::getId) //
+				.containsExactlyInAnyOrder(tripPlans.get(0).getId(), tripPlans.get(2).getId());
+		}
+
+		@Test
+		void 異_無効な認証ヘッダ() throws Exception {
+			// test
+			final var request = getRequest(GET_LIKE_TRIP_PLANS_PATH);
 			request.header(HttpHeaders.AUTHORIZATION, "");
 			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
 		}

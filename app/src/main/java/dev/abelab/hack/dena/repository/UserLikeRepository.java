@@ -88,6 +88,7 @@ public class UserLikeRepository {
         final var example = new UserLikeExample();
         example.createCriteria().andTripPlanIdEqualTo(userLike.getTripPlanId()).andUserIdEqualTo(userLike.getUserId());
 
+
         return !this.userLikeMapper.selectByExample(example).isEmpty();
     }
 

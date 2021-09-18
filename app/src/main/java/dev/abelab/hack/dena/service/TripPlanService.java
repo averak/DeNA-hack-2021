@@ -92,7 +92,9 @@ public class TripPlanService {
 
             // 添付ファイルを取得
             final var attachment = this.tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
-            response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
+            if (attachment != null) {
+                response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
+            }
 
             return response;
         }).collect(Collectors.toList());
@@ -184,6 +186,54 @@ public class TripPlanService {
 
         // 旅行プランを削除
         this.tripPlanRepository.deleteById(tripPlanId);
+    }
+
+    /**
+     * お気に入りの旅行プラン一覧を取得
+     *
+     * @param loginUser ログインユーザ
+     */
+    @Transactional
+    public TripPlansResponse getLikedTripPlans(final User loginUser) {
+        // いいね一覧を取得
+        final var myLikes = this.userLikeRepository.selectByUserId(loginUser.getId());
+
+        // 旅行プラン一覧を取得
+        final var tripPlanResponses = myLikes.stream() //
+            .map(myLike -> {
+                final var tripPlan = this.tripPlanRepository.selectById(myLike.getTripPlanId());
+
+                final var response = this.modelMapper.map(tripPlan, TripPlanResponse.class);
+
+                // 作成者を取得
+                final var author = this.userRepository.selectById(tripPlan.getUserId());
+                response.setAuthor(this.modelMapper.map(author, UserResponse.class));
+
+                // いいね数を取得
+                final var userLikes = this.userLikeRepository.selectByTripPlanId(tripPlan.getId());
+                response.setLikes(userLikes.size());
+
+                // タグリストを取得
+                final var tags = this.tagRepository.selectByTripPlanId(tripPlan.getId());
+                response.setTags(tags.stream().map(Tag::getName).collect(Collectors.toList()));
+
+                // 項目リストを取得
+                final var items = this.tripPlanItemRepository.selectByTripPlanId(tripPlan.getId());
+                response.setItems(items.stream() //
+                    .map(item -> this.modelMapper.map(item, TripPlanItemModel.class)) //
+                    .collect(Collectors.toList()));
+
+                // 添付ファイルを取得
+                final var attachment = this.tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
+                if (attachment != null) {
+                    response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
+                }
+
+                return response;
+            }).collect(Collectors.toList());
+
+        return new TripPlansResponse(tripPlanResponses);
+
     }
 
 }
