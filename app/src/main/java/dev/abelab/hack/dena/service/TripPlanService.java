@@ -27,6 +27,7 @@ import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.repository.RegionRepository;
 import dev.abelab.hack.dena.repository.TagRepository;
 import dev.abelab.hack.dena.repository.TripPlanTaggingRepository;
+import dev.abelab.hack.dena.repository.UserLikeRepository;
 
 @RequiredArgsConstructor
 @Service
@@ -48,6 +49,8 @@ public class TripPlanService {
 
     private final TripPlanTaggingRepository tripPlanTaggingRepository;
 
+    private final UserLikeRepository userLikeRepository;
+
     /**
      * 旅行プラン一覧を取得
      *
@@ -66,7 +69,9 @@ public class TripPlanService {
             final var author = this.userRepository.selectById(tripPlan.getUserId());
             response.setAuthor(this.modelMapper.map(author, UserResponse.class));
 
-            // TODO: いいね数を取得
+            // いいね数を取得
+            final var userLikes = this.userLikeRepository.selectByTripPlanId(tripPlan.getId());
+            response.setLikes(userLikes.size());
 
             // タグリストを取得
             final var tags = this.tagRepository.selectByTripPlanId(tripPlan.getId());

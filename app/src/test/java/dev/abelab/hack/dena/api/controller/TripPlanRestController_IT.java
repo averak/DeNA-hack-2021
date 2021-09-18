@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.net.util.Base64;
 import org.modelmapper.ModelMapper;
 
+import dev.abelab.hack.dena.db.entity.UserSample;
 import dev.abelab.hack.dena.db.entity.TripPlan;
 import dev.abelab.hack.dena.db.entity.TripPlanSample;
 import dev.abelab.hack.dena.db.entity.TripPlanItemSample;
@@ -23,16 +24,19 @@ import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachmentSample;
 import dev.abelab.hack.dena.db.entity.TagSample;
 import dev.abelab.hack.dena.db.entity.TripPlanTaggingSample;
+import dev.abelab.hack.dena.db.entity.UserLikeSample;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.api.response.TripPlanResponse;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
 import dev.abelab.hack.dena.model.TripPlanAttachmentSubmitModel;
+import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
 import dev.abelab.hack.dena.repository.TripPlanItemRepository;
 import dev.abelab.hack.dena.repository.TripPlanAttachmentRepository;
 import dev.abelab.hack.dena.repository.TagRepository;
 import dev.abelab.hack.dena.repository.TripPlanTaggingRepository;
+import dev.abelab.hack.dena.repository.UserLikeRepository;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.NotFoundException;
 import dev.abelab.hack.dena.exception.UnauthorizedException;
@@ -53,6 +57,9 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 	ModelMapper modelMapper;
 
 	@Autowired
+	UserRepository userRepository;
+
+	@Autowired
 	TripPlanRepository tripPlanRepository;
 
 	@Autowired
@@ -66,6 +73,9 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 
 	@Autowired
 	TripPlanTaggingRepository tripPlanTaggingRepository;
+
+	@Autowired
+	UserLikeRepository userLikeRepository;
 
 	/**
 	 * 旅行プラン一覧取得APIのテスト
@@ -103,6 +113,18 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 				.collect(Collectors.toList());
 			tripPlanTaggingRepository.bulkInsert(tripPlanTaggings);
 
+			final var users = Arrays.asList( //
+				UserSample.builder().email("email1").build(), //
+				UserSample.builder().email("email2").build(), //
+				UserSample.builder().email("email3").build() //
+			);
+			users.forEach(userRepository::insert);
+			final var userLikes = Arrays.asList( //
+				UserLikeSample.builder().userId(users.get(0).getId()).tripPlanId(tripPlan.getId()).build(), //
+				UserLikeSample.builder().userId(users.get(1).getId()).tripPlanId(tripPlan.getId()).build() //
+			);
+			userLikes.forEach(userLikeRepository::insert);
+
 			// test
 			final var request = getRequest(GET_TRIP_PLANS_PATH);
 			request.header(HttpHeaders.AUTHORIZATION, credentials);
@@ -126,7 +148,9 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			// タグ
 			assertThat(response.getTripPlans().get(0).getTags().size()).isEqualTo(tags.size());
 
-			// TODO: いいね数
+			// いいね数
+			assertThat(response.getTripPlans().get(0).getLikes()).isEqualTo(userLikes.size());
+
 			// TODO: 添付ファイル
 		}
 
