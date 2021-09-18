@@ -11,6 +11,7 @@ import dev.abelab.hack.dena.annotation.Authenticated;
 import dev.abelab.hack.dena.db.entity.User;
 import dev.abelab.hack.dena.api.request.LoginUserPasswordUpdateRequest;
 import dev.abelab.hack.dena.service.UserService;
+import dev.abelab.hack.dena.api.response.UserResponse;
 
 @Api(tags = "User")
 @RestController
@@ -48,5 +49,31 @@ public class UserRestController {
     ) {
         this.userService.updateLoginPasswordUser(requestBody, loginUser);
     }
+
+    /**
+     * プロフィール取得API
+     *
+     * @param loginUser ログインユーザ
+     *
+     * @return ユーザ詳細レスポンス
+     */
+    @ApiOperation( //
+        value = "プロフィール取得", //
+        notes = "プロフィールを取得する。" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 200, message = "取得成功", response = UserResponse.class), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+                @ApiResponse(code = 404, message = "ユーザが存在しない") //
+        })
+    @GetMapping(value = "/me")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse getLoginUser( //
+        @ModelAttribute("LoginUser") final User loginUser //
+    ) {
+        return this.userService.getUserProfile(loginUser);
+    }
+
 
 }

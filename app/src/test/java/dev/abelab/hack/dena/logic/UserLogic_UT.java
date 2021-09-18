@@ -3,17 +3,11 @@ package dev.abelab.hack.dena.logic;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
-import static org.junit.jupiter.params.provider.Arguments.*;
 import static org.mockito.ArgumentMatchers.*;
-
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
 import mockit.Expectations;
 import mockit.Injectable;
 import mockit.Tested;
@@ -24,7 +18,6 @@ import dev.abelab.hack.dena.db.entity.UserSample;
 import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.property.JwtProperty;
 import dev.abelab.hack.dena.exception.ErrorCode;
-import dev.abelab.hack.dena.exception.BaseException;
 import dev.abelab.hack.dena.exception.UnauthorizedException;
 
 public class UserLogic_UT extends AbstractLogic_UT {
