@@ -254,6 +254,10 @@ const PlanRegisterPage: VFC = () => {
           プランを公開する
         </button>
       </div>
+      <button
+        className="w-full h-12 bg-white"
+        onClick={handleSubmit(onSubmit)}
+      />
     </Layout>
   );
 };
