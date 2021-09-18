@@ -4,6 +4,8 @@ import type { VFC } from "react";
 import type { FormEvent } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
+import type { PathData } from "src/components/Layout";
+import { Layout } from "src/components/Layout";
 
 const SearchPage: VFC = () => {
   const [prefecture, setPrefecture] = useState<string>("");
@@ -62,92 +64,95 @@ const SearchPage: VFC = () => {
       })
     );
   };
+  const pathList: PathData[] = [{ pathTitle: "検索結果", pathLink: "/search" }];
 
   return (
-    <main>
-      <div>
-        <div className="pb-3 text-center bg-blue-600 shadow-lg">
-          <Menu>
-            <Menu.Button
-              className="inline-flex justify-between py-1.5 px-2 m-3 w-3/4 text-sm font-bold text-left bg-white rounded-lg"
-              onClick={clickPrefectureDropDown}
-            >
-              {prefecture}
-            </Menu.Button>
-            <Menu.Items>
-              {prefectures.map((prefecture, i) => {
+    <Layout title="検索結果" pathList={pathList}>
+      <main>
+        <div>
+          <div className="pb-3 text-center bg-blue-600 shadow-lg">
+            <Menu>
+              <Menu.Button
+                className="inline-flex justify-between py-1.5 px-2 m-3 w-3/4 text-sm font-bold text-left bg-white rounded-lg"
+                onClick={clickPrefectureDropDown}
+              >
+                {prefecture}
+              </Menu.Button>
+              <Menu.Items>
+                {prefectures.map((prefecture, i) => {
+                  return (
+                    <Menu.Item key={i}>
+                      <button onClick={changePrefecture}>{prefecture}</button>
+                    </Menu.Item>
+                  );
+                })}
+              </Menu.Items>
+            </Menu>
+
+            <div className="flex justify-center">
+              <input
+                className="py-1.5 px-2 m-3 w-1/4 text-sm font-bold text-right rounded-lg"
+                type="text"
+                placeholder="指定なし"
+                value={minPrice}
+                onChange={changeMinPrice}
+              />
+              <p className="pt-2.5 text-xl text-white">~</p>
+              <input
+                className="py-1.5 px-2 m-3 w-1/4 text-sm font-bold text-right rounded-lg"
+                type="text"
+                placeholder="指定なし"
+                value={maxPrice}
+                onChange={changeMaxPrice}
+              />
+              <p className="pt-6 text-sm text-white">円</p>
+            </div>
+
+            <div className="flex justify-center">
+              <input
+                className="py-1.5 px-2 m-3 w-7/12 text-sm font-bold text-left bg-white rounded-lg"
+                type="text"
+                placeholder="タグ検索"
+                value={inputTag}
+                onChange={changeInputTag}
+              />
+              <button
+                className="py-1 px-2 my-3 text-sm font-bold text-left bg-white rounded-lg"
+                onClick={() => {
+                  addTagToTags(inputTag);
+                }}
+              >
+                追加
+              </button>
+            </div>
+
+            <div className="">
+              {tags.map((tag, i) => {
                 return (
-                  <Menu.Item key={i}>
-                    <button onClick={changePrefecture}>{prefecture}</button>
-                  </Menu.Item>
+                  <div
+                    key={i}
+                    className="inline-flex items-center py-1 px-3 ml-4 text-xs font-bold text-gray-700 bg-white rounded-full border"
+                  >
+                    <button
+                      onClick={() => {
+                        removeTagFromTags(tag);
+                      }}
+                    >
+                      <XIcon className="w-4" />
+                    </button>
+                    {tag}
+                  </div>
                 );
               })}
-            </Menu.Items>
-          </Menu>
-
-          <div className="flex justify-center">
-            <input
-              className="py-1.5 px-2 m-3 w-1/4 text-sm font-bold text-right rounded-lg"
-              type="text"
-              placeholder="指定なし"
-              value={minPrice}
-              onChange={changeMinPrice}
-            />
-            <p className="pt-2.5 text-xl text-white">~</p>
-            <input
-              className="py-1.5 px-2 m-3 w-1/4 text-sm font-bold text-right rounded-lg"
-              type="text"
-              placeholder="指定なし"
-              value={maxPrice}
-              onChange={changeMaxPrice}
-            />
-            <p className="pt-6 text-sm text-white">円</p>
+            </div>
           </div>
 
-          <div className="flex justify-center">
-            <input
-              className="py-1.5 px-2 m-3 w-7/12 text-sm font-bold text-left bg-white rounded-lg"
-              type="text"
-              placeholder="タグ検索"
-              value={inputTag}
-              onChange={changeInputTag}
-            />
-            <button
-              className="py-1 px-2 my-3 text-sm font-bold text-left bg-white rounded-lg"
-              onClick={() => {
-                addTagToTags(inputTag);
-              }}
-            >
-              追加
-            </button>
-          </div>
+          <p className="m-4 text-lg font-bold text-center">検索結果</p>
 
-          <div className="">
-            {tags.map((tag, i) => {
-              return (
-                <div
-                  key={i}
-                  className="inline-flex items-center py-1 px-3 ml-4 text-xs font-bold text-gray-700 bg-white rounded-full border"
-                >
-                  <button
-                    onClick={() => {
-                      removeTagFromTags(tag);
-                    }}
-                  >
-                    <XIcon className="w-4" />
-                  </button>
-                  {tag}
-                </div>
-              );
-            })}
-          </div>
+          {/* write componets */}
         </div>
-
-        <p className="m-4 text-lg font-bold text-center">検索結果</p>
-
-        {/* write componets */}
-      </div>
-    </main>
+      </main>
+    </Layout>
   );
 };
 

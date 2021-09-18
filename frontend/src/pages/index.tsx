@@ -3,6 +3,7 @@ import { XIcon } from "@heroicons/react/solid";
 import type { VFC } from "react";
 import type { FormEvent } from "react";
 import { useCallback, useState } from "react";
+import { Layout } from "src/components/Layout";
 import AREA from "src/utils/static/area.json";
 
 import { PlanContent } from "../organisms/PlanContent";
@@ -152,59 +153,61 @@ const TagSelects = () => {
 
 const HomePage: VFC = () => {
   return (
-    <div className="p-0 m-0 w-full">
-      <div className="py-7 font-bold text-white bg-gradient-to-r from-blue-c2 to-blue-c1">
-        <p className="pt-4 text-center">プラン検索</p>
-        <div className="py-4 mx-auto w-11/12">
-          <p className="py-4 text-left">エリア</p>
-          <div className="overflow-hidden rounded">
-            {Object.entries(AREA).map(([category, value], i) => {
-              return <AreaSelect key={i} category={category} areas={value} />;
-            })}
+    <Layout title="トップ" pathList={[]}>
+      <div className="p-0 m-0 w-full">
+        <div className="py-7 font-bold text-white bg-gradient-to-r from-blue-c2 to-blue-c1">
+          <p className="pt-4 text-center">プラン検索</p>
+          <div className="py-4 mx-auto w-11/12">
+            <p className="py-4 text-left">エリア</p>
+            <div className="overflow-hidden rounded">
+              {Object.entries(AREA).map(([category, value], i) => {
+                return <AreaSelect key={i} category={category} areas={value} />;
+              })}
+            </div>
+            <p className=" pt-8 text-left">金額</p>
+            <div className="flex gap-3 items-end w-full">
+              <input
+                className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
+                placeholder="指定なし"
+              />
+              <p className="leading-[45px]">~</p>
+              <input
+                className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
+                placeholder="指定なし"
+              />
+              <p>円</p>
+            </div>
+            <p className="pt-8 text-left">タグを検索</p>
+            <TagSelects />
           </div>
-          <p className=" pt-8 text-left">金額</p>
-          <div className="flex gap-3 items-end w-full">
-            <input
-              className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
-              placeholder="指定なし"
+          <button className="flex justify-center items-center mx-auto w-full max-w-[260px] h-[54px] text-center bg-gradient-to-r from-yellow-c2 to-yellow-c1 rounded-md">
+            <p className="font-bold text-black">みんなのトリップを検索</p>
+            <img
+              src="/carry_case_icon.svg"
+              width={40}
+              height={40}
+              alt="キャリーケースのアイコン"
             />
-            <p className="leading-[45px]">~</p>
-            <input
-              className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
-              placeholder="指定なし"
-            />
-            <p>円</p>
-          </div>
-          <p className="pt-8 text-left">タグを検索</p>
-          <TagSelects />
+          </button>
         </div>
-        <button className="flex justify-center items-center mx-auto w-full max-w-[260px] h-[54px] text-center bg-gradient-to-r from-yellow-c2 to-yellow-c1 rounded-md">
-          <p className="font-bold text-black">みんなのトリップを検索</p>
-          <img
-            src="/carry_case_icon.svg"
-            width={40}
-            height={40}
-            alt="キャリーケースのアイコン"
-          />
-        </button>
-      </div>
-      <div className="mx-auto w-11/12">
-        <p className="py-4 font-bold">新着トリップ</p>
-      </div>
+        <div className="mx-auto w-11/12">
+          <p className="py-4 font-bold">新着トリップ</p>
+        </div>
 
-      <div className="m-3">
-        <PlanContent
-          planId={12}
-          imgSrc="https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D"
-          title="〇〇プラン！"
-          description="清水寺と食い倒れたい！そんなあなたにオススメ！貴方が求める旅行がきっとできるはず！"
-          tags={["清水寺", "男子会", "楽しい"]}
-          price={10000}
-          likes={100}
-          planner="まっさん"
-        />
+        <div className="m-3">
+          <PlanContent
+            planId={12}
+            imgSrc="https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D"
+            title="〇〇プラン！"
+            description="清水寺と食い倒れたい！そんなあなたにオススメ！貴方が求める旅行がきっとできるはず！"
+            tags={["清水寺", "男子会", "楽しい"]}
+            price={10000}
+            likes={100}
+            planner="まっさん"
+          />
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
