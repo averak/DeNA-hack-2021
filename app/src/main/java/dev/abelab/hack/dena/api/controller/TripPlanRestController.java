@@ -15,6 +15,7 @@ import dev.abelab.hack.dena.annotation.Authenticated;
 import dev.abelab.hack.dena.db.entity.User;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.api.request.TripPlanUpdateRequest;
+import dev.abelab.hack.dena.api.response.TripPlanResponse;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.service.TripPlanService;
 import dev.abelab.hack.dena.api.request.UserLikeRequest;
@@ -31,9 +32,39 @@ public class TripPlanRestController {
     private final TripPlanService tripPlanService;
 
     /**
+     * 旅行プランの取得API
+     *
+     * @param tripPlanId 旅行プランID
+     * @param loginUser  ログインユーザ
+     *
+     * @return 旅行プランレスポンス
+     */
+    @ApiOperation( //
+        value = "旅行プランの取得", //
+        notes = "旅行プランを取得する" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 200, message = "取得成功", response = TripPlanResponse.class), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+                @ApiResponse(code = 404, message = "旅行プランが存在しない"), //
+        } //
+    )
+    @GetMapping(value = "/{trip_plan_id}")
+    @ResponseStatus(HttpStatus.OK)
+    public TripPlanResponse getTripPlan( //
+        @ModelAttribute("LoginUser") final User loginUser, //
+        @ApiParam(name = "trip_plan_id", required = true, value = "旅行プランID") @PathVariable("trip_plan_id") final int tripPlanId //
+    ) {
+        return this.tripPlanService.getTripPlan(tripPlanId, loginUser);
+    }
+
+    /**
      * 旅行プランの一覧取得API
      *
      * @param loginUser ログインユーザ
+     *
+     * @return 旅行プラン一覧
      */
     @ApiOperation( //
         value = "旅行プランの一覧取得", //

@@ -2,13 +2,18 @@ package dev.abelab.hack.dena.api.controller;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.TestInstance.Lifecycle.*;
+import static org.junit.jupiter.params.provider.Arguments.*;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +59,7 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 	// API PATH
 	static final String BASE_PATH = "/api/trip_plans";
 	static final String GET_TRIP_PLANS_PATH = BASE_PATH;
+	static final String GET_TRIP_PLAN_PATH = BASE_PATH + "/%d";
 	static final String CREATE_TRIP_PLAN_PATH = BASE_PATH;
 	static final String UPDATE_TRIP_PLAN_PATH = BASE_PATH + "/%d";
 	static final String DELETE_TRIP_PLAN_PATH = BASE_PATH + "/%d";
@@ -84,6 +90,75 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 
 	@Autowired
 	UserLikeRepository userLikeRepository;
+
+	/**
+	 * 旅行プラン詳細取得APIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class GetTripPlanTest extends AbstractRestControllerInitialization_IT {
+
+		@ParameterizedTest
+		@MethodSource
+		void 正_旅行プランを取得(final boolean isLiked) throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var tripPlan = TripPlanSample.builder().userId(loginUser.getId()).build();
+			tripPlanRepository.insert(tripPlan);
+
+			// いいね
+			if (isLiked) {
+				final var userLike = UserLikeSample.builder() //
+					.userId(loginUser.getId()) //
+					.tripPlanId(tripPlan.getId()) //
+					.build();
+				userLikeRepository.insert(userLike);
+			}
+
+			// test
+			final var request = getRequest(String.format(GET_TRIP_PLAN_PATH, tripPlan.getId()));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			final var response = execute(request, HttpStatus.OK, TripPlanResponse.class);
+
+			// verify
+			assertThat(response.getTitle()).isEqualTo(tripPlan.getTitle());
+			assertThat(response.getDescription()).isEqualTo(tripPlan.getDescription());
+			assertThat(response.getRegionId()).isEqualTo(tripPlan.getRegionId());
+			assertThat(response.getAuthor().getId()).isEqualTo(loginUser.getId());
+			assertThat(response.getIsLiked()).isEqualTo(isLiked);
+		}
+
+		Stream<Arguments> 正_旅行プランを取得() {
+			return Stream.of( //
+				arguments(true), //
+				arguments(false) //
+			);
+		}
+
+		@Test
+		void 異_取得対象の旅行プランが存在しない() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			// test
+			final var request = getRequest(String.format(GET_TRIP_PLAN_PATH, SAMPLE_INT));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			execute(request, new NotFoundException(ErrorCode.NOT_FOUND_TRIP_PLAN));
+
+		}
+
+		@Test
+		void 異_無効な認証ヘッダ() throws Exception {
+			// test
+			final var request = getRequest(String.format(GET_TRIP_PLAN_PATH, SAMPLE_INT));
+			request.header(HttpHeaders.AUTHORIZATION, "");
+			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
+		}
+
+	}
 
 	/**
 	 * 旅行プラン一覧取得APIのテスト
@@ -142,8 +217,8 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			// 旅行プラン
 			assertThat(response.getTripPlans())
 				.extracting(TripPlanResponse::getId, TripPlanResponse::getTitle, TripPlanResponse::getDescription,
-					TripPlanResponse::getRegionId) //
-				.containsExactlyInAnyOrder(tuple(tripPlan.getId(), tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId()));
+					TripPlanResponse::getRegionId, TripPlanResponse::getIsLiked) //
+				.containsExactlyInAnyOrder(tuple(tripPlan.getId(), tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId(), false));
 
 			// 旅行プラン項目
 			assertThat(response.getTripPlans().get(0).getItems())

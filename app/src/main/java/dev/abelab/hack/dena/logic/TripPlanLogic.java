@@ -6,8 +6,10 @@ import org.springframework.stereotype.Component;
 import org.modelmapper.ModelMapper;
 
 import lombok.*;
+import dev.abelab.hack.dena.db.entity.User;
 import dev.abelab.hack.dena.db.entity.TripPlan;
 import dev.abelab.hack.dena.db.entity.Tag;
+import dev.abelab.hack.dena.db.entity.UserLike;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
 import dev.abelab.hack.dena.model.TripPlanAttachmentModel;
 import dev.abelab.hack.dena.api.response.TripPlanResponse;
@@ -37,11 +39,12 @@ public class TripPlanLogic {
     /**
      * 旅行プランIDから旅行プランレスポンスを作成
      *
-     * @param tripPlan 旅行プラン
+     * @param tripPlan  旅行プラン
+     * @param loginUser ログインユーザ
      *
      * @return 旅行プランレスポンス
      */
-    public TripPlanResponse buildTripPlanResponse(final TripPlan tripPlan) {
+    public TripPlanResponse buildTripPlanResponse(final TripPlan tripPlan, final User loginUser) {
         final var tripPlanResponse = this.modelMapper.map(tripPlan, TripPlanResponse.class);
 
         // 作成者を取得
@@ -67,6 +70,13 @@ public class TripPlanLogic {
         if (attachment != null) {
             tripPlanResponse.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
         }
+
+        // いいね済みか
+        final var userLike = UserLike.builder() //
+            .userId(loginUser.getId()) //
+            .tripPlanId(tripPlan.getId()) //
+            .build();
+        tripPlanResponse.setIsLiked(this.userLikeRepository.exists(userLike));
 
         return tripPlanResponse;
     }
