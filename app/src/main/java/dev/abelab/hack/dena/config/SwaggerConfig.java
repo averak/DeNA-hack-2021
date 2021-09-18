@@ -38,7 +38,8 @@ public class SwaggerConfig {
                 new Tag("Health", "ヘルスチェック"), //
                 new Tag("Auth", "認証"), //
                 new Tag("User", "ユーザ"), //
-                new Tag("TripPlan", "旅行プラン") //
+                new Tag("TripPlan", "旅行プラン"), //
+                new Tag("Tag", "タグ") //
             );
     }
 
