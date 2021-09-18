@@ -10,13 +10,13 @@ import dev.abelab.hack.dena.model.TripPlanItemModel;
 import dev.abelab.hack.dena.model.TripPlanAttachmentSubmitModel;
 
 /**
- * 旅行プラン作成リクエスト
+ * 旅行プラン更新リクエスト
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TripPlanCreateRequest {
+public class TripPlanUpdateRequest {
 
     /**
      * タイトル
@@ -40,7 +40,7 @@ public class TripPlanCreateRequest {
 
     /**
      * 添付ファイル
-     */
+     * */
     TripPlanAttachmentSubmitModel attachment;
 
     /**
