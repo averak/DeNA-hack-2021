@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.net.util.Base64;
 import org.modelmapper.ModelMapper;
+import java.util.List;
 
 import lombok.*;
 import dev.abelab.hack.dena.db.entity.User;
@@ -23,6 +24,10 @@ import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.repository.RegionRepository;
 import dev.abelab.hack.dena.repository.TagRepository;
 import dev.abelab.hack.dena.repository.TripPlanTaggingRepository;
+import dev.abelab.hack.dena.api.response.UserLikesResponse;
+import dev.abelab.hack.dena.repository.UserLikeRepository;
+import dev.abelab.hack.dena.db.entity.UserLike;
+import dev.abelab.hack.dena.api.request.UserLikeRequest;
 
 @RequiredArgsConstructor
 @Service
@@ -43,6 +48,8 @@ public class TripPlanService {
     private final TagRepository tagRepository;
 
     private final TripPlanTaggingRepository tripPlanTaggingRepository;
+
+    private final UserLikeRepository userLikeRepository;
 
     /**
      * 旅行プランを作成
@@ -90,6 +97,31 @@ public class TripPlanService {
             .filter(tagging -> tagging.getTagId() != null) //
             .collect(Collectors.toList());
         this.tripPlanTaggingRepository.bulkInsert(tripPlanTaggings);
+    }
+
+    /**
+     * お気に入り取得
+     *
+     * @param loginUser ログインユーザ
+     *
+     * @return お気に入り情報レスポンス
+     */
+    @Transactional
+    public UserLikesResponse putUserLike(final User loginUser,final UserLikeRequest requestBody, final int tripPlanId) {
+        System.out.println("test");
+        System.out.println(requestBody);
+        System.out.println(requestBody.isLike());
+        if (requestBody.isLike()) {
+            this.userLikeRepository.insert(new UserLike(loginUser.getId(), tripPlanId));
+        } else {
+            this.userLikeRepository.deleteByPrimaryKey(loginUser.getId(), tripPlanId);
+        }
+        List<UserLike> userLikes = this.userLikeRepository.selectById(loginUser.getId());
+        // forEachメソッドでループ
+        userLikes.forEach(item -> 
+            System.out.println(item)
+        );
+        return new UserLikesResponse();
     }
 
 }

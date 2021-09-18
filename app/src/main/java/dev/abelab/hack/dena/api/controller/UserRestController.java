@@ -12,7 +12,6 @@ import dev.abelab.hack.dena.db.entity.User;
 import dev.abelab.hack.dena.api.request.LoginUserPasswordUpdateRequest;
 import dev.abelab.hack.dena.service.UserService;
 import dev.abelab.hack.dena.api.response.UserResponse;
-import dev.abelab.hack.dena.api.response.UserLikesResponse;
 
 @Api(tags = "User")
 @RestController
@@ -75,30 +74,4 @@ public class UserRestController {
     ) {
         return this.userService.getUserProfile(loginUser);
     }
-
-    /**
-     * お気に入り取得API
-     *
-     * @param loginUser ログインユーザ
-     *
-     * @return お気に入り取得レスポンス
-     */
-    @ApiOperation( //
-        value = "お気に入り取得", //
-        notes = "お気に入りを取得する。" //
-    )
-    @ApiResponses( //
-        value = { //
-                @ApiResponse(code = 200, message = "取得成功", response = UserLikesResponse.class), //
-                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
-                @ApiResponse(code = 404, message = "ユーザが存在しない") //
-        })
-    @GetMapping(value = "/me/likes")
-    @ResponseStatus(HttpStatus.OK)
-    public UserLikesResponse getUserLikes( //
-        @ModelAttribute("LoginUser") final User loginUser //
-    ) {
-        return this.userService.getUserLikes(loginUser);
-    }
-
 }

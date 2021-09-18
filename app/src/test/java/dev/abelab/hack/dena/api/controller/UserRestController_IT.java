@@ -21,7 +21,6 @@ import org.modelmapper.ModelMapper;
 import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.api.request.LoginUserPasswordUpdateRequest;
 import dev.abelab.hack.dena.api.response.UserResponse;
-import dev.abelab.hack.dena.api.response.UserLikesResponse;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.BaseException;
 import dev.abelab.hack.dena.exception.BadRequestException;
@@ -36,7 +35,7 @@ public class UserRestController_IT extends AbstractRestController_IT {
 	static final String BASE_PATH = "/api/users";
 	static final String GET_LOGIN_USER_PATH = BASE_PATH + "/me";
 	static final String UPDATE_LOGIN_USER_PATH = BASE_PATH + "/me";
-	static final String GET_USER_LIKE_PATH = BASE_PATH + "/me/likes";
+	static final String PUT_USER_LIKE_PATH = BASE_PATH + "/me/like";
 	static final String UPDATE_LOGIN_USER_PASSWORD_PATH = BASE_PATH + "/me/password";
 
 	@Autowired
@@ -47,42 +46,6 @@ public class UserRestController_IT extends AbstractRestController_IT {
 
 	@Autowired
 	UserRepository userRepository;
-	
-	/**
-	 * お気に入り取得APIのテスト
-	 */
-	@Nested
-	@TestInstance(PER_CLASS)
-	class GetUserLikesTest extends AbstractRestControllerInitialization_IT {
-
-		@Test
-		void 正_お気に入り取得() throws Exception {
-			// setup
-			final var loginUser = createLoginUser();
-			final var credentials = getLoginUserCredentials(loginUser);
-			final var tripPlan = createTripPlan(loginUser);
-			final var userLike = createUserLike(loginUser, tripPlan);
-			final var tripPlan2 = createTripPlan(loginUser);
-			final var userLike2 = createUserLike(loginUser, tripPlan2);
-
-			// test
-			final var request = getRequest(GET_USER_LIKE_PATH);
-			request.header(HttpHeaders.AUTHORIZATION, credentials);
-			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
-			System.out.println(response);
-
-			// verify
-			assertThat(response).isEqualTo(new UserLikesResponse());
-		}
-
-		@Test
-		void 異_無効な認証ヘッダ() throws Exception {
-			// test
-			final var request = getRequest(GET_LOGIN_USER_PATH);
-			request.header(HttpHeaders.AUTHORIZATION, "");
-			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
-		}
-	}
 
 	/**
 	 * ログインユーザ詳細取得APIのテスト

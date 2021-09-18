@@ -47,6 +47,10 @@ public class UserLikeRepository {
         return this.userLikeMapper.insertSelective(userLike);
     }
 
+    public void deleteByPrimaryKey(final int userId, final int tripPlanId) {
+        this.userLikeMapper.deleteByPrimaryKey(userId, tripPlanId);
+    }
+
     /**
      * userLikeの存在確認
      *
