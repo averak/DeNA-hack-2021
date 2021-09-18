@@ -1,5 +1,6 @@
 package dev.abelab.hack.dena.service;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -10,11 +11,13 @@ import lombok.*;
 import dev.abelab.hack.dena.db.entity.User;
 import dev.abelab.hack.dena.db.entity.TripPlan;
 import dev.abelab.hack.dena.db.entity.TripPlanItem;
+import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanTagging;
 import dev.abelab.hack.dena.db.entity.Tag;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
 import dev.abelab.hack.dena.repository.TripPlanItemRepository;
+import dev.abelab.hack.dena.repository.TripPlanAttachmentRepository;
 import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.repository.RegionRepository;
 import dev.abelab.hack.dena.repository.TagRepository;
@@ -29,6 +32,8 @@ public class TripPlanService {
     private final TripPlanRepository tripPlanRepository;
 
     private final TripPlanItemRepository tripPlanItemRepository;
+
+    private final TripPlanAttachmentRepository tripPlanAttachmentRepository;
 
     private final UserRepository userRepository;
 
@@ -54,6 +59,14 @@ public class TripPlanService {
             return result;
         }).collect(Collectors.toList());
         this.tripPlanItemRepository.bulkInsert(tripPlanItems);
+
+        // 添付ファイルを保存
+        if (requestBody.getAttachment() != null) {
+            final var attachment = this.modelMapper.map(requestBody.getAttachment(), TripPlanAttachment.class);
+            attachment.setTripPlanId(tripPlan.getId());
+            attachment.setUuid(UUID.randomUUID().toString());
+            this.tripPlanAttachmentRepository.insert(attachment);
+        }
 
         // タグ一覧を作成
         final var tags = requestBody.getTags().stream() //

@@ -36,6 +36,8 @@ public enum ErrorCode {
 
     CONFLICT_TRIP_PLAN_TAGGING(1202, "exception.conflict.trip_plan_tagging"),
 
+    CONFLICT_TRIP_PLAN_ATTACHMENT(1203, "exception.conflict.trip_plan_attachment"),
+
     /**
      * Forbidden: 1300~1399
      */

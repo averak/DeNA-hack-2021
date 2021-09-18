@@ -11,6 +11,7 @@ exception:
     email: "Email already exists."
     tag_name: "Tag already exists."
     trip_plan_tagging: "Trip plan tagging already exists."
+    trip_plan_attachment: "Trip plan attachment already exists."
   forbidden:
     user_has_no_permission: "User has no permission."
   bad_request:
