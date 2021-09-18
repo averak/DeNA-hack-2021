@@ -156,7 +156,6 @@ public class RestControllerExceptionHandler extends ResponseEntityExceptionHandl
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException exception, HttpHeaders headers,
         HttpStatus status, WebRequest request) {
-        System.out.println("ここだよ！");
         final var errorCode = ErrorCode.INVALID_REQUEST_PARAMETER;
         final var message = this.messageSource.getMessage(errorCode.getMessageKey(), null, Locale.ENGLISH);
         final var errorResponse = ErrorResponse.builder().message(message).code(errorCode.getCode()).build();

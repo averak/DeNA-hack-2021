@@ -1,5 +1,7 @@
 package dev.abelab.hack.dena.db.entity;
 
+import java.util.UUID;
+
 /**
  * TripPlanAttachment Sample Builder
  */
@@ -11,7 +13,7 @@ public class TripPlanAttachmentSample extends AbstractSample {
 
 	public static class TripPlanAttachmentSampleBuilder {
 
-		private String uuid = SAMPLE_STR;
+		private String uuid = UUID.randomUUID().toString();
 		private Integer tripPlanId = SAMPLE_INT;
 		private String fileName = SAMPLE_STR;
 		private byte[] content = SAMPLE_BYTE;

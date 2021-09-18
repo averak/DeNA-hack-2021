@@ -35,7 +35,6 @@
 			<generatedKey column="id" sqlStatement="JDBC" identity="true" />
 		</table>
 		<table tableName="trip_plan_attachment">
-			<generatedKey column="uuid" sqlStatement="JDBC" identity="true" />
 		</table>
 		<table tableName="user_like"></table>
 		<table tableName="tag">

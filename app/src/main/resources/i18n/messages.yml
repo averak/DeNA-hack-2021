@@ -4,8 +4,14 @@ exception:
   not_found:
     api: "API does not exists."
     user: "User does not exists."
+    region: "Region does not exists."
+    trip_plan: "Trip plan does not exists."
+    tag: "Tag does not exists."
   conflict:
     email: "Email already exists."
+    tag_name: "Tag already exists."
+    trip_plan_tagging: "Trip plan tagging already exists."
+    trip_plan_attachment: "Trip plan attachment already exists."
   forbidden:
     user_has_no_permission: "User has no permission."
   bad_request:
