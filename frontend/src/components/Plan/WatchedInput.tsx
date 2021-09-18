@@ -4,7 +4,6 @@ import { useState } from "react";
 type InputProps = {
   onClick: (value: string) => void;
 };
-
 export const WatchedInput: VFC<InputProps> = ({ onClick }) => {
   const [value, setValue] = useState<string>("");
   const [validate, setValidate] = useState<boolean>(false);
