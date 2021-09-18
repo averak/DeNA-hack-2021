@@ -1,6 +1,5 @@
 import { Menu, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/solid";
-import Image from "next/image";
 import type { VFC } from "react";
 import type { FormEvent } from "react";
 import { useCallback, useState } from "react";
@@ -179,7 +178,7 @@ const HomePage: VFC = () => {
         </div>
         <button className="flex justify-center items-center mx-auto w-full max-w-[260px] h-[54px] text-center bg-gradient-to-r from-yellow-c2 to-yellow-c1 rounded-md">
           <p className="font-bold text-black">みんなのトリップを検索</p>
-          <Image
+          <img
             src="/carry_case_icon.svg"
             width={40}
             height={40}
