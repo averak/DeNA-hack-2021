@@ -1,12 +1,11 @@
 package dev.abelab.hack.dena.api.request;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import lombok.*;
 
 /**
- * いいねリクエスト
+ * 旅行プランいいねリクエスト
  */
 @Data
 @Builder
@@ -15,8 +14,10 @@ import lombok.*;
 public class UserLikeRequest {
 
     /**
-     * like
+     * いいねするかどうか
      */
     @NotNull
     Boolean isLike;
+
 }
+

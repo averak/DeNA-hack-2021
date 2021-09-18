@@ -77,4 +77,15 @@ public class TripPlanAttachmentRepository {
         return this.selectByTripPlanId(tripPlanId) != null;
     }
 
+    /**
+     * 旅行プランIDから削除
+     *
+     * @param tripPlanId 旅行プランID
+     */
+    public void deleteByTripPlanId(final int tripPlanId) {
+        final var example = new TripPlanAttachmentExample();
+        example.createCriteria().andTripPlanIdEqualTo(tripPlanId);
+        this.tripPlanAttachmentMapper.deleteByExample(example);
+    }
+
 }

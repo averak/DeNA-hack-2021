@@ -60,4 +60,15 @@ public class TripPlanTaggingRepository {
         return !this.tripPlanTaggingMapper.selectByExample(example).isEmpty();
     }
 
+    /**
+     * 旅行プランIDから削除
+     *
+     * @param tripPlanId 旅行プランID
+     */
+    public void deleteByTripPlanId(final int tripPlanId) {
+        final var example = new TripPlanTaggingExample();
+        example.createCriteria().andTripPlanIdEqualTo(tripPlanId);
+        this.tripPlanTaggingMapper.deleteByExample(example);
+    }
+
 }

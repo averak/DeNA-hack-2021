@@ -33,12 +33,6 @@ import dev.abelab.hack.dena.logic.UserLogic;
 import dev.abelab.hack.dena.util.ConvertUtil;
 import dev.abelab.hack.dena.exception.BaseException;
 import dev.abelab.hack.dena.api.response.ErrorResponse;
-import dev.abelab.hack.dena.repository.UserLikeRepository;
-import dev.abelab.hack.dena.repository.TripPlanRepository;
-import dev.abelab.hack.dena.db.entity.UserLikeSample;
-import dev.abelab.hack.dena.db.entity.TripPlanSample;
-import dev.abelab.hack.dena.db.entity.UserLike;
-import dev.abelab.hack.dena.db.entity.TripPlan;
 
 /**
  * Abstract Rest Controller Integration Test
@@ -65,12 +59,6 @@ public abstract class AbstractRestController_IT {
 
 	@Autowired
 	private UserRepository userRepository;
-
-	@Autowired
-	private UserLikeRepository userLikeRepository;
-
-	@Autowired
-	private TripPlanRepository tripPlanRepository;
 
 	@Autowired
 	private UserLogic userLogic;
@@ -253,42 +241,6 @@ public abstract class AbstractRestController_IT {
 	 */
 	public String getLoginUserCredentials(User user) throws Exception {
 		return "Bearer " + this.userLogic.generateJwt(user);
-	}
-
-		/**
-	 * ログインユーザのお気に入り作成
-	 *
-	 * @return loginUser
-	 */
-	public TripPlan createTripPlan(User loginUser) {
-
-		final var userTripPlan = TripPlanSample.builder() //
-		.userId(loginUser.getId()) //
-		.title(SAMPLE_STR) //
-		.description(SAMPLE_STR) //
-		.regionId(SAMPLE_INT) //
-		.createdAt(SAMPLE_DATE) //
-		.updatedAt(SAMPLE_DATE) //
-		.build();
-		this.tripPlanRepository.insert(userTripPlan);
-
-		return userTripPlan;
-	}
-
-	/**
-	 * ログインユーザのお気に入り作成
-	 *
-	 * @return loginUser
-	 */
-	public UserLike createUserLike(User loginUser, TripPlan tripPlan) {
-
-		final var userLike = UserLikeSample.builder() //
-		.userId(loginUser.getId()) //
-		.tripPlanId(tripPlan.getId()) //
-		.build();
-		this.userLikeRepository.insert(userLike);
-
-		return userLike;
 	}
 
 	@BeforeEach
