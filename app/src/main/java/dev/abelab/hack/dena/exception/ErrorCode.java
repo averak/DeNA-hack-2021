@@ -27,6 +27,8 @@ public enum ErrorCode {
 
     NOT_FOUND_TAG(1104, "exception.not_found.tag"),
 
+    NOT_FOUND_USER_LIKE(1105, "exception.not_found.user_like"),
+
     /**
      * Conflict: 1200~1299
      */
@@ -37,6 +39,8 @@ public enum ErrorCode {
     CONFLICT_TRIP_PLAN_TAGGING(1202, "exception.conflict.trip_plan_tagging"),
 
     CONFLICT_TRIP_PLAN_ATTACHMENT(1203, "exception.conflict.trip_plan_attachment"),
+
+    CONFLICT_USER_LIKE(1204, "exception.conflict.user_like"),
 
     /**
      * Forbidden: 1300~1399
