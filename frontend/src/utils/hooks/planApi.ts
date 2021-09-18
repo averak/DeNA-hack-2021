@@ -26,6 +26,27 @@ export type TripPlanParam = {
   title: string;
 };
 
+export type UpdatePlanParam = {
+  attachment: {
+    content: string;
+    fileName: string;
+  };
+  description: string;
+  items: [
+    {
+      description: string;
+      finishAt: Date;
+      itemOrder: number;
+      price: number;
+      startAt: Date;
+      title: string;
+    }
+  ];
+  regionId: 0;
+  tags: string[];
+  title: string;
+};
+
 export type LikesParam = {
   isLike: boolean;
 };
@@ -43,6 +64,7 @@ export type TripPlanResponse = {
   };
   description: string;
   id: number;
+  isLiked: boolean;
   items: TripPlanItem[];
   likes: number;
   regionId: number;
@@ -171,6 +193,67 @@ export const usePostPlan = () => {
   return { loading, error, response, postFn };
 };
 
+// idでプラン取得
+export const useGetPlan = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [response, setResponse] = useState<TripPlanResponse | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  const getFn = useCallback(async (tripPlanId: number) => {
+    setLoading(true);
+    const url = `${hostname}/api/trip_plans/${tripPlanId}`;
+    await axios
+      .get<TripPlanResponse>(url, {
+        headers: { Authorization: getTokenHeader() },
+      })
+      .then(async (res) => {
+        const responseData = await res.data;
+        setResponse(responseData);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+  return { loading, error, response, getFn };
+};
+
+// プランの更新
+export const usePutPlan = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [response, setResponse] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  const putFn = useCallback(
+    async (tripPlanId: number, params: UpdatePlanParam) => {
+      setLoading(true);
+      const url = `${hostname}/api/trip_plans/${tripPlanId}`;
+      await axios
+        .put<number>(url, params, {
+          headers: { Authorization: getTokenHeader() },
+        })
+        .then(async (res) => {
+          const responseStatusCode = await res.status;
+          if (responseStatusCode === 200) {
+            setResponse("success");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    []
+  );
+  return { loading, error, response, putFn };
+};
+
 // プラン削除
 export const useDeletePlan = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -201,7 +284,7 @@ export const useDeletePlan = () => {
   return { loading, error, response, deleteFn };
 };
 
-// プランにいいねを押す
+// プランにいいねを押す(現在のいいね数を返す)
 export const usePutLikes = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<number | null>(null);
