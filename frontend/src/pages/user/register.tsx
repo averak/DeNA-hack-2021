@@ -1,12 +1,28 @@
+import { useRouter } from "next/router";
 import type { VFC } from "react";
+import { useEffect } from "react";
 import { RegistAuthField } from "src/components/User/AuthField";
 
 import type { SignUpParam } from "../../utils/hooks/userApi";
 import { useSignUp as UseSignUp } from "../../utils/hooks/userApi";
 
 const UserRegisterPage: VFC = () => {
-  // const { getFn, response } = UseSignUp();
-  const { getFn } = UseSignUp();
+  const { getFn, response, error } = UseSignUp();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!response) {
+      return;
+    }
+    router.push("/");
+  }, [response, router]);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+  }, [error]);
 
   const authResiter = (
     firstName: string,
@@ -21,9 +37,7 @@ const UserRegisterPage: VFC = () => {
       password: password,
     };
 
-    getFn(param).then(() => {
-      // console.log(response)
-    });
+    getFn(param);
     return;
   };
   return (

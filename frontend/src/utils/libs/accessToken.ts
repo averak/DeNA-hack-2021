@@ -18,6 +18,10 @@ const getToken = (): UserResponse => {
   };
 };
 
+export const isAccessToken = (): boolean => {
+  return !!getToken().accessToken;
+};
+
 export const getTokenHeader = (): string => {
   const tokenData = getToken();
   return `${tokenData.tokenType} ${tokenData.accessToken}`;

@@ -1,4 +1,5 @@
 import { KeyIcon, MailIcon, UserIcon } from "@heroicons/react/outline";
+import Link from "next/link";
 import type {
   Dispatch,
   FormEvent,
@@ -79,6 +80,15 @@ export const LoginAuthField: VFC<LoginAuthProps> = ({
         >
           {submitText}
         </button>
+      </div>
+      <div className="pt-8">
+        <Link href="/user/register">
+          <button
+            className={`block mx-auto w-[220px] h-12 font-bold bg-white rounded ${styles.submitButton}`}
+          >
+            新規登録画面へ
+          </button>
+        </Link>
       </div>
     </div>
   );
