@@ -1,14 +1,27 @@
 import type { VFC } from "react";
-import { AuthField } from "src/components/User/AuthField";
+import { LoginAuthField } from "src/components/User/AuthField";
+
+import type { LoginParam } from "../../utils/hooks/userApi";
+import { useLogin as UseLogin } from "../../utils/hooks/userApi";
 
 const LoginPage: VFC = () => {
-  const authLogin = () => {
+  // const { getFn, response } = UseLogin();
+  const { getFn } = UseLogin();
+
+  const authLogin = (mail: string, password: string) => {
+    const param: LoginParam = {
+      email: mail,
+      password: password,
+    };
+    getFn(param).then(() => {
+      // console.log(response)
+    });
     return;
   };
   return (
     <div className="flex relative justify-center items-center w-full h-screen bg-blue-500">
       <div className="w-full max-w-[320px] h-auto">
-        <AuthField submitText="ログイン" handleSubmit={authLogin} />
+        <LoginAuthField submitText="ログイン" handleSubmit={authLogin} />
       </div>
     </div>
   );
