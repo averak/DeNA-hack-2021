@@ -1,8 +1,10 @@
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 import type { VFC } from "react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Carousel } from "react-responsive-carousel";
+
+import { useGetTopImageUrl } from "../utils/hooks/instagramApi";
 
 type Props = {
   place: string;
@@ -11,12 +13,25 @@ type Props = {
 };
 
 export const PlanDetailContent: VFC<Props> = (props) => {
-  const dummyImageUrl =
-    "https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D";
+  const { getTopImageFn, response, error, loading } = useGetTopImageUrl();
+  const [instaImages, setInstaImages] = useState<string[]>([]);
 
   useEffect(() => {
-    //instagram の api をたたいて検索
+    getTopImageFn(props.place);
   }, []);
+
+  useEffect(() => {
+    if (!response) {
+      return;
+    }
+    setInstaImages(response);
+  }, [response]);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+  }, [error]);
 
   return (
     <main>
@@ -33,35 +48,37 @@ export const PlanDetailContent: VFC<Props> = (props) => {
           <p>{props.description}</p>
         </div>
 
-        <Carousel>
-          <div>
-            <img
-              src={dummyImageUrl}
-              alt="インスタの画像1"
-              width={400}
-              height={300}
-            />
-            <p>タイトル１</p>
-          </div>
-          <div>
-            <img
-              src={dummyImageUrl}
-              alt="インスタの画像2"
-              width={400}
-              height={300}
-            />
-            <p>タイトル２</p>
-          </div>
-          <div>
-            <img
-              src={dummyImageUrl}
-              alt="インスタの画像3"
-              width={400}
-              height={300}
-            />
-            <p>タイトル３</p>
-          </div>
-        </Carousel>
+        {!loading && (
+          <Carousel>
+            <div>
+              <img
+                src={instaImages[0]}
+                alt="インスタの画像1"
+                width={400}
+                height={300}
+              />
+              <p></p>
+            </div>
+            <div>
+              <img
+                src={instaImages[1]}
+                alt="インスタの画像2"
+                width={400}
+                height={300}
+              />
+              <p></p>
+            </div>
+            <div>
+              <img
+                src={instaImages[2]}
+                alt="インスタの画像3"
+                width={400}
+                height={300}
+              />
+              <p></p>
+            </div>
+          </Carousel>
+        )}
 
         <div className="">
           <p className="text-sm text-right text-gray-700">instagramより</p>
