@@ -40,6 +40,7 @@ import dev.abelab.hack.dena.repository.TripPlanTaggingRepository;
 import dev.abelab.hack.dena.repository.UserLikeRepository;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.NotFoundException;
+import dev.abelab.hack.dena.exception.ForbiddenException;
 import dev.abelab.hack.dena.exception.UnauthorizedException;
 
 /**
@@ -256,6 +257,56 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 
 			// test
 			final var request = postRequest(CREATE_TRIP_PLAN_PATH, requestBody);
+			request.header(HttpHeaders.AUTHORIZATION, "");
+			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
+		}
+
+	}
+
+	/**
+	 * 旅行プラン削除APIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class TripPlanDeleteTest extends AbstractRestControllerInitialization_IT {
+
+		@Test
+		void 正_作成者が旅行プランを削除() throws Exception {
+			// login user
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var tripPlan = TripPlanSample.builder().userId(loginUser.getId()).build();
+			tripPlanRepository.insert(tripPlan);
+
+			// test
+			final var request = deleteRequest(String.format(DELETE_TRIP_PLAN_PATH, tripPlan.getId()));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			execute(request, HttpStatus.OK);
+		}
+
+		@Test
+		void 異_作成者以外は旅行プランを削除不可() throws Exception {
+			// login user
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var author = UserSample.builder().build();
+			userRepository.insert(author);
+
+			final var tripPlan = TripPlanSample.builder().userId(author.getId()).build();
+			tripPlanRepository.insert(tripPlan);
+
+			// test
+			final var request = deleteRequest(String.format(DELETE_TRIP_PLAN_PATH, tripPlan.getId()));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			execute(request, new ForbiddenException(ErrorCode.USER_HAS_NO_PERMISSION));
+		}
+
+		@Test
+		void 異_無効な認証ヘッダ() throws Exception {
+			// test
+			final var request = deleteRequest(String.format(DELETE_TRIP_PLAN_PATH, SAMPLE_INT));
 			request.header(HttpHeaders.AUTHORIZATION, "");
 			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
 		}
