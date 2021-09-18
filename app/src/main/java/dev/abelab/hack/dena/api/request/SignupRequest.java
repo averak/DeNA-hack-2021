@@ -6,13 +6,13 @@ import javax.validation.constraints.Size;
 import lombok.*;
 
 /**
- * ログインリクエスト
+ * サインアップeリクエスト
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequest {
+public class SignupRequest {
 
     /**
      * メールアドレス
@@ -27,5 +27,19 @@ public class LoginRequest {
     @NotNull
     @Size(max = 255)
     String password;
+
+    /**
+     * ファーストネーム
+     */
+    @NotNull
+    @Size(max = 100)
+    String firstName;
+
+    /**
+     * ラストネーム
+     */
+    @NotNull
+    @Size(max = 100)
+    String lastName;
 
 }

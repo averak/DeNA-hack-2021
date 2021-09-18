@@ -6,26 +6,26 @@ import javax.validation.constraints.Size;
 import lombok.*;
 
 /**
- * ログインリクエスト
+ * ログインユーザのパスワード更新リクエスト
  */
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequest {
+@Builder
+public class LoginUserPasswordUpdateRequest {
 
     /**
-     * メールアドレス
+     * 現在のパスワード
      */
     @NotNull
     @Size(max = 255)
-    String email;
+    String currentPassword;
 
     /**
-     * パスワード
+     * 新しいパスワード
      */
     @NotNull
     @Size(max = 255)
-    String password;
+    String newPassword;
 
 }

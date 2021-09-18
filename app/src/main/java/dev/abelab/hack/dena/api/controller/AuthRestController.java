@@ -8,6 +8,7 @@ import org.springframework.validation.annotation.Validated;
 import io.swagger.annotations.*;
 import lombok.*;
 import dev.abelab.hack.dena.api.request.LoginRequest;
+import dev.abelab.hack.dena.api.request.SignupRequest;
 import dev.abelab.hack.dena.api.response.AccessTokenResponse;
 import dev.abelab.hack.dena.service.AuthService;
 
@@ -39,6 +40,32 @@ public class AuthRestController {
         @Validated @ApiParam(name = "body", required = true, value = "ログイン情報") @RequestBody final LoginRequest requestBody //
     ) {
         return this.authService.login(requestBody);
+    }
+
+    /**
+     * サインアップ処理API
+     *
+     * @param requestBody サインアップリクエスト
+     */
+    @ApiOperation( //
+        value = "サインアップ", //
+        notes = "ユーザのサインアップ処理を行う。" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 201, message = "作成成功"), //
+                @ApiResponse(code = 400, message = "無効なパスワード"), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+                @ApiResponse(code = 403, message = "ユーザに権限がない"), //
+                @ApiResponse(code = 409, message = "ユーザが既に存在している"), //
+        } //
+    )
+    @PostMapping(value = "/signup")
+    @ResponseStatus(HttpStatus.CREATED)
+    public AccessTokenResponse signup( //
+        @Validated @ApiParam(name = "body", required = true, value = "サインアップ情報") @RequestBody final SignupRequest requestBody //
+    ) {
+        return this.authService.signup(requestBody);
     }
 
 }
