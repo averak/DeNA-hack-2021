@@ -1,6 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/solid";
-import type { VFC } from "react";
+import Link from "next/link";
+import type { Dispatch, SetStateAction, VFC } from "react";
 import type { FormEvent } from "react";
 import { useCallback, useState } from "react";
 import { Layout } from "src/components/Layout";
@@ -87,7 +88,11 @@ const AreaSelect: VFC<AreaSelectType> = ({ category, areas }) => {
   );
 };
 
-const TagSelects = () => {
+type TagSelectsProps = {
+  setValue: Dispatch<SetStateAction<string[]>>;
+};
+
+const TagSelects: VFC<TagSelectsProps> = ({ setValue }) => {
   const [tags, setTags] = useState<string[]>([]);
   const [inputTag, setInputTag] = useState<string>("");
 
@@ -95,17 +100,18 @@ const TagSelects = () => {
     const newTags: string[] = tags.concat();
     newTags.push(addtag);
     setTags(newTags);
+    setValue(newTags);
     setInputTag("");
   };
 
   const removeTagFromTags = (removeTag: string) => {
-    setTags(
-      tags.filter((tag) => {
-        if (tag !== removeTag) {
-          return tag;
-        }
-      })
-    );
+    const newTags = tags.filter((tag) => {
+      if (tag !== removeTag) {
+        return tag;
+      }
+    });
+    setTags(newTags);
+    setValue(newTags);
   };
   const changeInputTag = (e: FormEvent<HTMLInputElement>) => {
     setInputTag(e.currentTarget.value);
@@ -152,6 +158,19 @@ const TagSelects = () => {
 };
 
 const HomePage: VFC = () => {
+  const [prefecture, setPrefecture] = useState<string>("東京都");
+  const [minPrice, setMinPrice] = useState<string>();
+  const [maxPrice, setMaxPrice] = useState<string>();
+  const [tags, setTags] = useState<string[]>([]);
+
+  const changeMinPrice = (e: FormEvent<HTMLInputElement>) => {
+    setMinPrice(e.currentTarget.value);
+  };
+
+  const changeMaxPrice = (e: FormEvent<HTMLInputElement>) => {
+    setMaxPrice(e.currentTarget.value);
+  };
+
   return (
     <Layout title="トップ" pathList={[]}>
       <div className="p-0 m-0 w-full">
@@ -167,28 +186,44 @@ const HomePage: VFC = () => {
             <p className=" pt-8 text-left">金額</p>
             <div className="flex gap-3 items-end w-full">
               <input
-                className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
+                className="pl-2 text-gray-500 bg-white rounded-xl max-w-[130px] h-[40px]"
                 placeholder="指定なし"
+                value={minPrice}
+                onChange={changeMinPrice}
               />
               <p className="leading-[45px]">~</p>
               <input
                 className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
                 placeholder="指定なし"
+                value={maxPrice}
+                onChange={changeMaxPrice}
               />
               <p>円</p>
             </div>
             <p className="pt-8 text-left">タグを検索</p>
-            <TagSelects />
+            <TagSelects setValue={setTags} />
           </div>
-          <button className="flex justify-center items-center mx-auto w-full max-w-[260px] h-[54px] text-center bg-gradient-to-r from-yellow-c2 to-yellow-c1 rounded-md">
-            <p className="font-bold text-black">みんなのトリップを検索</p>
-            <img
-              src="/carry_case_icon.svg"
-              width={40}
-              height={40}
-              alt="キャリーケースのアイコン"
-            />
-          </button>
+          <Link
+            href={{
+              pathname: "/search",
+              query: {
+                minPrice: minPrice,
+                maxPrice: maxPrice,
+                tags: tags,
+                prefecture: prefecture,
+              },
+            }}
+          >
+            <button className="flex justify-center items-center mx-auto w-full text-center bg-gradient-to-r rounded-md max-w-[260px] h-[54px] from-yellow-c2 to-yellow-c1">
+              <p className="font-bold text-black">みんなのトリップを検索</p>
+              <img
+                src="/carry_case_icon.svg"
+                width={40}
+                height={40}
+                alt="キャリーケースのアイコン"
+              />
+            </button>
+          </Link>
         </div>
         <div className="mx-auto w-11/12">
           <p className="py-4 font-bold">新着トリップ</p>
