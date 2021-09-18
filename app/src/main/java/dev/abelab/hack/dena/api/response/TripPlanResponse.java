@@ -46,6 +46,11 @@ public class TripPlanResponse {
     Integer likes;
 
     /**
+     * いいね済みか
+     */
+    Boolean isLiked;
+
+    /**
      * タグリスト
      */
     List<String> tags;
