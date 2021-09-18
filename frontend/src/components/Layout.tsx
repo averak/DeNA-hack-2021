@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { Header } from "./Header";
+import { SubmitButton } from "./SubmitButton";
 
 type LayoutProps = {
   children: ReactNode;
@@ -18,6 +19,7 @@ export const Layout = ({ children, ...props }: LayoutProps) => {
     <div>
       <Header title={props.title} pathList={props.pathList} />
       <div className="pt-20">{children}</div>
+      <SubmitButton />
     </div>
   );
 };
