@@ -8,14 +8,14 @@ import { Layout } from "src/components/Layout";
 import AREA from "src/utils/static/area.json";
 
 // import { PlanContent } from "../organisms/PlanContent"
-import type { TripPlanParam } from "../utils/hooks/planApi";
+// import type { TripPlanParam } from "../utils/hooks/planApi";
 
 const inputStyle =
   "font-normal rounded border border-solid border-gray-300 w-full";
 
 const AREA_ARR = Object.values(AREA)
   .map((v) => {
-    return Object.entries(v).map(([key, value]) => {
+    return Object.entries(v).map(([, value]) => {
       return value;
     });
   })
@@ -28,7 +28,7 @@ const SearchPage: VFC = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [inputTag, setInputTag] = useState<string>("");
 
-  const [plans, setPlans] = useState<TripPlanParam[]>([]);
+  // const [plans, setPlans] = useState<TripPlanParam[]>([]);
 
   const router = useRouter();
 
@@ -182,16 +182,15 @@ const SearchPage: VFC = () => {
 
           {
             // loading 待ち
-
-            plans.map(() => {
-              // <PlanContent
-              //   planId={plan.}
-              //   imgSrc={plan.}
-              //   title={plan.title}
-              //   description={plan.description}
-              //   tags={plan.tags}
-              // />
-            })
+            // plans.map(() => {
+            // <PlanContent
+            //   planId={plan.}
+            //   imgSrc={plan.}
+            //   title={plan.title}
+            //   description={plan.description}
+            //   tags={plan.tags}
+            // />
+            // })
           }
         </div>
       </main>

@@ -158,7 +158,7 @@ const TagSelects: VFC<TagSelectsProps> = ({ setValue }) => {
 };
 
 const HomePage: VFC = () => {
-  const [prefecture, setPrefecture] = useState<string>("東京都");
+  const [prefecture] = useState<string>("東京都");
   const [minPrice, setMinPrice] = useState<string>();
   const [maxPrice, setMaxPrice] = useState<string>();
   const [tags, setTags] = useState<string[]>([]);
