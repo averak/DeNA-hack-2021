@@ -6,7 +6,7 @@ import javax.validation.constraints.Size;
 import lombok.*;
 
 /**
- * サインアップeリクエスト
+ * いいねリクエスト
  */
 @Data
 @Builder

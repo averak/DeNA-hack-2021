@@ -42,7 +42,6 @@ public enum ErrorCode {
 
     CONFLICT_USER_LIKE(1204, "exception.conflict.user_like"),
 
-    CONFLICT_USER_LIKE_PLAN(1205, "exception.conflict.user_like_plan"),
 
     /**
      * Forbidden: 1300~1399
