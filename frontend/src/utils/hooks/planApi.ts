@@ -6,12 +6,24 @@ import { getTokenHeader } from "../libs/accessToken";
 const hostname = process.env.NEXT_PUBLIC_BASE_URI;
 
 export type TripPlanParam = {
-  title: string;
+  attachment: {
+    content: string;
+    fileName: string;
+  };
   description: string;
+  items: [
+    {
+      description: string;
+      finishAt: Date;
+      itemOrder: number;
+      price: number;
+      startAt: Date;
+      title: string;
+    }
+  ];
   regionId: number;
   tags: string[];
-  attachment: Blob;
-  items: TripPlanItem;
+  title: string;
 };
 
 export type LikesParam = {
@@ -19,13 +31,27 @@ export type LikesParam = {
 };
 
 export type TripPlanResponse = {
-  id: number;
-  title: string;
+  attachment: {
+    fileName: string;
+    uuid: string;
+  };
+  author: {
+    email: string;
+    firstName: string;
+    id: number;
+    lastName: string;
+  };
   description: string;
-  region_id: number;
-  user_id: number;
-  created_at: Date;
-  updated_at: Date;
+  id: number;
+  items: TripPlanItem[];
+  likes: number;
+  regionId: number;
+  tags: string[];
+  title: string;
+};
+
+export type TripPlanResponses = {
+  tripPlans: TripPlanResponse[];
 };
 
 export type TripDetailResponse = {
@@ -41,27 +67,35 @@ export type TripDetailResponse = {
 };
 
 export type TripPlanItem = {
-  id: number;
-  tripPlanId: number;
-  itemOrder: number;
-  title: string;
   description: string;
+  itemOrder: number;
   price: number;
   startAt: Date;
   finishAt: Date;
+  title: string;
 };
 
-// 全てのプランの取得
-export const useGetAllPlan = () => {
-  const url = `${hostname}/api/trip_plans`;
+export type Attachment = {
+  description: string;
+  filename: string;
+  inputStream: Blob;
+  open: boolean;
+  readable: boolean;
+  uri: string;
+  url: string;
+};
+
+// タグ一覧の取得
+export const useGetTags = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<TripPlanResponse[] | null>(null);
+  const [response, setResponse] = useState<string[] | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const getFn = useCallback(async () => {
     setLoading(true);
+    const url = `${hostname}/api/tags`;
     await axios
-      .get<TripPlanResponse[]>(url, {
+      .put<string[]>(url, {
         headers: { Authorization: getTokenHeader() },
       })
       .then(async (res) => {
@@ -75,21 +109,21 @@ export const useGetAllPlan = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [url]);
+  }, []);
   return { loading, error, response, getFn };
 };
 
-// プラン詳細を取得
-export const useGetPlanDetail = () => {
+// 全てのプランの取得
+export const useGetAllPlans = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<TripDetailResponse | null>(null);
+  const [response, setResponse] = useState<TripPlanResponses | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async (tripPlanId: number) => {
-    const url = `${hostname}/api/trip_plans/${tripPlanId}`;
+  const getFn = useCallback(async () => {
     setLoading(true);
+    const url = `${hostname}/api/trip_plans`;
     await axios
-      .get<TripDetailResponse>(url, {
+      .get<TripPlanResponses>(url, {
         headers: { Authorization: getTokenHeader() },
       })
       .then(async (res) => {
@@ -109,68 +143,32 @@ export const useGetPlanDetail = () => {
 
 // プラン作成
 export const usePostPlan = () => {
-  const url = `${hostname}/api/trip_plans`;
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(
-    async (params: TripPlanParam) => {
-      setLoading(true);
-      await axios
-        .post<TripDetailResponse>(url, params, {
-          headers: { Authorization: getTokenHeader() },
-        })
-        .then(async (res) => {
-          const responseStatusCode = await res.status;
-          if (responseStatusCode === 200) {
-            setResponse("success");
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          setError(err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    },
-    [url]
-  );
-  return { loading, error, response, getFn };
-};
-
-// プラン更新
-export const usePutPlan = () => {
-  const url = `${hostname}/api/trip_plans`;
-  const [loading, setLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<string | null>(null);
-  const [error, setError] = useState<Error | null>(null);
-
-  const getFn = useCallback(
-    async (params: TripPlanParam) => {
-      setLoading(true);
-      await axios
-        .put(url, params, {
-          headers: { Authorization: getTokenHeader() },
-        })
-        .then(async (res) => {
-          const responseStatusCode = await res.status;
-          if (responseStatusCode === 200) {
-            setResponse("success");
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          setError(err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    },
-    [url]
-  );
-  return { loading, error, response, getFn };
+  const postFn = useCallback(async (params: TripPlanParam) => {
+    setLoading(true);
+    const url = `${hostname}/api/trip_plans`;
+    await axios
+      .post(url, params, {
+        headers: { Authorization: getTokenHeader() },
+      })
+      .then(async (res) => {
+        const responseStatusCode = await res.status;
+        if (responseStatusCode === 200) {
+          setResponse("success");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+  return { loading, error, response, postFn };
 };
 
 // プラン削除
@@ -179,9 +177,9 @@ export const useDeletePlan = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async (tripPlanId: number) => {
-    const url = `${hostname}/api/trip_plans/${tripPlanId}`;
+  const deleteFn = useCallback(async (tripPlanId: number) => {
     setLoading(true);
+    const url = `${hostname}/api/trip_plans/${tripPlanId}`;
     await axios
       .delete(url, {
         headers: { Authorization: getTokenHeader() },
@@ -200,27 +198,53 @@ export const useDeletePlan = () => {
         setLoading(false);
       });
   }, []);
-  return { loading, error, response, getFn };
+  return { loading, error, response, deleteFn };
 };
 
 // プランにいいねを押す
 export const usePutLikes = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<string | null>(null);
+  const [response, setResponse] = useState<number | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async (tripPlanId: number, params: LikesParam) => {
-    const url = `${hostname}/api/trip_plans/${tripPlanId}/likes`;
+  const putFn = useCallback(async (tripPlanId: number, params: LikesParam) => {
     setLoading(true);
+    const url = `${hostname}/api/trip_plans/${tripPlanId}/likes`;
     await axios
-      .put(url, params, {
+      .put<{ num: number }>(url, params, {
         headers: { Authorization: getTokenHeader() },
       })
       .then(async (res) => {
-        const responseStatusCode = await res.status;
-        if (responseStatusCode === 200) {
-          setResponse("success");
-        }
+        const responseNum = await res.data.num;
+        setResponse(responseNum);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+  return { loading, error, response, putFn };
+};
+
+// プランの添付ファイルをダウンロード
+export const useGetFiles = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [response, setResponse] = useState<Attachment | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  const getFn = useCallback(async (uuid: string) => {
+    setLoading(true);
+    const url = `${hostname}/api/trip_plans/attachments/${uuid}`;
+    await axios
+      .put<Attachment>(url, {
+        headers: { Authorization: getTokenHeader() },
+      })
+      .then(async (res) => {
+        const responseData = await res.data;
+        setResponse(responseData);
       })
       .catch((err) => {
         console.error(err);
@@ -232,3 +256,92 @@ export const usePutLikes = () => {
   }, []);
   return { loading, error, response, getFn };
 };
+
+// いいねした旅行プランの一覧取得
+export const useGetLikePlans = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [response, setResponse] = useState<TripPlanResponses | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  const getFn = useCallback(async () => {
+    setLoading(true);
+    const url = `${hostname}/api/trip_plans/likes/me`;
+    await axios
+      .put<TripPlanResponses>(url, {
+        headers: { Authorization: getTokenHeader() },
+      })
+      .then(async (res) => {
+        const responseData = await res.data;
+        setResponse(responseData);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+  return { loading, error, response, getFn };
+};
+
+// // プラン詳細を取得(なくなった)
+// export const useGetPlanDetail = () => {
+//   const [loading, setLoading] = useState<boolean>(false);
+//   const [response, setResponse] = useState<TripDetailResponse | null>(null);
+//   const [error, setError] = useState<Error | null>(null);
+
+//   const getFn = useCallback(async (tripPlanId: number) => {
+//     const url = `${hostname}/api/trip_plans/${tripPlanId}`;
+//     setLoading(true);
+//     await axios
+//       .get<TripDetailResponse>(url, {
+//         headers: { Authorization: getTokenHeader() },
+//       })
+//       .then(async (res) => {
+//         const responseData = await res.data;
+//         setResponse(responseData);
+//       })
+//       .catch((err) => {
+//         console.error(err);
+//         setError(err);
+//       })
+//       .finally(() => {
+//         setLoading(false);
+//       });
+//   }, []);
+//   return { loading, error, response, getFn };
+// };
+
+// プラン更新(なくなった)
+// export const usePutPlan = () => {
+//   const url = `${hostname}/api/trip_plans`;
+//   const [loading, setLoading] = useState<boolean>(false);
+//   const [response, setResponse] = useState<string | null>(null);
+//   const [error, setError] = useState<Error | null>(null);
+
+//   const getFn = useCallback(
+//     async (params: TripPlanParam) => {
+//       setLoading(true);
+//       await axios
+//         .put(url, params, {
+//           headers: { Authorization: getTokenHeader() },
+//         })
+//         .then(async (res) => {
+//           const responseStatusCode = await res.status;
+//           if (responseStatusCode === 200) {
+//             setResponse("success");
+//           }
+//         })
+//         .catch((err) => {
+//           console.error(err);
+//           setError(err);
+//         })
+//         .finally(() => {
+//           setLoading(false);
+//         });
+//     },
+//     [url]
+//   );
+//   return { loading, error, response, getFn };
+// };
