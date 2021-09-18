@@ -1,5 +1,6 @@
 package dev.abelab.hack.dena.service;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.commons.net.util.Base64;
 import org.modelmapper.ModelMapper;
-import java.util.List;
 
 import lombok.*;
 import dev.abelab.hack.dena.db.entity.User;
@@ -16,24 +16,20 @@ import dev.abelab.hack.dena.db.entity.TripPlanItem;
 import dev.abelab.hack.dena.db.entity.TripPlanAttachment;
 import dev.abelab.hack.dena.db.entity.TripPlanTagging;
 import dev.abelab.hack.dena.db.entity.Tag;
-import dev.abelab.hack.dena.model.TripPlanItemModel;
-import dev.abelab.hack.dena.model.TripPlanAttachmentModel;
+import dev.abelab.hack.dena.db.entity.UserLike;
 import dev.abelab.hack.dena.model.FileDownloadModel;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
-import dev.abelab.hack.dena.api.response.TripPlanResponse;
+import dev.abelab.hack.dena.api.request.UserLikeRequest;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
-import dev.abelab.hack.dena.api.response.UserResponse;
+import dev.abelab.hack.dena.api.response.UserLikesResponse;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
 import dev.abelab.hack.dena.repository.TripPlanItemRepository;
 import dev.abelab.hack.dena.repository.TripPlanAttachmentRepository;
-import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.repository.RegionRepository;
 import dev.abelab.hack.dena.repository.TagRepository;
 import dev.abelab.hack.dena.repository.TripPlanTaggingRepository;
 import dev.abelab.hack.dena.repository.UserLikeRepository;
-import dev.abelab.hack.dena.api.response.UserLikesResponse;
-import dev.abelab.hack.dena.db.entity.UserLike;
-import dev.abelab.hack.dena.api.request.UserLikeRequest;
+import dev.abelab.hack.dena.logic.TripPlanLogic;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.ForbiddenException;
 
@@ -49,8 +45,6 @@ public class TripPlanService {
 
     private final TripPlanAttachmentRepository tripPlanAttachmentRepository;
 
-    private final UserRepository userRepository;
-
     private final RegionRepository regionRepository;
 
     private final TagRepository tagRepository;
@@ -58,6 +52,8 @@ public class TripPlanService {
     private final TripPlanTaggingRepository tripPlanTaggingRepository;
 
     private final UserLikeRepository userLikeRepository;
+
+    private final TripPlanLogic tripPlanLogic;
 
     /**
      * 旅行プラン一覧を取得
@@ -70,35 +66,7 @@ public class TripPlanService {
     public TripPlansResponse getTripPlans(final User loginUser) {
         // 旅行プラン一覧を取得
         final var tripPlans = this.tripPlanRepository.selectAll();
-        final var tripPlanResponses = tripPlans.stream().map(tripPlan -> {
-            final var response = this.modelMapper.map(tripPlan, TripPlanResponse.class);
-
-            // 作成者を取得
-            final var author = this.userRepository.selectById(tripPlan.getUserId());
-            response.setAuthor(this.modelMapper.map(author, UserResponse.class));
-
-            // いいね数を取得
-            final var userLikes = this.userLikeRepository.selectByTripPlanId(tripPlan.getId());
-            response.setLikes(userLikes.size());
-
-            // タグリストを取得
-            final var tags = this.tagRepository.selectByTripPlanId(tripPlan.getId());
-            response.setTags(tags.stream().map(Tag::getName).collect(Collectors.toList()));
-
-            // 項目リストを取得
-            final var items = this.tripPlanItemRepository.selectByTripPlanId(tripPlan.getId());
-            response.setItems(items.stream() //
-                .map(item -> this.modelMapper.map(item, TripPlanItemModel.class)) //
-                .collect(Collectors.toList()));
-
-            // 添付ファイルを取得
-            final var attachment = this.tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
-            if (attachment != null) {
-                response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
-            }
-
-            return response;
-        }).collect(Collectors.toList());
+        final var tripPlanResponses = tripPlans.stream().map(this.tripPlanLogic::buildTripPlanResponse).collect(Collectors.toList());
 
         return new TripPlansResponse(tripPlanResponses);
     }
@@ -202,37 +170,9 @@ public class TripPlanService {
 
         // 旅行プラン一覧を取得
         final var tripPlanResponses = myLikes.stream() //
-            .map(myLike -> {
-                final var tripPlan = this.tripPlanRepository.selectById(myLike.getTripPlanId());
-
-                final var response = this.modelMapper.map(tripPlan, TripPlanResponse.class);
-
-                // 作成者を取得
-                final var author = this.userRepository.selectById(tripPlan.getUserId());
-                response.setAuthor(this.modelMapper.map(author, UserResponse.class));
-
-                // いいね数を取得
-                final var userLikes = this.userLikeRepository.selectByTripPlanId(tripPlan.getId());
-                response.setLikes(userLikes.size());
-
-                // タグリストを取得
-                final var tags = this.tagRepository.selectByTripPlanId(tripPlan.getId());
-                response.setTags(tags.stream().map(Tag::getName).collect(Collectors.toList()));
-
-                // 項目リストを取得
-                final var items = this.tripPlanItemRepository.selectByTripPlanId(tripPlan.getId());
-                response.setItems(items.stream() //
-                    .map(item -> this.modelMapper.map(item, TripPlanItemModel.class)) //
-                    .collect(Collectors.toList()));
-
-                // 添付ファイルを取得
-                final var attachment = this.tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
-                if (attachment != null) {
-                    response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
-                }
-
-                return response;
-            }).collect(Collectors.toList());
+            .map(myLike -> this.tripPlanRepository.selectById(myLike.getTripPlanId())) //
+            .map(this.tripPlanLogic::buildTripPlanResponse) //
+            .collect(Collectors.toList());
 
         return new TripPlansResponse(tripPlanResponses);
 
