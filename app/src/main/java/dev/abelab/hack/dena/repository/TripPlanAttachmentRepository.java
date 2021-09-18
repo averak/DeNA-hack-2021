@@ -8,6 +8,7 @@ import dev.abelab.hack.dena.db.entity.TripPlanAttachmentExample;
 import dev.abelab.hack.dena.db.mapper.TripPlanAttachmentMapper;
 import dev.abelab.hack.dena.exception.ErrorCode;
 import dev.abelab.hack.dena.exception.ConflictException;
+import dev.abelab.hack.dena.exception.NotFoundException;
 
 @RequiredArgsConstructor
 @Repository
@@ -42,6 +43,24 @@ public class TripPlanAttachmentRepository {
         final var attachments = this.tripPlanAttachmentMapper.selectByExampleWithBLOBs(example);
         if (attachments.isEmpty()) {
             return null;
+        } else {
+            return attachments.get(0);
+        }
+    }
+
+    /**
+     * UUIDから添付ファイルを取得
+     *
+     * @param uuid UUID
+     *
+     * @return 添付ファイル
+     */
+    public TripPlanAttachment selectByUuid(final String uuid) {
+        final var example = new TripPlanAttachmentExample();
+        example.createCriteria().andUuidEqualTo(uuid);
+        final var attachments = this.tripPlanAttachmentMapper.selectByExampleWithBLOBs(example);
+        if (attachments.isEmpty()) {
+            throw new NotFoundException(ErrorCode.NOT_FOUND_ATTACHMENT);
         } else {
             return attachments.get(0);
         }
