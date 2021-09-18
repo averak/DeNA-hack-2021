@@ -188,12 +188,10 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 				.build();
 
 
-			System.out.println(requestBody);
 			// test
 			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
 			request.header(HttpHeaders.AUTHORIZATION, credentials);
 			final var response = execute(request, HttpStatus.OK, UserLikesResponse.class);
-			System.out.println(response);
 
 			// verify
 			assertThat(response).isEqualTo(new UserLikesResponse(1));
