@@ -4,9 +4,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.modelmapper.ModelMapper;
 
-
 import lombok.*;
 import dev.abelab.hack.dena.db.entity.User;
+import dev.abelab.hack.dena.api.request.LoginUserUpdateRequest;
 import dev.abelab.hack.dena.api.request.LoginUserPasswordUpdateRequest;
 import dev.abelab.hack.dena.repository.UserRepository;
 import dev.abelab.hack.dena.logic.UserLogic;
@@ -42,7 +42,7 @@ public class UserService {
         this.userRepository.update(loginUser);
     }
 
-     /**
+    /**
      * プロフィール情報を取得
      *
      * @param loginUser ログインユーザ
@@ -54,5 +54,19 @@ public class UserService {
         return this.modelMapper.map(loginUser, UserResponse.class);
     }
 
+    /**
+     * ログインユーザを更新
+     *
+     * @param requestBody ログインユーザ更新リクエスト
+     * @param loginUser   ログインユーザ
+     */
+    @Transactional
+    public void updateLoginUser(final LoginUserUpdateRequest requestBody, final User loginUser) {
+        // ログインユーザを更新
+        loginUser.setFirstName(requestBody.getFirstName());
+        loginUser.setLastName(requestBody.getLastName());
+        loginUser.setEmail(requestBody.getEmail());
+        this.userRepository.update(loginUser);
+    }
 
 }
