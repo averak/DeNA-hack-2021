@@ -21,12 +21,24 @@ public enum ErrorCode {
 
     NOT_FOUND_USER(1101, "exception.not_found.user"),
 
+    NOT_FOUND_REGION(1102, "exception.not_found.region"),
+
+    NOT_FOUND_TRIP_PLAN(1103, "exception.not_found.trip_plan"),
+
+    NOT_FOUND_TAG(1104, "exception.not_found.tag"),
+
     /**
      * Conflict: 1200~1299
      */
     CONFLICT_EMAIL(1200, "exception.conflict.email"),
 
-    CONFLICT_USER_LIKE_PLAN(1201, "exception.conflict.user.like.plan"),
+    CONFLICT_TAG_NAME(1201, "exception.conflict.tag_name"),
+
+    CONFLICT_TRIP_PLAN_TAGGING(1202, "exception.conflict.trip_plan_tagging"),
+
+    CONFLICT_TRIP_PLAN_ATTACHMENT(1203, "exception.conflict.trip_plan_attachment"),
+
+    CONFLICT_USER_LIKE_PLAN(1204, "exception.conflict.user_like_plan"),
 
     /**
      * Forbidden: 1300~1399

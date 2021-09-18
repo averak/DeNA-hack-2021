@@ -1,0 +1,12 @@
+.submitButton {
+  background: linear-gradient(
+    -60deg,
+    #e3e846 0%,
+    #e3e846 25%,
+    #fff 25%,
+    #fff 100%
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

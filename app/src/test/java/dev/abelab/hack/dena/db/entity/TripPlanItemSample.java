@@ -15,6 +15,7 @@ public class TripPlanItemSample extends AbstractSample {
 
 		private Integer id = SAMPLE_INT;
 		private Integer tripPlanId = SAMPLE_INT;
+		private Integer itemOrder = SAMPLE_INT;
 		private String title = SAMPLE_STR;
 		private String description = SAMPLE_STR;
 		private Integer price = SAMPLE_INT;
@@ -28,6 +29,11 @@ public class TripPlanItemSample extends AbstractSample {
 
 		public TripPlanItemSampleBuilder tripPlanId(Integer tripPlanId) {
 			this.tripPlanId = tripPlanId;
+			return this;
+		}
+
+		public TripPlanItemSampleBuilder itemOrder(Integer itemOrder) {
+			this.itemOrder = itemOrder;
 			return this;
 		}
 
@@ -60,6 +66,7 @@ public class TripPlanItemSample extends AbstractSample {
 			return TripPlanItem.builder() //
 				.id(this.id) //
 				.tripPlanId(this.tripPlanId) //
+				.itemOrder(this.itemOrder) //
 				.title(this.title) //
 				.description(this.description) //
 				.price(this.price) //
