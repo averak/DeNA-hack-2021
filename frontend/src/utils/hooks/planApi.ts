@@ -80,13 +80,13 @@ export const useGetAllPlan = () => {
 };
 
 // プラン詳細を取得
-export const useGetPlanDetail = (tripPlanId: number) => {
-  const url = `${hostname}/api/trip_plans/${tripPlanId}`;
+export const useGetPlanDetail = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<TripDetailResponse | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
+  const getFn = useCallback(async (tripPlanId: number) => {
+    const url = `${hostname}/api/trip_plans/${tripPlanId}`;
     setLoading(true);
     await axios
       .get<TripDetailResponse>(url)
@@ -101,74 +101,80 @@ export const useGetPlanDetail = (tripPlanId: number) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [url]);
+  }, []);
   return { loading, error, response, getFn };
 };
 
 // プラン作成
-export const usePostPlan = (params: TripPlanParam) => {
+export const usePostPlan = () => {
   const url = `${hostname}/api/trip_plans`;
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
-    setLoading(true);
-    await axios
-      .post<TripDetailResponse>(url, params)
-      .then(async (res) => {
-        const responseStatusCode = await res.status;
-        if (responseStatusCode === 200) {
-          setResponse("success");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [params, url]);
+  const getFn = useCallback(
+    async (params: TripPlanParam) => {
+      setLoading(true);
+      await axios
+        .post<TripDetailResponse>(url, params)
+        .then(async (res) => {
+          const responseStatusCode = await res.status;
+          if (responseStatusCode === 200) {
+            setResponse("success");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [url]
+  );
   return { loading, error, response, getFn };
 };
 
 // プラン更新
-export const usePutPlan = (params: TripPlanParam) => {
+export const usePutPlan = () => {
   const url = `${hostname}/api/trip_plans`;
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
-    setLoading(true);
-    await axios
-      .put(url, params)
-      .then(async (res) => {
-        const responseStatusCode = await res.status;
-        if (responseStatusCode === 200) {
-          setResponse("success");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [params, url]);
+  const getFn = useCallback(
+    async (params: TripPlanParam) => {
+      setLoading(true);
+      await axios
+        .put(url, params)
+        .then(async (res) => {
+          const responseStatusCode = await res.status;
+          if (responseStatusCode === 200) {
+            setResponse("success");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [url]
+  );
   return { loading, error, response, getFn };
 };
 
 // プラン削除
-export const useDeletePlan = (tripPlanId: number) => {
-  const url = `${hostname}/api/trip_plans/${tripPlanId}`;
+export const useDeletePlan = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
+  const getFn = useCallback(async (tripPlanId: number) => {
+    const url = `${hostname}/api/trip_plans/${tripPlanId}`;
     setLoading(true);
     await axios
       .delete(url)
@@ -185,18 +191,18 @@ export const useDeletePlan = (tripPlanId: number) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [url]);
+  }, []);
   return { loading, error, response, getFn };
 };
 
 // プランにいいねを押す
-export const usePutLikes = (tripPlanId: number, params: LikesParam) => {
-  const url = `${hostname}/api/trip_plans/${tripPlanId}/likes`;
+export const usePutLikes = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
+  const getFn = useCallback(async (tripPlanId: number, params: LikesParam) => {
+    const url = `${hostname}/api/trip_plans/${tripPlanId}/likes`;
     setLoading(true);
     await axios
       .put(url, params)
@@ -213,6 +219,6 @@ export const usePutLikes = (tripPlanId: number, params: LikesParam) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [params, url]);
+  }, []);
   return { loading, error, response, getFn };
 };
