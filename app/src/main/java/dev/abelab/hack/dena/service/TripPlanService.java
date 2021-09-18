@@ -20,6 +20,7 @@ import dev.abelab.hack.dena.model.FileDownloadModel;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.api.request.TripPlanUpdateRequest;
 import dev.abelab.hack.dena.api.request.UserLikeRequest;
+import dev.abelab.hack.dena.api.response.TripPlanResponse;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.api.response.UserLikesResponse;
 import dev.abelab.hack.dena.repository.TripPlanRepository;
@@ -56,6 +57,21 @@ public class TripPlanService {
     private final TripPlanLogic tripPlanLogic;
 
     /**
+     * 旅行プランを取得
+     *
+     * @param tripPlanId 旅行プランID
+     * @param loginUser  ログインユーザ
+     *
+     * @return 旅行プランレスポンス
+     */
+    @Transactional
+    public TripPlanResponse getTripPlan(final int tripPlanId, final User loginUser) {
+        // 旅行プランを取得
+        final var tripPlan = this.tripPlanRepository.selectById(tripPlanId);
+        return this.tripPlanLogic.buildTripPlanResponse(tripPlan, loginUser);
+    }
+
+    /**
      * 旅行プラン一覧を取得
      *
      * @param loginUser ログインユーザ
@@ -66,7 +82,9 @@ public class TripPlanService {
     public TripPlansResponse getTripPlans(final User loginUser) {
         // 旅行プラン一覧を取得
         final var tripPlans = this.tripPlanRepository.selectAll();
-        final var tripPlanResponses = tripPlans.stream().map(this.tripPlanLogic::buildTripPlanResponse).collect(Collectors.toList());
+        final var tripPlanResponses = tripPlans.stream() //
+            .map(tripPlan -> this.tripPlanLogic.buildTripPlanResponse(tripPlan, loginUser)) //
+            .collect(Collectors.toList());
 
         return new TripPlansResponse(tripPlanResponses);
     }
@@ -242,7 +260,7 @@ public class TripPlanService {
         // 旅行プラン一覧を取得
         final var tripPlanResponses = myLikes.stream() //
             .map(myLike -> this.tripPlanRepository.selectById(myLike.getTripPlanId())) //
-            .map(this.tripPlanLogic::buildTripPlanResponse) //
+            .map(tripPlan -> this.tripPlanLogic.buildTripPlanResponse(tripPlan, loginUser)) //
             .collect(Collectors.toList());
 
         return new TripPlansResponse(tripPlanResponses);
