@@ -1,5 +1,6 @@
 import { Listbox } from "@headlessui/react";
 import { SelectorIcon } from "@heroicons/react/solid";
+import imageCompression from "browser-image-compression";
 import type { VFC } from "react";
 import { useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -7,9 +8,31 @@ import type { Tag } from "react-tag-autocomplete";
 import ReactTags from "react-tag-autocomplete";
 import type { PathData } from "src/components/Layout";
 import { Layout } from "src/components/Layout";
-import { StepFormWrapper } from "src/components/Plan/StepFormWrapper";
+import { StepForm } from "src/components/Plan/StepForm";
 import styles from "src/styles/register.module.css";
+import { usePostPlan } from "src/utils/hooks/planApi";
 import AREA from "src/utils/static/area.json";
+
+type Prefecture = {
+  id: string;
+  name: string;
+};
+
+type RegisterForm = {
+  description: string;
+  items: [
+    {
+      description: string;
+      finishAt: Date;
+      itemOrder: number;
+      price: number;
+      startAt: Date;
+      title: string;
+    }
+  ];
+  regionId: number;
+  title: string;
+};
 
 const inputStyle =
   "font-normal rounded border border-solid border-gray-300 w-full";
@@ -29,11 +52,6 @@ const suggestion = [
   { id: 6, name: "明日の朝" },
 ];
 
-type Prefecture = {
-  id: string;
-  name: string;
-};
-
 const pathList: PathData[] = [
   { pathTitle: "マイページ", pathLink: "/user/mypage" },
   { pathTitle: "プラン登録", pathLink: "/plan/register" },
@@ -44,10 +62,13 @@ const PlanRegisterPage: VFC = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm();
+  } = useForm<RegisterForm>();
+
+  const { response, getFn } = usePostPlan();
 
   const [prefecture, setPrefecture] = useState<Prefecture>(AREA_ARR[0]);
   const [tags, setTags] = useState<Tag[] | []>([]);
+  const [thumbnail, setThumbnail] = useState<File | null>(null);
 
   const reactTagsRef = useRef(null);
 
@@ -78,15 +99,42 @@ const PlanRegisterPage: VFC = () => {
     setTags([...addedTag]);
   };
 
+  const onSubmit = async (data: RegisterForm): Promise<void> => {
+    if (!thumbnail) return;
+    // 画像を送信できるようにFormDataに変換する
+    const compressOptions = {
+      // 1MB以下に圧縮する
+      maxSizeMB: 1,
+    };
+    const attachment = {
+      content: await imageCompression(thumbnail, compressOptions),
+      filename: thumbnail.name,
+    };
+
+    const params = {
+      ...data,
+      attachment,
+      tags,
+    };
+
+    getFn(params);
+  };
+  const handleMakeTag = () => {};
+
+  console.log(response);
   return (
     <Layout title="プラン登録" pathList={pathList}>
       <div className="py-4 mx-auto w-full max-w-[330px] text-sm font-bold">
         <div className="py-5">
           <p className="pt-6 pb-2">タイトル</p>
-          <input className={`h-9 ${inputStyle}`} />
+          <input {...register("title")} className={`h-9 ${inputStyle}`} />
 
           <p className="pt-6 pb-2">都道府県</p>
-          <Listbox value={prefecture} onChange={setPrefecture}>
+          <Listbox
+            {...register("regionId")}
+            value={prefecture}
+            onChange={setPrefecture}
+          >
             <Listbox.Button className={`relative h-9 text-left ${inputStyle}`}>
               <span className="block leading-9 truncate">
                 {prefecture.name}
@@ -103,7 +151,7 @@ const PlanRegisterPage: VFC = () => {
                 return (
                   <Listbox.Option
                     key={area.id}
-                    value={area}
+                    value={area.id}
                     className="col-span-1 h-7 font-normal text-center border-[0.1px] border-gray-300 border-solid"
                   >
                     {area.name}
@@ -128,14 +176,25 @@ const PlanRegisterPage: VFC = () => {
             当てはまるタグがない..? タグ作成にご協力ください
           </p>
           <div className="flex gap-2 pl-3 h-8">
-            <input className={`${inputStyle}`} />
-            <button className="w-14 bg-gradient-to-r from-yellow-c2 to-yellow-c1" />
+            <input className={`${inputStyle}`} value="" />
+            <button
+              className="w-14 bg-gradient-to-r from-yellow-c2 to-yellow-c1"
+              onClick={handleMakeTag}
+            />
           </div>
 
           <p className="pt-8 pb-2">説明文</p>
-          <textarea className={`min-h-[120px] ${inputStyle}`} />
+          <textarea
+            {...register("description")}
+            className={`min-h-[120px] ${inputStyle}`}
+          />
         </div>
+        <StepForm register={register} errors={errors} />
       </div>
+      <button
+        className="w-full h-12 bg-white"
+        onClick={handleSubmit(onSubmit)}
+      />
     </Layout>
   );
 };
