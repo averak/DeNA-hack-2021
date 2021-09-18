@@ -1,12 +1,15 @@
 import { Listbox } from "@headlessui/react";
 import { PlusIcon, SelectorIcon, XIcon } from "@heroicons/react/solid";
+import { useRouter } from "next/router";
 import type { VFC } from "react";
+import { useEffect } from "react";
 import { useCallback, useMemo, useRef, useState } from "react";
 import type { Tag } from "react-tag-autocomplete";
 import ReactTags from "react-tag-autocomplete";
 import type { PathData } from "src/components/Layout";
 import { Layout } from "src/components/Layout";
 import styles from "src/styles/register.module.css";
+import { isAccessToken } from "src/utils/libs/accessToken";
 import AREA from "src/utils/static/area.json";
 
 const inputStyle =
@@ -59,6 +62,13 @@ type Prefecture = {
 };
 
 const PlanRegisterPage: VFC = () => {
+  const router = useRouter();
+  // ログインしてなければログインページへ
+  useEffect(() => {
+    if (!isAccessToken()) {
+      router.replace("/user/login");
+    }
+  }, []);
   const pathList: PathData[] = [
     { pathTitle: "マイページ", pathLink: "/user/mypage" },
     { pathTitle: "プラン登録", pathLink: "/plan/register" },
