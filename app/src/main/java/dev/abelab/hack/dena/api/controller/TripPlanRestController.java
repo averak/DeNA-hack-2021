@@ -12,6 +12,8 @@ import dev.abelab.hack.dena.db.entity.User;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
 import dev.abelab.hack.dena.service.TripPlanService;
+import dev.abelab.hack.dena.api.request.UserLikeRequest;
+import dev.abelab.hack.dena.api.response.UserLikesResponse;
 
 @Api(tags = "TripPlan")
 @RestController
@@ -70,6 +72,36 @@ public class TripPlanRestController {
         @Validated @ApiParam(name = "body", required = true, value = "旅行プラン作成情報") @RequestBody final TripPlanCreateRequest requestBody //
     ) {
         this.tripPlanService.createTripPlan(requestBody, loginUser);
+    }
+
+    /**
+     * いいねAPI
+     *
+     * @param requestBody 旅行プラン作成リクエスト
+     * @param loginUser ログインユーザ
+     *
+     * @return いいねレスポンス
+     */
+    @ApiOperation( //
+        value = "いいね", //
+        notes = "いいねをする。" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 200, message = "いいね成功", response = UserLikesResponse.class), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+                @ApiResponse(code = 404, message = "ユーザが存在しない") //
+        })
+    @PutMapping(value = "/{trip_plan_id}/likes")
+    @ResponseStatus(HttpStatus.OK)
+    public UserLikesResponse putUserLikes( //
+        @ModelAttribute("LoginUser") final User loginUser, @PathVariable("trip_plan_id") final int tripPlanId, //
+        @Validated @ApiParam(name = "body", required = true, value = "いいね") //
+        @RequestBody final UserLikeRequest requestBody //
+    ) {
+        System.out.println(requestBody);
+        System.out.println(tripPlanId);
+        return this.tripPlanService.putUserLike(loginUser, requestBody, tripPlanId);
     }
 
 }
