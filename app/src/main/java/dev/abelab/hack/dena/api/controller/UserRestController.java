@@ -9,6 +9,7 @@ import io.swagger.annotations.*;
 import lombok.*;
 import dev.abelab.hack.dena.annotation.Authenticated;
 import dev.abelab.hack.dena.db.entity.User;
+import dev.abelab.hack.dena.api.request.LoginUserUpdateRequest;
 import dev.abelab.hack.dena.api.request.LoginUserPasswordUpdateRequest;
 import dev.abelab.hack.dena.service.UserService;
 import dev.abelab.hack.dena.api.response.UserResponse;
@@ -75,5 +76,30 @@ public class UserRestController {
         return this.userService.getUserProfile(loginUser);
     }
 
+    /**
+     * ログインユーザ更新API
+     *
+     * @param loginUser   ログインユーザ
+     *
+     * @param requestBody ログインユーザ更新リクエスト
+     */
+    @ApiOperation( //
+        value = "ログインユーザの更新", //
+        notes = "ログインユーザを更新する。" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 200, message = "更新成功"), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+        } //
+    )
+    @PutMapping(value = "/me")
+    @ResponseStatus(HttpStatus.OK)
+    public void updateLoginUser( //
+        @ModelAttribute("LoginUser") final User loginUser, //
+        @Validated @ApiParam(name = "body", required = true, value = "ユーザ更新情報") @RequestBody final LoginUserUpdateRequest requestBody //
+    ) {
+        this.userService.updateLoginUser(requestBody, loginUser);
+    }
 
 }
