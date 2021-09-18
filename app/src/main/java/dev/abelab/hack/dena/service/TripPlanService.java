@@ -33,6 +33,8 @@ import dev.abelab.hack.dena.repository.UserLikeRepository;
 import dev.abelab.hack.dena.api.response.UserLikesResponse;
 import dev.abelab.hack.dena.db.entity.UserLike;
 import dev.abelab.hack.dena.api.request.UserLikeRequest;
+import dev.abelab.hack.dena.exception.ErrorCode;
+import dev.abelab.hack.dena.exception.ForbiddenException;
 
 @RequiredArgsConstructor
 @Service
@@ -163,6 +165,25 @@ public class TripPlanService {
         List<UserLike> userLikes = this.userLikeRepository.selectByTripPlanId(tripPlanId);
         // forEachメソッドでループ
         return new UserLikesResponse(userLikes.size());
+    }
+    /**
+     * 旅行プランを削除
+     *
+     * @param tripPlanId 旅行プランID
+     * @param loginUser  ログインユーザ
+     */
+    @Transactional
+    public void deleteTripPlan(final int tripPlanId, final User loginUser) {
+        // 削除対象の旅行プランを取得
+        final var tripPlan = this.tripPlanRepository.selectById(tripPlanId);
+
+        // 削除権限があるかチェック
+        if (loginUser.getId() != tripPlan.getUserId()) {
+            throw new ForbiddenException(ErrorCode.USER_HAS_NO_PERMISSION);
+        }
+
+        // 旅行プランを削除
+        this.tripPlanRepository.deleteById(tripPlanId);
     }
 
 }

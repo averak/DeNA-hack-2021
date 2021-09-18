@@ -37,54 +37,60 @@ export type ProfileResponse = {
 };
 
 // サインアップ(ユーザ登録)
-export const useSignUp = (params: SignUpParam) => {
+export const useSignUp = () => {
   const url = `${hostname}/api/signup`;
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<UserResponse | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
-    setLoading(true);
-    await axios
-      .post<UserResponse>(url, params)
-      .then(async (res) => {
-        const responseData = await res.data;
-        setResponse(responseData);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [params, url]);
+  const getFn = useCallback(
+    async (params: SignUpParam) => {
+      setLoading(true);
+      await axios
+        .post<UserResponse>(url, params)
+        .then(async (res) => {
+          const responseData = await res.data;
+          setResponse(responseData);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [url]
+  );
   return { loading, error, response, getFn };
 };
 
 // ログイン
-export const useLogin = (params: LoginParam) => {
+export const useLogin = () => {
   const url = `${hostname}/api/login`;
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<UserResponse | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
-    setLoading(true);
-    await axios
-      .post<UserResponse>(url, params)
-      .then(async (res) => {
-        const responseData = await res.data;
-        setResponse(responseData);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [params, url]);
+  const getFn = useCallback(
+    async (params: LoginParam) => {
+      setLoading(true);
+      await axios
+        .post<UserResponse>(url, params)
+        .then(async (res) => {
+          const responseData = await res.data;
+          setResponse(responseData);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [url]
+  );
   return { loading, error, response, getFn };
 };
 
@@ -115,29 +121,32 @@ export const useGetUserProfile = () => {
 };
 
 // パスワードの更新
-export const usePutPassword = (params: PasswordParam) => {
+export const usePutPassword = () => {
   const url = `${hostname}/api/users/me/password`;
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
-    setLoading(true);
-    await axios
-      .put(url, params)
-      .then(async (res) => {
-        const statusCode = await res.status;
-        if (statusCode === 200) {
-          setResponse("success");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [params, url]);
+  const getFn = useCallback(
+    async (params: PasswordParam) => {
+      setLoading(true);
+      await axios
+        .put(url, params)
+        .then(async (res) => {
+          const statusCode = await res.status;
+          if (statusCode === 200) {
+            setResponse("success");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [url]
+  );
   return { loading, error, response, getFn };
 };

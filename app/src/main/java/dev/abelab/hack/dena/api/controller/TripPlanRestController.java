@@ -102,4 +102,30 @@ public class TripPlanRestController {
         return this.tripPlanService.putUserLike(loginUser, requestBody, tripPlanId);
     }
 
+    /**
+     * 旅行プランの削除API
+     *
+     * @param tripPlanId 旅行プランID
+     * @param loginUser  ログインユーザ
+     */
+    @ApiOperation( //
+        value = "旅行プランの削除", //
+        notes = "旅行プランを削除する" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 201, message = "作成成功"), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+                @ApiResponse(code = 404, message = "旅行プランが存在しない"), //
+        } //
+    )
+    @DeleteMapping(value = "/{trip_plan_id}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deleteTripPlan( //
+        @ModelAttribute("LoginUser") final User loginUser, //
+        @ApiParam(name = "trip_plan_id", required = true, value = "旅行プランID") @PathVariable("trip_plan_id") final int tripPlanId //
+    ) {
+        this.tripPlanService.deleteTripPlan(tripPlanId, loginUser);
+    }
+
 }
