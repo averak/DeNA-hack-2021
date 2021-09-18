@@ -29,6 +29,8 @@ public enum ErrorCode {
 
     NOT_FOUND_USER_LIKE(1105, "exception.not_found.user_like"),
 
+    NOT_FOUND_ATTACHMENT(1106, "exception.not_found.attachment"),
+
     /**
      * Conflict: 1200~1299
      */

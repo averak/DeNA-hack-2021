@@ -18,6 +18,7 @@ import dev.abelab.hack.dena.db.entity.TripPlanTagging;
 import dev.abelab.hack.dena.db.entity.Tag;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
 import dev.abelab.hack.dena.model.TripPlanAttachmentModel;
+import dev.abelab.hack.dena.model.FileDownloadModel;
 import dev.abelab.hack.dena.api.request.TripPlanCreateRequest;
 import dev.abelab.hack.dena.api.response.TripPlanResponse;
 import dev.abelab.hack.dena.api.response.TripPlansResponse;
@@ -158,7 +159,7 @@ public class TripPlanService {
      * @return お気に入り情報レスポンス
      */
     @Transactional
-    public UserLikesResponse putUserLike(final User loginUser,final UserLikeRequest requestBody, final int tripPlanId) {
+    public UserLikesResponse putUserLike(final User loginUser, final UserLikeRequest requestBody, final int tripPlanId) {
         if (requestBody.getIsLike()) {
             this.userLikeRepository.insert(new UserLike(loginUser.getId(), tripPlanId));
         } else {
@@ -168,6 +169,7 @@ public class TripPlanService {
 
         return new UserLikesResponse(userLikes.size());
     }
+
     /**
      * 旅行プランを削除
      *
@@ -234,6 +236,20 @@ public class TripPlanService {
 
         return new TripPlansResponse(tripPlanResponses);
 
+    }
+
+    /**
+     * 添付ファイルを取得
+     *
+     * @param uuid      UUID
+     * @param loginUser ログインユーザ
+     *
+     * @return 添付ファイル
+     */
+    public FileDownloadModel getTripPlanAttachment(final String uuid, final User loginUser) {
+        // 添付ファイルを取得
+        final var attachment = this.tripPlanAttachmentRepository.selectByUuid(uuid);
+        return this.modelMapper.map(attachment, FileDownloadModel.class);
     }
 
 }

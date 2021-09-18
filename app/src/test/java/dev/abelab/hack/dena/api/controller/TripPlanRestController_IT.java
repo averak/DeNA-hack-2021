@@ -57,6 +57,7 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 	static final String DELETE_TRIP_PLAN_PATH = BASE_PATH + "/%d";
 	static final String LIKE_TRIP_PLAN_PATH = BASE_PATH + "/%d/likes";
 	static final String GET_LIKE_TRIP_PLANS_PATH = BASE_PATH + "/likes/me";
+	static final String DOWNLOAD_ATTACHMENT_PATH = BASE_PATH + "/attachment/%s";
 
 	@Autowired
 	ModelMapper modelMapper;
@@ -189,7 +190,6 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 				.isLike(true) //
 				.build();
 
-
 			// test
 			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
 			request.header(HttpHeaders.AUTHORIZATION, credentials);
@@ -205,11 +205,10 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			final var loginUser = createLoginUser();
 			final var credentials = getLoginUserCredentials(loginUser);
 			final var tripPlan = createTripPlan(loginUser);
-			final var userLike = createUserLike(loginUser,tripPlan);
+			final var userLike = createUserLike(loginUser, tripPlan);
 			final var requestBody = UserLikeRequest.builder() //
 				.isLike(false) //
 				.build();
-
 
 			// test
 			final var request = putRequest(String.format(LIKE_TRIP_PLAN_PATH, tripPlan.getId()), requestBody);
@@ -413,6 +412,64 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 		void 異_無効な認証ヘッダ() throws Exception {
 			// test
 			final var request = getRequest(GET_LIKE_TRIP_PLANS_PATH);
+			request.header(HttpHeaders.AUTHORIZATION, "");
+			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
+		}
+
+	}
+
+	/**
+	 * 添付ファイルダウンロードAPIのテスト
+	 */
+	@Nested
+	@TestInstance(PER_CLASS)
+	class DownloadAttachmentTest extends AbstractRestControllerInitialization_IT {
+
+		@Test
+		void 正_添付ファイルをダウンロード() throws Exception {
+			// login user
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var tripPlan = TripPlanSample.builder().userId(loginUser.getId()).build();
+			tripPlanRepository.insert(tripPlan);
+
+			final var items = Arrays.asList( //
+				TripPlanItemSample.builder().itemOrder(1).tripPlanId(tripPlan.getId()).build(), //
+				TripPlanItemSample.builder().itemOrder(2).tripPlanId(tripPlan.getId()).build() //
+			);
+			tripPlanItemRepository.bulkInsert(items);
+
+			final var attachment = TripPlanAttachmentSample.builder().tripPlanId(tripPlan.getId()).build();
+			tripPlanAttachmentRepository.insert(attachment);
+
+			// test
+			final var request = getRequest(String.format(DOWNLOAD_ATTACHMENT_PATH, attachment.getUuid()));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			final var response = execute(request, HttpStatus.OK);
+
+			// verify
+			assertThat(response.getResponse().getContentLength()).isEqualTo(attachment.getContent().length);
+		}
+
+		@Test
+		void 異_添付ファイルが存在しない() throws Exception {
+			// login user
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var attachment = TripPlanAttachmentSample.builder().build();
+
+			// test
+			final var request = getRequest(String.format(DOWNLOAD_ATTACHMENT_PATH, attachment.getUuid()));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			execute(request, new NotFoundException(ErrorCode.NOT_FOUND_ATTACHMENT));
+		}
+
+		@Test
+		void 異_無効な認証ヘッダ() throws Exception {
+			// test
+			final var request = getRequest(String.format(DOWNLOAD_ATTACHMENT_PATH, SAMPLE_STR));
 			request.header(HttpHeaders.AUTHORIZATION, "");
 			execute(request, new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN));
 		}

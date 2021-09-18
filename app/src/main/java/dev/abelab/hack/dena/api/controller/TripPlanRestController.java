@@ -1,7 +1,11 @@
 package dev.abelab.hack.dena.api.controller;
 
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.validation.annotation.Validated;
 
@@ -78,7 +82,7 @@ public class TripPlanRestController {
      * いいねAPI
      *
      * @param requestBody 旅行プラン作成リクエスト
-     * @param loginUser ログインユーザ
+     * @param loginUser   ログインユーザ
      *
      * @return いいねレスポンス
      */
@@ -149,6 +153,36 @@ public class TripPlanRestController {
         @ModelAttribute("LoginUser") final User loginUser //
     ) {
         return this.tripPlanService.getLikedTripPlans(loginUser);
+    }
+
+    /**
+     * 添付ファイルダウンロードAPI
+     *
+     * @param loginUser ログインユーザ
+     * @param uuid      UUID
+     *
+     * @return 添付ファイル
+     */
+    @ApiOperation( //
+        value = "添付ファイルのダウンロード", //
+        notes = "添付ファイルをダウンロードする。" //
+    )
+    @ApiResponses( //
+        value = { //
+                @ApiResponse(code = 200, message = "取得成功"), //
+                @ApiResponse(code = 401, message = "ユーザがログインしていない"), //
+                @ApiResponse(code = 404, message = "添付ファイルが存在しない"), //
+        })
+    @GetMapping(value = "/attachments/{uuid}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<Resource> getAttachments( //
+        @ModelAttribute("LoginUser") final User loginUser, //
+        @ApiParam(name = "uuid", required = true, value = "UUID") @PathVariable("uuid") final String uuid //
+    ) {
+        final var file = this.tripPlanService.getTripPlanAttachment(uuid, loginUser);
+        return ResponseEntity.ok() //
+            .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", file.getFileName()))
+            .body(new ByteArrayResource(file.getContent()));
     }
 
 }
