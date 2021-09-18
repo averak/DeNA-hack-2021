@@ -88,7 +88,9 @@ public class TripPlanService {
 
             // 添付ファイルを取得
             final var attachment = this.tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
-            response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
+            if (attachment != null) {
+                response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
+            }
 
             return response;
         }).collect(Collectors.toList());
@@ -201,7 +203,9 @@ public class TripPlanService {
 
                 // 添付ファイルを取得
                 final var attachment = this.tripPlanAttachmentRepository.selectByTripPlanId(tripPlan.getId());
-                response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
+                if (attachment != null) {
+                    response.setAttachment(this.modelMapper.map(attachment, TripPlanAttachmentModel.class));
+                }
 
                 return response;
             }).collect(Collectors.toList());
