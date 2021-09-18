@@ -8,7 +8,9 @@ import type { Tag } from "react-tag-autocomplete";
 import ReactTags from "react-tag-autocomplete";
 import type { PathData } from "src/components/Layout";
 import { Layout } from "src/components/Layout";
+import { ImageUpload } from "src/components/Plan/ImageUpload";
 import { StepForm } from "src/components/Plan/StepForm";
+import { WatchedInput } from "src/components/Plan/WatchedInput";
 import styles from "src/styles/register.module.css";
 import { usePostPlan } from "src/utils/hooks/planApi";
 import AREA from "src/utils/static/area.json";
@@ -64,7 +66,7 @@ const PlanRegisterPage: VFC = () => {
     formState: { errors },
   } = useForm<RegisterForm>();
 
-  const { response, getFn } = usePostPlan();
+  const { response, postFn } = usePostPlan();
 
   const [prefecture, setPrefecture] = useState<Prefecture>(AREA_ARR[0]);
   const [tags, setTags] = useState<Tag[] | []>([]);
@@ -106,35 +108,45 @@ const PlanRegisterPage: VFC = () => {
       // 1MB以下に圧縮する
       maxSizeMB: 1,
     };
+    const compFile = await imageCompression(thumbnail, compressOptions);
     const attachment = {
-      content: await imageCompression(thumbnail, compressOptions),
-      filename: thumbnail.name,
+      content: await imageCompression.getDataUrlFromFile(compFile),
+      fileName: thumbnail.name,
     };
+
+    const strTags: string[] = Object.values(tags[0]);
 
     const params = {
       ...data,
       attachment,
-      tags,
+      tags: strTags,
+      regionId: 2,
     };
 
-    getFn(params);
+    postFn(params);
   };
-  const handleMakeTag = () => {};
+  const handleMakeTag = (tag: string) => {
+    const formatTag = { id: 0, name: tag };
+    setTags([...tags, formatTag]);
+  };
 
   console.log(response);
   return (
     <Layout title="プラン登録" pathList={pathList}>
       <div className="py-4 mx-auto w-full max-w-[330px] text-sm font-bold">
+        <div>
+          <ImageUpload
+            name="サムネイル画像"
+            image={thumbnail}
+            setImage={setThumbnail}
+          />
+        </div>
         <div className="py-5">
           <p className="pt-6 pb-2">タイトル</p>
           <input {...register("title")} className={`h-9 ${inputStyle}`} />
 
           <p className="pt-6 pb-2">都道府県</p>
-          <Listbox
-            {...register("regionId")}
-            value={prefecture}
-            onChange={setPrefecture}
-          >
+          <Listbox value={prefecture} onChange={setPrefecture}>
             <Listbox.Button className={`relative h-9 text-left ${inputStyle}`}>
               <span className="block leading-9 truncate">
                 {prefecture.name}
@@ -150,6 +162,7 @@ const PlanRegisterPage: VFC = () => {
               {AREA_ARR.map((area) => {
                 return (
                   <Listbox.Option
+                    {...register("regionId")}
                     key={area.id}
                     value={area.id}
                     className="col-span-1 h-7 font-normal text-center border-[0.1px] border-gray-300 border-solid"
@@ -175,13 +188,7 @@ const PlanRegisterPage: VFC = () => {
           <p className="pt-4 text-xs">
             当てはまるタグがない..? タグ作成にご協力ください
           </p>
-          <div className="flex gap-2 pl-3 h-8">
-            <input className={`${inputStyle}`} value="" />
-            <button
-              className="w-14 bg-gradient-to-r from-yellow-c2 to-yellow-c1"
-              onClick={handleMakeTag}
-            />
-          </div>
+          <WatchedInput onClick={handleMakeTag} />
 
           <p className="pt-8 pb-2">説明文</p>
           <textarea
@@ -191,10 +198,9 @@ const PlanRegisterPage: VFC = () => {
         </div>
         <StepForm register={register} errors={errors} />
       </div>
-      <button
-        className="w-full h-12 bg-white"
-        onClick={handleSubmit(onSubmit)}
-      />
+      <button className="w-full h-12 bg-white" onClick={handleSubmit(onSubmit)}>
+        登録
+      </button>
     </Layout>
   );
 };

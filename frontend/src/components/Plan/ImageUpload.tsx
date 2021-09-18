@@ -1,12 +1,12 @@
 import type { ChangeEvent } from "react";
 import type { VFC } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type UploadProps = {
   name: string;
   componentRef?: (instance: HTMLInputElement | null) => void;
-  image: File;
-  setImage: (files: File) => void;
+  image: File | null;
+  setImage: (files: File | null) => void;
 };
 
 export const ImageUpload: VFC<UploadProps> = ({
@@ -16,16 +16,15 @@ export const ImageUpload: VFC<UploadProps> = ({
   setImage,
 }: UploadProps) => {
   const [isFileTypeError, setIsFileTypeError] = useState(false);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  console.log(imageUrl);
 
   const handleFile = async (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files === null || event.target.files.length === 0) {
       return;
     }
-    const files = Object.values(event.target.file).concat();
-    // 初期化することで同じファイルを連続で選択してもonChagngeが発動するように設定し、画像をキャンセルしてすぐに同じ画像を選ぶ動作に対応
-    event.target.value = "";
+    const file = Object.values(event.target.files)[0];
     setIsFileTypeError(false);
-
     if (
       ![
         "image/gif",
@@ -37,23 +36,30 @@ export const ImageUpload: VFC<UploadProps> = ({
     ) {
       setIsFileTypeError(true);
     }
-
-    setImage();
+    console.log(file);
+    setImage(file);
   };
 
   const handleCancel = () => {
     if (confirm("選択した画像を消してよろしいですか？")) {
       setIsFileTypeError(false);
-      setImage(null);
     }
   };
+
+  useEffect(() => {
+    console.log(image);
+    if (!image) return;
+    setImageUrl(URL.createObjectURL(image));
+  }, [image]);
 
   return (
     <>
       <div>
-        <button type="button" onClick={handleCancel}>
-          <img src={URL.createObjectURL(image)} alt={`投稿された写真`} />
-        </button>
+        {imageUrl && (
+          <button type="button" onClick={handleCancel}>
+            <img src={imageUrl} alt={`投稿された写真`} />
+          </button>
+        )}
       </div>
       {isFileTypeError && (
         <p>※jpeg, png, bmp, gif, svg以外のファイル形式は表示されません</p>

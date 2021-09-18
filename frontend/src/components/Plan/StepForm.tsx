@@ -69,6 +69,11 @@ export const StepForm: VFC<StepFormProps> = ({ register, errors }) => {
               type="hidden"
               value={dummyDate}
             />
+            <input
+              {...register(`items.${i}.itemOrder`)}
+              type="hidden"
+              value={i}
+            />
           </div>
         );
       })}
