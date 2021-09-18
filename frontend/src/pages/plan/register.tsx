@@ -146,7 +146,11 @@ const PlanRegisterPage: VFC = () => {
           <input {...register("title")} className={`h-9 ${inputStyle}`} />
 
           <p className="pt-6 pb-2">都道府県</p>
-          <Listbox value={prefecture} onChange={setPrefecture}>
+          <Listbox
+            {...register("regionId")}
+            value={prefecture}
+            onChange={setPrefecture}
+          >
             <Listbox.Button className={`relative h-9 text-left ${inputStyle}`}>
               <span className="block leading-9 truncate">
                 {prefecture.name}
