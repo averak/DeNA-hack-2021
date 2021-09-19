@@ -22,17 +22,21 @@ const AREA_ARR = Object.values(AREA)
   })
   .flat();
 
+AREA_ARR.unshift("未選択");
+
 const findRegionId = (prefecture: string) => {
+  if (prefecture === "未選択") return "";
+
   const id: number = AREA_ARR.findIndex((ARR) => {
     return ARR === prefecture;
   });
-  return id !== -1 ? (id + 1).toString() : "";
+  return id !== -1 ? id.toString() : "";
 };
 
 const pathList: PathData[] = [{ pathTitle: "検索結果", pathLink: "/search" }];
 
 const SearchPage: VFC = () => {
-  const [prefecture, setPrefecture] = useState<string>("東京都");
+  const [prefecture, setPrefecture] = useState<string>("未選択");
   const [minPrice, setMinPrice] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
