@@ -86,10 +86,50 @@ public class TripPlanService {
     public TripPlansResponse getTripPlans(final User loginUser, final Integer maxPrice, final String tag, final Integer userId,
         final Integer regionId) {
         // 旅行プラン一覧を取得
-        final var tripPlans = this.tripPlanRepository.selectAll();
-        final var tripPlanResponses = tripPlans.stream() //
+        var tripPlans = this.tripPlanRepository.selectAll();
+        var tripPlanResponses = tripPlans.stream() //
             .map(tripPlan -> this.tripPlanLogic.buildTripPlanResponse(tripPlan, loginUser)) //
             .collect(Collectors.toList());
+
+        // 上限金額で絞り込み
+        if (maxPrice != null) {
+            tripPlanResponses = tripPlanResponses.stream().filter(response -> {
+                // 合計金額を算出
+                var price = 0;
+                for (var item : response.getItems()) {
+                    price += item.getPrice();
+                }
+
+                return price <= maxPrice;
+            }).collect(Collectors.toList());
+        }
+
+        // タグ名で絞り込み
+        if (tag != null) {
+            final var tagNames = tag.split(",");
+            tripPlanResponses = tripPlanResponses.stream().filter(response -> {
+                for (String tagName : tagNames) {
+                    if (response.getTags().contains(tagName)) {
+                        return true;
+                    }
+                }
+                return false;
+            }).collect(Collectors.toList());
+        }
+
+        // ユーザIDで絞り込み
+        if (userId != null) {
+            tripPlanResponses = tripPlanResponses.stream() //
+                .filter(response -> response.getAuthor().getId() == userId) //
+                .collect(Collectors.toList());
+        }
+
+        // 都道府県IDで絞り込み
+        if (regionId != null) {
+            tripPlanResponses = tripPlanResponses.stream() //
+                .filter(response -> response.getRegionId() == regionId) //
+                .collect(Collectors.toList());
+        }
 
         return new TripPlansResponse(tripPlanResponses);
     }
