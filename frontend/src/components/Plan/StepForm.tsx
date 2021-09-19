@@ -44,7 +44,7 @@ export const StepForm: VFC<StepFormProps> = ({ register, errors }) => {
               {...register(`items.${i}.title`, { required: true })}
               className={`h-9 ${inputStyle}`}
             />
-            {error?.title.type == "required" && (
+            {error?.title?.type == "required" && (
               <div className="py-1 text-xs text-red-500">
                 目的地名は必須です
               </div>
@@ -55,7 +55,7 @@ export const StepForm: VFC<StepFormProps> = ({ register, errors }) => {
               {...register(`items.${i}.description`, { required: true })}
               className={`min-h-[90px] ${inputStyle}`}
             />
-            {error?.description.type == "required" && (
+            {error?.description?.type == "required" && (
               <div className="py-1 text-xs text-red-500">説明文は必須です</div>
             )}
 
@@ -71,7 +71,7 @@ export const StepForm: VFC<StepFormProps> = ({ register, errors }) => {
               />
               <p>円</p>
             </div>
-            {error?.price.type == "required" && (
+            {error?.price?.type == "required" && (
               <div className="py-1 text-xs text-red-500">
                 想定金額は必須です
               </div>
