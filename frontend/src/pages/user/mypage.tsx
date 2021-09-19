@@ -4,10 +4,12 @@ import { useRouter } from "next/router";
 import type { VFC } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import ReactLoading from "react-loading";
 import type { PathData } from "src/components/Layout";
 import { Layout } from "src/components/Layout";
-import { useGetAllPlans, useGetLikePlans, useGetFiles } from "src/utils/hooks/planApi";
 import { PlanContent } from "src/organisms/PlanContent";
+import { useGetAllPlans, useGetLikePlans } from "src/utils/hooks/planApi";
+import { useGetUserProfile } from "src/utils/hooks/userApi";
 
 import { isAccessToken } from "../../utils/libs/accessToken";
 
@@ -27,15 +29,26 @@ const MyPage: VFC = () => {
 
   const likePlansState = useGetLikePlans();
 
-  const allPlansState = useGetAllPlans();
+  const userState = useGetUserProfile();
 
+  useEffect(() => {
+    userState.getFn();
+  }, []);
+
+  const myPlansState = useGetAllPlans();
 
   const [selected, setSelected] = useState(planOption[0]);
 
   useEffect(() => {
+    if (!userState.response) return;
     likePlansState.getFn();
-    allPlansState.getFn();
-  }, []);
+    myPlansState.getFn({
+      maxPrice: "",
+      regionId: "",
+      tag: "",
+      userId: userState.response.id,
+    });
+  }, [userState.response]);
 
   const pathList: PathData[] = [
     { pathTitle: "マイページ", pathLink: "/user/mypage" },
@@ -104,14 +117,54 @@ const MyPage: VFC = () => {
           </Transition>
         </Listbox>
       </div>
-      <div className="py-6">
-          { selected.id == 1 && !likePlansState.loading && (
-            likePlansState.response?.tripPlans.map((v,i) => {
-              return (
-                <PlanContent planId={v.id} imgSrc={v.attachment.fileName} 
-              )
-            })
-          )}
+      <div className="py-6 mx-auto w-full max-w-[350px]">
+        {(likePlansState.loading || myPlansState.loading) && (
+          <div className="justify-center items-center py-20 w-full">
+            <ReactLoading
+              type="bars"
+              color="#2A63BE"
+              height={20}
+              width={120}
+              className="mx-auto"
+            />
+          </div>
+        )}
+        {selected.id == 1 &&
+          !likePlansState.loading &&
+          likePlansState.response?.tripPlans.map((v, i) => {
+            return (
+              <PlanContent
+                key={i}
+                planId={v.id}
+                imgSrc={v.imgUrl}
+                title={v.title}
+                description={v.description}
+                tags={v.tags}
+                price={v.price}
+                likes={v.likes}
+                planner={`${v.author.firstName} ${v.author.lastName}`}
+                isLike={v.isLiked}
+              />
+            );
+          })}
+        {selected.id == 2 &&
+          !myPlansState.loading &&
+          myPlansState.response?.tripPlans.map((v, i) => {
+            return (
+              <PlanContent
+                key={i}
+                planId={v.id}
+                imgSrc={v.imgUrl}
+                title={v.title}
+                description={v.description}
+                tags={v.tags}
+                price={v.price}
+                likes={v.likes}
+                planner={`${v.author.firstName} ${v.author.lastName}`}
+                isLike={v.isLiked}
+              />
+            );
+          })}
       </div>
     </Layout>
   );
