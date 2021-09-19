@@ -75,7 +75,7 @@ const SearchPage: VFC = () => {
       maxPrice: routerMaxPrice,
       regionId: findRegionId(routerPrefecture),
       tag: routerTag.join(","),
-      userId: "",
+      userId: 0,
     };
 
     getFn(searchQuery);
@@ -86,7 +86,7 @@ const SearchPage: VFC = () => {
       maxPrice: maxPrice,
       regionId: findRegionId(prefecture),
       tag: tags.join(","),
-      userId: "",
+      userId: 0,
     };
     getFn(searchQuery);
   }, [maxPrice, prefecture, tags]);
@@ -127,7 +127,7 @@ const SearchPage: VFC = () => {
     <Layout title="検索結果" pathList={pathList}>
       <main>
         <div>
-          <div className="pt-6 pb-3 text-center bg-gradient-to-r shadow-lg from-blue-c2 to-blue-c1">
+          <div className="pt-6 pb-3 text-center bg-gradient-to-r from-blue-c2 to-blue-c1 shadow-lg">
             <div>
               <Listbox value={prefecture} onChange={setPrefecture}>
                 <Listbox.Button
@@ -149,7 +149,7 @@ const SearchPage: VFC = () => {
                       <Listbox.Option
                         key={i}
                         value={area}
-                        className="col-span-1 h-8 font-normal text-center border-gray-300 border-solid border-[0.1px]"
+                        className="col-span-1 h-8 font-normal text-center border-[0.1px] border-gray-300 border-solid"
                       >
                         <p className="pt-1 text-sm font-bold text-gray-700">
                           {area}
