@@ -26,7 +26,6 @@ export const PlanContent: VFC<PlanProps> = (props) => {
   const topImageUrl = useGetTopImageUrl();
   const [likes, setLikes] = useState<number>(props.likes);
   const [isMyLike, setIsMyLike] = useState<boolean>(props.isLike);
-
   useEffect(() => {
     if (!error) {
       return;

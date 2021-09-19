@@ -79,7 +79,7 @@ const SearchPage: VFC = () => {
       maxPrice: routerMaxPrice,
       regionId: findRegionId(routerPrefecture),
       tag: routerTag.join(","),
-      userId: "",
+      userId: 0,
     };
 
     getFn(searchQuery);
@@ -90,7 +90,7 @@ const SearchPage: VFC = () => {
       maxPrice: maxPrice,
       regionId: findRegionId(prefecture),
       tag: tags.join(","),
-      userId: "",
+      userId: 0,
     };
     getFn(searchQuery);
   }, [maxPrice, prefecture, tags]);
