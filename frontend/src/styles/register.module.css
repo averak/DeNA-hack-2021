@@ -2,3 +2,67 @@
   width: 100% !important;
   height: 32px;
 }
+
+.registerButton {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.5;
+  position: relative;
+  display: inline-block;
+  padding: 1rem 4rem;
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-transition: all 0.3s;
+  transition: all 0.3s;
+  text-align: center;
+  vertical-align: middle;
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  color: #212529;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin: 30px auto;
+  padding: 1.5rem 6rem;
+  width: 280px;
+  color: #fff;
+  background: linear-gradient(#2a63be 0%, #46a2e8 100%);
+  border-radius: 0;
+}
+
+.registerButton span {
+  position: relative;
+}
+
+.registerButton::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100px;
+  height: 100px;
+
+  content: "";
+  -webkit-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+  -webkit-transform: translateX(-80%) translateY(-25px);
+  transform: translateX(-80%) translateY(-25px);
+
+  border-radius: 50%;
+  background: linear-gradient(#ffff80 0%, #aaaa00 100%);
+}
+
+.registerButton:hover {
+  color: #000;
+}
+
+.registerButton:hover::before {
+  width: 400px;
+  height: 400px;
+
+  -webkit-transform: translateX(-1%) translateY(-175px);
+
+  transform: translateX(-1%) translateY(-175px);
+}
