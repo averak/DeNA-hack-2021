@@ -261,6 +261,7 @@ const HomePage: VFC = () => {
             price={10000}
             likes={100}
             planner="まっさん"
+            isLike={false}
           />
         </div>
       </div>
