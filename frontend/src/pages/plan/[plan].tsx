@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import type { VFC } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import { useGetTopImageUrl } from "src/utils/hooks/instagramApi";
 import { useGetPlan, usePutLikes } from "src/utils/hooks/planApi";
 
 import type { PathData } from "../../components/Layout";
@@ -11,16 +12,13 @@ import { Layout } from "../../components/Layout";
 import { PlanDetailContent } from "../../organisms/planDetailContent";
 
 const PlanPage: VFC = () => {
+  const topImageUrl = useGetTopImageUrl();
   const { loading, error, response, getFn } = useGetPlan();
   const putLikes = usePutLikes();
 
   const router = useRouter();
 
-  const dummyImageUrl =
-    "https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D";
-
   const [planId, setPlanId] = useState<number>(0);
-  const [eyeCatchUrl] = useState<string>(dummyImageUrl);
   const [likes, setLikes] = useState<number>(0);
   const [isLike, setIsLike] = useState<boolean>(false);
   const [price] = useState<number>(0);
@@ -38,6 +36,7 @@ const PlanPage: VFC = () => {
       getFn(id).then(() => {
         if (typeof response?.isLiked === "boolean") {
           setIsLike(response?.isLiked);
+          topImageUrl.getTopImageFn(response.items[0].title).then();
         }
       });
     }
@@ -140,7 +139,14 @@ const PlanPage: VFC = () => {
     <main>
       {!(loading && putLikes.loading) && (
         <Layout title={response?.title ?? "プラン詳細"} pathList={pathLinkData}>
-          <img src={eyeCatchUrl} alt="アイキャッチ" width={400} height={300} />
+          <img
+            src={
+              topImageUrl.response ? topImageUrl.response[0] : "/noimage.png"
+            }
+            alt="アイキャッチ"
+            width={400}
+            height={300}
+          />
           <div className="mb-5">
             <div className="flex justify-between">
               <p className="my-2 ml-4 text-2xl">{response?.title}</p>

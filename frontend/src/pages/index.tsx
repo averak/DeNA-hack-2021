@@ -272,6 +272,7 @@ const HomePage: VFC = () => {
               return (
                 <PlanContent
                   key={i}
+                  place={plan.items[0].title}
                   planId={plan.id}
                   imgSrc="https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D"
                   title={plan.title}
