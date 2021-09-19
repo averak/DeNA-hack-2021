@@ -1,6 +1,7 @@
 import { HeartIcon as OutlineHeartIcon } from "@heroicons/react/outline";
 import { HeartIcon as SolidHeartIcon } from "@heroicons/react/solid";
 import Link from "next/link";
+import router from "next/router";
 import type { VFC } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -53,28 +54,87 @@ export const PlanContent: VFC<PlanProps> = (props) => {
       setIsMyLike(!isMyLike);
     });
   };
+  const tappedTag = (tag: string) => {
+    const query = router.query;
+    const queryTags = query.tags;
+    let setArray: string[] = [];
+    if (queryTags) {
+      if (typeof queryTags === "string") {
+        setArray = [tag, queryTags];
+        const uniqArray = setArray.filter((x, i, self) => {
+          return self.indexOf(x) === i;
+        });
+        router.push({
+          pathname: "/search",
+          query: {
+            minPrice: "",
+            maxPrice: "",
+            prefecture: "",
+            tags: uniqArray,
+          },
+        });
+      } else {
+        queryTags.push(tag);
+        setArray = queryTags;
+        const uniqArray = setArray.filter((x, i, self) => {
+          return self.indexOf(x) === i;
+        });
+        router.push({
+          pathname: "/search",
+          query: {
+            minPrice: "",
+            maxPrice: "",
+            prefecture: "",
+            tags: uniqArray,
+          },
+        });
+      }
+    } else {
+      router.push({
+        pathname: "/search",
+        query: {
+          minPrice: "",
+          maxPrice: "",
+          prefecture: "",
+          tags: tag,
+        },
+      });
+    }
+  };
 
   return (
     <div className="pb-2 rounded-2xl border-2">
-      <img
-        className="object-cover w-full h-48 rounded-t-2xl"
-        src={props.imgSrc}
-        alt="旅行プランのサムネイルです"
-      />
-
+      <Link href={"/plan/" + String(props.planId)}>
+        <a>
+          <img
+            className="object-cover w-full h-48 rounded-t-2xl"
+            src={props.imgSrc}
+            alt="旅行プランのサムネイルです"
+          />
+        </a>
+      </Link>
       <div className="flex justify-between">
-        <p className="my-3 mx-1.5 text-2xl">{props.title}</p>
+        <Link href={"/plan/" + String(props.planId)}>
+          <a>
+            <p className="my-3 mx-1.5 text-2xl">{props.title}</p>
+          </a>
+        </Link>
         <p className="mx-1.5 mt-5 text-sm">予算: {props.price} 円</p>
       </div>
-
       <div className="flex justify-between">
         <div>
           <div className="my-1 text-sm text-blue-400">
             {props.tags.map((tag, i) => {
               return (
-                <Link href="/search" key={i}>
-                  <a className="ml-1">#{tag}</a>
-                </Link>
+                <button
+                  key={i}
+                  onClick={() => {
+                    return tappedTag(tag);
+                  }}
+                  className="ml-1"
+                >
+                  #{tag}
+                </button>
               );
             })}
           </div>
