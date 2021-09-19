@@ -21,6 +21,8 @@ const AREA_ARR = Object.values(AREA)
   })
   .flat();
 
+const pathList: PathData[] = [{ pathTitle: "検索結果", pathLink: "/search" }];
+
 const SearchPage: VFC = () => {
   const [prefecture, setPrefecture] = useState<string>("東京都");
   const [minPrice, setMinPrice] = useState<string>();
@@ -79,7 +81,6 @@ const SearchPage: VFC = () => {
       })
     );
   };
-  const pathList: PathData[] = [{ pathTitle: "検索結果", pathLink: "/search" }];
 
   return (
     <Layout title="検索結果" pathList={pathList}>
