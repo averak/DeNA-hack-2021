@@ -2,7 +2,7 @@ import { Listbox } from "@headlessui/react";
 import { SelectorIcon } from "@heroicons/react/solid";
 import imageCompression from "browser-image-compression";
 import type { VFC } from "react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Tag } from "react-tag-autocomplete";
 import ReactTags from "react-tag-autocomplete";
@@ -12,7 +12,7 @@ import { ImageUpload } from "src/components/Plan/ImageUpload";
 import { StepForm } from "src/components/Plan/StepForm";
 import { WatchedInput } from "src/components/Plan/WatchedInput";
 import styles from "src/styles/register.module.css";
-import { usePostPlan } from "src/utils/hooks/planApi";
+import { useGetTags, usePostPlan } from "src/utils/hooks/planApi";
 import AREA from "src/utils/static/area.json";
 
 type Prefecture = {
@@ -47,14 +47,6 @@ const AREA_ARR = Object.values(AREA)
   })
   .flat();
 
-const suggestion = [
-  { id: 3, name: "Bananas" },
-  { id: 4, name: "昨日の朝" },
-  { id: 5, name: "あいうえお" },
-  { id: 6, name: "明日の朝" },
-  { id: 7, name: "明日の夜" },
-];
-
 const pathList: PathData[] = [
   { pathTitle: "マイページ", pathLink: "/user/mypage" },
   { pathTitle: "プラン登録", pathLink: "/plan/register" },
@@ -68,6 +60,23 @@ const PlanRegisterPage: VFC = () => {
   } = useForm<RegisterForm>();
 
   const { postFn } = usePostPlan();
+
+  const { loading, response, getFn } = useGetTags();
+
+  const [suggestion, setSuggestion] = useState<Tag[] | null>(null);
+
+  useEffect(() => {
+    if (!response && !loading) {
+      getFn();
+    }
+
+    if (response) {
+      const tagObj = response.tags?.map((v, i) => {
+        return { id: i, name: v };
+      });
+      setSuggestion(tagObj);
+    }
+  }, [response]);
 
   const [prefecture, setPrefecture] = useState<Prefecture>(AREA_ARR[0]);
   const [tags, setTags] = useState<Tag[] | []>([]);
@@ -208,14 +217,16 @@ const PlanRegisterPage: VFC = () => {
               </span>
             </p>
             <div className="w-full">
-              <ReactTags
-                ref={reactTagsRef}
-                tags={tags}
-                suggestions={suggestion}
-                onDelete={handleDelete}
-                onAddition={handleAddition}
-                classNames={reactTagsClassNames}
-              />
+              {suggestion && (
+                <ReactTags
+                  ref={reactTagsRef}
+                  tags={tags}
+                  suggestions={suggestion}
+                  onDelete={handleDelete}
+                  onAddition={handleAddition}
+                  classNames={reactTagsClassNames}
+                />
+              )}
             </div>
             <p className="pt-4 text-xs">
               当てはまるタグがない..? タグ作成にご協力ください
