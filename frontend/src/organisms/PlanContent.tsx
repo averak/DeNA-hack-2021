@@ -1,6 +1,7 @@
 import { HeartIcon as OutlineHeartIcon } from "@heroicons/react/outline";
 import { HeartIcon as SolidHeartIcon } from "@heroicons/react/solid";
 import Link from "next/link";
+import router from "next/router";
 import type { VFC } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
@@ -54,6 +55,18 @@ export const PlanContent: VFC<PlanProps> = (props) => {
     });
   };
 
+  const tappedTag = (tag: string) => {
+    router.push({
+      pathname: "/search",
+      query: {
+        minPrice: "",
+        maxPrice: "",
+        prefecture: "",
+        tags: tag,
+      },
+    });
+  };
+
   return (
     <div className="pb-2 rounded-2xl border-2">
       <Link href={"/plan/" + String(props.planId)}>
@@ -78,9 +91,15 @@ export const PlanContent: VFC<PlanProps> = (props) => {
           <div className="my-1 text-sm text-blue-400">
             {props.tags.map((tag, i) => {
               return (
-                <Link href="/search" key={i}>
-                  <a className="ml-1">#{tag}</a>
-                </Link>
+                <button
+                  key={i}
+                  onClick={() => {
+                    return tappedTag(tag);
+                  }}
+                  className="ml-1"
+                >
+                  #{tag}
+                </button>
               );
             })}
           </div>

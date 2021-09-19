@@ -88,51 +88,71 @@ const PlanPage: VFC = () => {
     },
   ];
 
+  const tappedTag = (tag: string) => {
+    router.push({
+      pathname: "/search",
+      query: {
+        minPrice: "",
+        maxPrice: "",
+        prefecture: "",
+        tags: tag,
+      },
+    });
+  };
+
   return (
     <main>
-      <Layout title={response?.title ?? "プラン詳細"} pathList={pathLinkData}>
-        <img src={eyeCatchUrl} alt="アイキャッチ" width={400} height={300} />
-        <div className="mb-5">
-          <div className="flex justify-between">
-            <p className="my-2 ml-4 text-2xl">{response?.title}</p>
-            <button
-              className="flex justify-center my-2.5 mr-6 text-xl text-gray-600"
-              onClick={ChangeMyLike}
-            >
-              <ShowMyLike />
-              <p>{likes}</p>
-            </button>
-          </div>
-          <p className="ml-4 text-gray-500">
-            user: @
-            {response?.author.lastName + " " + response?.author.firstName}さん
-          </p>
-          <p className="mx-4 mt-4 mb-2">{response?.description}</p>
+      {!(loading && putLikes.loading) && (
+        <Layout title={response?.title ?? "プラン詳細"} pathList={pathLinkData}>
+          <img src={eyeCatchUrl} alt="アイキャッチ" width={400} height={300} />
+          <div className="mb-5">
+            <div className="flex justify-between">
+              <p className="my-2 ml-4 text-2xl">{response?.title}</p>
+              <button
+                className="flex justify-center my-2.5 mr-6 text-xl text-gray-600"
+                onClick={ChangeMyLike}
+              >
+                <ShowMyLike />
+                <p>{likes}</p>
+              </button>
+            </div>
+            <p className="ml-4 text-gray-500">
+              user: @
+              {response?.author.lastName + " " + response?.author.firstName}さん
+            </p>
+            <p className="mx-4 mt-4 mb-2">{response?.description}</p>
 
-          <div className="flex ml-4 text-blue-500">
-            {/* tag 検索をするので、ここは後に変える */}
-            {response?.tags.map((tag, i) => {
+            <div className="flex ml-4 text-blue-500">
+              {/* tag 検索をするので、ここは後に変える */}
+              {response?.tags.map((tag, i) => {
+                return (
+                  <button
+                    key={i}
+                    className="mr-1"
+                    onClick={() => {
+                      return tappedTag(tag);
+                    }}
+                  >
+                    #{tag}
+                  </button>
+                );
+              })}
+            </div>
+            {/* ここにpriceを計算して入れたい */}
+            <p className="mt-2 ml-4 text-sm text-gray-800">予算: {price} 円</p>
+            {response?.items.map((item, i) => {
               return (
-                <a key={i} className="mr-1">
-                  #{tag}
-                </a>
+                <PlanDetailContent
+                  key={i}
+                  place={item.title}
+                  order={item.itemOrder}
+                  description={item.description}
+                />
               );
             })}
           </div>
-          {/* ここにpriceを計算して入れたい */}
-          <p className="mt-2 ml-4 text-sm text-gray-800">予算: {price} 円</p>
-          {response?.items.map((item, i) => {
-            return (
-              <PlanDetailContent
-                key={i}
-                place={item.title}
-                order={item.itemOrder}
-                description={item.description}
-              />
-            );
-          })}
-        </div>
-      </Layout>
+        </Layout>
+      )}
     </main>
   );
 };
