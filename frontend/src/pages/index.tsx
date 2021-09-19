@@ -45,14 +45,19 @@ const DownIcon: VFC<IconProps> = ({ className }) => {
 type AreaSelectType = {
   category: string;
   areas: { [key: string]: string };
+  setPrefectureFn: Dispatch<SetStateAction<string>>;
 };
-const AreaSelect: VFC<AreaSelectType> = ({ category, areas }) => {
-  const [value, setValue] = useState<string | null>(null);
+const AreaSelect: VFC<AreaSelectType> = ({
+  category,
+  areas,
+  setPrefectureFn,
+}) => {
+  const [value] = useState<string | null>(null);
   const handleClick = useCallback(
     (e: FormEvent<HTMLButtonElement>) => {
-      setValue(e.currentTarget.value);
+      setPrefectureFn(e.currentTarget.value);
     },
-    [value]
+    [setPrefectureFn]
   );
   return (
     <Menu className="inline" key={category} as="div">
@@ -97,6 +102,8 @@ const TagSelects: VFC<TagSelectsProps> = ({ setValue }) => {
   const [inputTag, setInputTag] = useState<string>("");
 
   const addTagToTags = (addtag: string) => {
+    if (!addtag) return;
+
     const newTags: string[] = tags.concat();
     newTags.push(addtag);
     setTags(newTags);
@@ -158,7 +165,7 @@ const TagSelects: VFC<TagSelectsProps> = ({ setValue }) => {
 };
 
 const HomePage: VFC = () => {
-  const [prefecture] = useState<string>("東京都");
+  const [prefecture, setPrefecture] = useState<string>("");
   const [minPrice, setMinPrice] = useState<string>();
   const [maxPrice, setMaxPrice] = useState<string>();
   const [tags, setTags] = useState<string[]>([]);
@@ -177,10 +184,25 @@ const HomePage: VFC = () => {
         <div className="py-7 font-bold text-white bg-gradient-to-r from-blue-c2 to-blue-c1">
           <p className="pt-4 text-center">プラン検索</p>
           <div className="py-4 mx-auto w-11/12">
-            <p className="py-4 text-left">エリア</p>
+            <div className="flex">
+              <p className="py-4 text-left">エリア</p>
+              <input
+                placeholder="下記より選択"
+                value={prefecture}
+                className="m-3 pl-2 h-8 font-bold text-gray-700 rounded-lg"
+                readOnly
+              />
+            </div>
             <div className="overflow-hidden rounded">
               {Object.entries(AREA).map(([category, value], i) => {
-                return <AreaSelect key={i} category={category} areas={value} />;
+                return (
+                  <AreaSelect
+                    key={i}
+                    category={category}
+                    areas={value}
+                    setPrefectureFn={setPrefecture}
+                  />
+                );
               })}
             </div>
             <p className=" pt-8 text-left">金額</p>
