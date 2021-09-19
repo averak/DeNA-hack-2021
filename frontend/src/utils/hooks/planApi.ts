@@ -80,7 +80,7 @@ export type TripPlanResponse = {
 };
 
 export type FormatTripPlan = TripPlanResponse & {
-  imgUrl: Blob;
+  imgUrl: string;
   price: number;
 };
 
@@ -123,13 +123,12 @@ export type Attachment = {
   url: string;
 };
 
-const decodeBinary = (binary: Blob) => {
+const decodeBinary = (binary: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
-    const blob = new Blob([binary], { type: "image/png" });
     const reader = new FileReader();
     // Sets up even listeners BEFORE you call reader.readAsDataURL
     reader.onload = function () {
-      const result = reader.result;
+      const result = reader.result as string;
       return resolve(result);
     };
 
@@ -137,7 +136,7 @@ const decodeBinary = (binary: Blob) => {
       return reject(error);
     };
     // Calls reader function
-    reader.readAsDataURL(blob);
+    reader.readAsDataURL(binary);
   });
 };
 
@@ -147,11 +146,16 @@ const getImgSrc = async (uuid: string) => {
   const imgUrl = await axios
     .get<Blob>(url, {
       headers: { Authorization: getTokenHeader() },
+      responseType: "blob",
     })
     .then(async (res) => {
-      const responseData = await res.data;
-      const b64 = (await decodeBinary(responseData)) as Blob;
-      console.log(b64);
+      // const blobUrl = window.URL.createObjectURL(new Blob([res.data]));
+      // console.log(blobUrl);
+      const b64 = await decodeBinary(res.data);
+      // const sp = b64.slice(b64.indexOf(",") + 1).split("base64");
+      // const prefix = sp[0].split("data").join("data:");
+      // return `${prefix};base64,${sp[1]}`;
+      // return b64.slice(b64.indexOf(",") + 1);
       return b64;
     });
   return imgUrl;

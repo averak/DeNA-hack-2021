@@ -124,7 +124,7 @@ const MyPage: VFC = () => {
               type="bars"
               color="#2A63BE"
               height={20}
-              width={120}
+              width={140}
               className="mx-auto"
             />
           </div>
