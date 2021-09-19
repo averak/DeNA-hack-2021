@@ -33,7 +33,7 @@ const getTagId = (tag: string): Promise<AxiosResponse<TagIdResponse>> => {
 export const useGetTopImageUrl = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [response, setResponse] = useState<string[] | null>(null);
-  const [error, setError] = useState<Error | null>(null);
+  const [error] = useState<Error | null>(null);
 
   const getTopImageFn = useCallback(async (tag: string) => {
     setLoading(true);
@@ -63,16 +63,12 @@ export const useGetTopImageUrl = () => {
                 // 足りない分no-image
                 imgArray.push("/noimage.png");
               }
-              setResponse([
-                images[0].media_url,
-                images[1].media_url,
-                images[2].media_url,
-              ]);
+              setResponse(imgArray);
             }
           })
           .catch((err) => {
             console.error(err);
-            setError(err);
+            setResponse(["/noimage.png", "/noimage.png", "/noimage.png"]);
           })
           .finally(() => {
             setLoading(false);
@@ -80,7 +76,7 @@ export const useGetTopImageUrl = () => {
       })
       .catch((err) => {
         console.error(err);
-        setError(err);
+        setResponse(["/noimage.png", "/noimage.png", "/noimage.png"]);
       })
       .finally(() => {
         setLoading(false);

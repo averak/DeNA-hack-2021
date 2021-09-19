@@ -56,17 +56,23 @@ export const PlanContent: VFC<PlanProps> = (props) => {
 
   return (
     <div className="pb-2 rounded-2xl border-2">
-      <img
-        className="object-cover w-full h-48 rounded-t-2xl"
-        src={props.imgSrc}
-        alt="旅行プランのサムネイルです"
-      />
-
+      <Link href={"/plan/" + String(props.planId)}>
+        <a>
+          <img
+            className="object-cover w-full h-48 rounded-t-2xl"
+            src={props.imgSrc}
+            alt="旅行プランのサムネイルです"
+          />
+        </a>
+      </Link>
       <div className="flex justify-between">
-        <p className="my-3 mx-1.5 text-2xl">{props.title}</p>
+        <Link href={"/plan/" + String(props.planId)}>
+          <a>
+            <p className="my-3 mx-1.5 text-2xl">{props.title}</p>
+          </a>
+        </Link>
         <p className="mx-1.5 mt-5 text-sm">予算: {props.price} 円</p>
       </div>
-
       <div className="flex justify-between">
         <div>
           <div className="my-1 text-sm text-blue-400">
