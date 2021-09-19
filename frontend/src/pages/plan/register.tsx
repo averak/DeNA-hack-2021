@@ -15,6 +15,12 @@ import styles from "src/styles/register.module.css";
 import { usePostPlan } from "src/utils/hooks/planApi";
 import AREA from "src/utils/static/area.json";
 
+const errorPasswordSet = () => {
+  return toast.error(
+    "パスワードは数字、英大文字、英小文字を含めて12文字以上にしてください。"
+  );
+};
+
 type Prefecture = {
   id: string;
   name: string;
