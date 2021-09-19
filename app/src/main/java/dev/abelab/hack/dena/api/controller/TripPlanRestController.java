@@ -249,6 +249,7 @@ public class TripPlanRestController {
     ) {
         final var file = this.tripPlanService.getTripPlanAttachment(uuid, loginUser);
         return ResponseEntity.ok() //
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_PNG_VALUE) //
             .header(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=\"%s\"", file.getFileName()))
             .body(new ByteArrayResource(file.getContent()));
     }
