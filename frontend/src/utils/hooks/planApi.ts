@@ -26,6 +26,13 @@ export type TripPlanParam = {
   title: string;
 };
 
+export type GetSearchPlanParam = {
+  maxPrice: string;
+  regionId: string;
+  tag: string;
+  userId: string;
+};
+
 export type UpdatePlanParam = {
   attachment: {
     content: string;
@@ -141,9 +148,23 @@ export const useGetAllPlans = () => {
   const [response, setResponse] = useState<TripPlanResponses | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
+  const getFn = useCallback(async (params?: GetSearchPlanParam) => {
     setLoading(true);
-    const url = `${hostname}/api/trip_plans`;
+
+    const query = [];
+    if (params) {
+      if (params.maxPrice) query.push("maxPrice=" + params.maxPrice);
+      if (params.regionId) query.push("regionId=" + params.regionId);
+      if (params.tag) query.push("tag=" + params.tag);
+      if (params.userId) query.push("userId=" + params.userId);
+    }
+
+    let url = `${hostname}/api/trip_plans`;
+    if (query.length) {
+      const queryString = "?" + query.join("&");
+      url = url + queryString;
+    }
+
     await axios
       .get<TripPlanResponses>(url, {
         headers: { Authorization: getTokenHeader() },
@@ -294,11 +315,11 @@ export const usePutLikes = () => {
     setLoading(true);
     const url = `${hostname}/api/trip_plans/${tripPlanId}/likes`;
     await axios
-      .put<{ num: number }>(url, params, {
+      .put<{ likes: number }>(url, params, {
         headers: { Authorization: getTokenHeader() },
       })
       .then(async (res) => {
-        const responseNum = await res.data.num;
+        const responseNum = await res.data.likes;
         setResponse(responseNum);
       })
       .catch((err) => {
