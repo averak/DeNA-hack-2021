@@ -32,10 +32,9 @@ export const PlanContent: VFC<PlanProps> = (props) => {
 
   // いいねの数が変化して存在すれば代入
   useEffect(() => {
-    if (!response) {
-      return;
+    if (typeof response === "number") {
+      setLikes(response);
     }
-    setLikes(response);
   }, [response]);
 
   const ShowMyLike = () => {
@@ -47,15 +46,12 @@ export const PlanContent: VFC<PlanProps> = (props) => {
   };
 
   const toggleMyLike = () => {
-    if (!loading) {
-      putFn(props.planId, { isLike: props.isLike }).then(() => {
-        // console.log(res);
-      });
-      if (response) {
-        setLikes(response);
-        setIsMyLike(!isMyLike);
-      }
+    if (loading) {
+      return;
     }
+    putFn(props.planId, { isLike: !isMyLike }).then(() => {
+      setIsMyLike(!isMyLike);
+    });
   };
 
   return (

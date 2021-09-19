@@ -1,10 +1,11 @@
 import { Menu, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/solid";
 import Link from "next/link";
-import type { Dispatch, SetStateAction, VFC } from "react";
-import type { FormEvent } from "react";
+import type { Dispatch, FormEvent, SetStateAction, VFC } from "react";
+import { useEffect } from "react";
 import { useCallback, useState } from "react";
 import { Layout } from "src/components/Layout";
+import { useGetAllPlans } from "src/utils/hooks/planApi";
 import AREA from "src/utils/static/area.json";
 
 import { PlanContent } from "../organisms/PlanContent";
@@ -170,6 +171,20 @@ const HomePage: VFC = () => {
   const [maxPrice, setMaxPrice] = useState<string>();
   const [tags, setTags] = useState<string[]>([]);
 
+  const { loading, error, response, getFn } = useGetAllPlans();
+
+  useEffect(() => {
+    getFn().then(() => {
+      // console.log(response)
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!error) {
+      return;
+    }
+  }, [error]);
+
   const changeMinPrice = (e: FormEvent<HTMLInputElement>) => {
     setMinPrice(e.currentTarget.value);
   };
@@ -189,7 +204,7 @@ const HomePage: VFC = () => {
               <input
                 placeholder="下記より選択"
                 value={prefecture}
-                className="m-3 pl-2 h-8 font-bold text-gray-700 rounded-lg"
+                className="pl-2 m-3 h-8 font-bold text-gray-700 rounded-lg"
                 readOnly
               />
             </div>
@@ -208,7 +223,7 @@ const HomePage: VFC = () => {
             <p className=" pt-8 text-left">金額</p>
             <div className="flex gap-3 items-end w-full">
               <input
-                className="pl-2 text-gray-500 bg-white rounded-xl max-w-[130px] h-[40px]"
+                className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
                 placeholder="指定なし"
                 value={minPrice}
                 onChange={changeMinPrice}
@@ -236,7 +251,7 @@ const HomePage: VFC = () => {
               },
             }}
           >
-            <button className="flex justify-center items-center mx-auto w-full text-center bg-gradient-to-r rounded-md max-w-[260px] h-[54px] from-yellow-c2 to-yellow-c1">
+            <button className="flex justify-center items-center mx-auto w-full max-w-[260px] h-[54px] text-center bg-gradient-to-r from-yellow-c2 to-yellow-c1 rounded-md">
               <p className="font-bold text-black">みんなのトリップを検索</p>
               <img
                 src="/carry_case_icon.svg"
@@ -251,19 +266,26 @@ const HomePage: VFC = () => {
           <p className="py-4 font-bold">新着トリップ</p>
         </div>
 
-        <div className="m-3">
-          <PlanContent
-            planId={12}
-            imgSrc="https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D"
-            title="〇〇プラン！"
-            description="清水寺と食い倒れたい！そんなあなたにオススメ！貴方が求める旅行がきっとできるはず！"
-            tags={["清水寺", "男子会", "楽しい"]}
-            price={10000}
-            likes={100}
-            planner="まっさん"
-            isLike={false}
-          />
-        </div>
+        {!loading && (
+          <div className="m-3">
+            {response?.tripPlans.map((plan, i) => {
+              return (
+                <PlanContent
+                  key={i}
+                  planId={plan.id}
+                  imgSrc="https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D"
+                  title={plan.title}
+                  description={plan.description}
+                  tags={plan.tags}
+                  price={plan.items[0].price}
+                  likes={plan.likes}
+                  planner={plan.author.lastName + plan.author.firstName}
+                  isLike={plan.isLiked}
+                />
+              );
+            })}
+          </div>
+        )}
       </div>
     </Layout>
   );
