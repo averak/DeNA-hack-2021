@@ -13,7 +13,7 @@ const errorPasswordSet = () => {
   );
 };
 const errorExistUser = () => {
-  return toast.error("ユーザがすでにそんざいしています。");
+  return toast.error("ユーザがすでに存在しています。");
 };
 
 const UserRegisterPage: VFC = () => {
