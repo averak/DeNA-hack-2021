@@ -260,7 +260,7 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 
 			// test
 			// 絞り込みなし
-			var request = getRequest(String.format(GET_TRIP_PLANS_PATH + "?userId=%d", user1.getId()));
+			var request = getRequest(GET_TRIP_PLANS_PATH);
 			request.header(HttpHeaders.AUTHORIZATION, credentials);
 			var response = execute(request, HttpStatus.OK, TripPlansResponse.class);
 			assertThat(response.getTripPlans().size()).isEqualTo(2);
@@ -278,6 +278,40 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			response = execute(request, HttpStatus.OK, TripPlansResponse.class);
 			assertThat(response.getTripPlans().size()).isEqualTo(1);
 			assertThat(response.getTripPlans().get(0).getAuthor().getId()).isEqualTo(user2.getId());
+		}
+
+		@Test
+		void 正_都道府県IDで絞り込み検索() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var tripPlans = Arrays.asList( //
+				TripPlanSample.builder().userId(loginUser.getId()).regionId(1).build(), //
+				TripPlanSample.builder().userId(loginUser.getId()).regionId(2).build() //
+			);
+			tripPlans.forEach(tripPlanRepository::insert);
+
+			// test
+			// 絞り込みなし
+			var request = getRequest(GET_TRIP_PLANS_PATH);
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			var response = execute(request, HttpStatus.OK, TripPlansResponse.class);
+			assertThat(response.getTripPlans().size()).isEqualTo(2);
+
+			// user1の旅行プランを取得
+			request = getRequest(GET_TRIP_PLANS_PATH + "?regionId=1");
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			response = execute(request, HttpStatus.OK, TripPlansResponse.class);
+			assertThat(response.getTripPlans().size()).isEqualTo(1);
+			assertThat(response.getTripPlans().get(0).getRegionId()).isEqualTo(1);
+
+			// user2の旅行プランを取得
+			request = getRequest(GET_TRIP_PLANS_PATH + "?regionId=2");
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			response = execute(request, HttpStatus.OK, TripPlansResponse.class);
+			assertThat(response.getTripPlans().size()).isEqualTo(1);
+			assertThat(response.getTripPlans().get(0).getRegionId()).isEqualTo(2);
 		}
 
 		@Test
