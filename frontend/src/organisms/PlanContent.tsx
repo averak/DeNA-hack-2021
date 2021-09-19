@@ -54,17 +54,52 @@ export const PlanContent: VFC<PlanProps> = (props) => {
       setIsMyLike(!isMyLike);
     });
   };
-
   const tappedTag = (tag: string) => {
-    router.push({
-      pathname: "/search",
-      query: {
-        minPrice: "",
-        maxPrice: "",
-        prefecture: "",
-        tags: tag,
-      },
-    });
+    const query = router.query;
+    const queryTags = query.tags;
+    let setArray: string[] = [];
+    if (queryTags) {
+      if (typeof queryTags === "string") {
+        setArray = [tag, queryTags];
+        const uniqArray = setArray.filter((x, i, self) => {
+          return self.indexOf(x) === i;
+        });
+        router.push({
+          pathname: "/search",
+          query: {
+            minPrice: "",
+            maxPrice: "",
+            prefecture: "",
+            tags: uniqArray,
+          },
+        });
+      } else {
+        queryTags.push(tag);
+        setArray = queryTags;
+        const uniqArray = setArray.filter((x, i, self) => {
+          return self.indexOf(x) === i;
+        });
+        router.push({
+          pathname: "/search",
+          query: {
+            minPrice: "",
+            maxPrice: "",
+            prefecture: "",
+            tags: uniqArray,
+          },
+        });
+      }
+    } else {
+      router.push({
+        pathname: "/search",
+        query: {
+          minPrice: "",
+          maxPrice: "",
+          prefecture: "",
+          tags: tag,
+        },
+      });
+    }
   };
 
   return (
