@@ -5,6 +5,7 @@ import router from "next/router";
 import type { VFC } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import { useGetTopImageUrl } from "src/utils/hooks/instagramApi";
 import { usePutLikes } from "src/utils/hooks/planApi";
 
 type PlanProps = {
@@ -17,10 +18,12 @@ type PlanProps = {
   likes: number;
   planner: string;
   isLike: boolean;
+  place: string;
 };
 
 export const PlanContent: VFC<PlanProps> = (props) => {
   const { loading, error, response, putFn } = usePutLikes();
+  const topImageUrl = useGetTopImageUrl();
   const [likes, setLikes] = useState<number>(props.likes);
   const [isMyLike, setIsMyLike] = useState<boolean>(props.isLike);
 
@@ -37,6 +40,12 @@ export const PlanContent: VFC<PlanProps> = (props) => {
       setLikes(response);
     }
   }, [response]);
+
+  useEffect(() => {
+    topImageUrl.getTopImageFn(props.place).then(() => {
+      // console.log(topImageUrl.response);
+    });
+  }, [props.title]);
 
   const ShowMyLike = () => {
     return isMyLike ? (
@@ -104,15 +113,28 @@ export const PlanContent: VFC<PlanProps> = (props) => {
 
   return (
     <div className="pb-2 rounded-2xl border-2">
-      <Link href={"/plan/" + String(props.planId)}>
-        <a>
-          <img
-            className="object-cover w-full h-48 rounded-t-2xl"
-            src={props.imgSrc}
-            alt="旅行プランのサムネイルです"
-          />
-        </a>
-      </Link>
+      {topImageUrl.response && (
+        <Link href={"/plan/" + String(props.planId)}>
+          <a>
+            <img
+              className="object-cover w-full h-48 rounded-t-2xl"
+              src={topImageUrl.response[0]}
+              alt="旅行プランのサムネイルです"
+            />
+          </a>
+        </Link>
+      )}
+      {!topImageUrl.response && (
+        <Link href={"/plan/" + String(props.planId)}>
+          <a>
+            <img
+              className="object-cover w-full h-48 rounded-t-2xl"
+              src="/noimage.png"
+              alt="旅行プランのサムネイルです"
+            />
+          </a>
+        </Link>
+      )}
       <div className="flex justify-between">
         <Link href={"/plan/" + String(props.planId)}>
           <a>

@@ -127,7 +127,7 @@ const SearchPage: VFC = () => {
     <Layout title="検索結果" pathList={pathList}>
       <main>
         <div>
-          <div className="pt-6 pb-3 text-center bg-gradient-to-r shadow-lg from-blue-c2 to-blue-c1">
+          <div className="pt-6 pb-3 text-center bg-gradient-to-r from-blue-c2 to-blue-c1 shadow-lg">
             <div>
               <Listbox value={prefecture} onChange={setPrefecture}>
                 <Listbox.Button
@@ -149,7 +149,7 @@ const SearchPage: VFC = () => {
                       <Listbox.Option
                         key={i}
                         value={area}
-                        className="col-span-1 h-8 font-normal text-center border-gray-300 border-solid border-[0.1px]"
+                        className="col-span-1 h-8 font-normal text-center border-[0.1px] border-gray-300 border-solid"
                       >
                         <p className="pt-1 text-sm font-bold text-gray-700">
                           {area}
@@ -228,6 +228,7 @@ const SearchPage: VFC = () => {
                 return (
                   <PlanContent
                     key={i}
+                    place={plan.items[0].title}
                     planId={plan.id}
                     imgSrc="https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D"
                     title={plan.title}
