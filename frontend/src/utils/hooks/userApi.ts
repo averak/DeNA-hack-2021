@@ -47,7 +47,7 @@ export const useSignUp = () => {
   const [response, setResponse] = useState<UserResponse | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(
+  const postFn = useCallback(
     async (params: SignUpParam) => {
       setLoading(true);
       await axios
@@ -70,7 +70,7 @@ export const useSignUp = () => {
     },
     [url]
   );
-  return { loading, error, response, getFn };
+  return { loading, error, response, postFn };
 };
 
 // ログイン
@@ -80,7 +80,7 @@ export const useLogin = () => {
   const [response, setResponse] = useState<UserResponse | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(
+  const postFn = useCallback(
     async (params: LoginParam) => {
       setLoading(true);
       await axios
@@ -103,7 +103,7 @@ export const useLogin = () => {
     },
     [url]
   );
-  return { loading, error, response, getFn };
+  return { loading, error, response, postFn };
 };
 
 // ユーザ情報の取得
@@ -141,10 +141,41 @@ export const usePutUserProfile = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(async () => {
+  const putFn = useCallback(
+    async (params: UserParam) => {
+      setLoading(true);
+      await axios
+        .put(url, params, {
+          headers: { Authorization: getTokenHeader() },
+        })
+        .then(async (res) => {
+          const responseStatusCode = await res.status;
+          if (responseStatusCode === 200) setResponse("success");
+        })
+        .catch((err) => {
+          console.error(err);
+          setError(err);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    },
+    [url]
+  );
+  return { loading, error, response, putFn };
+};
+
+// ユーザ削除
+export const useDeleteUser = () => {
+  const url = `${hostname}/api/users/me`;
+  const [loading, setLoading] = useState<boolean>(false);
+  const [response, setResponse] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
+
+  const deleteFn = useCallback(async () => {
     setLoading(true);
     await axios
-      .put<UserParam>(url, {
+      .delete(url, {
         headers: { Authorization: getTokenHeader() },
       })
       .then(async (res) => {
@@ -159,7 +190,7 @@ export const usePutUserProfile = () => {
         setLoading(false);
       });
   }, [url]);
-  return { loading, error, response, getFn };
+  return { loading, error, response, deleteFn };
 };
 
 // パスワードの更新
@@ -169,7 +200,7 @@ export const usePutPassword = () => {
   const [response, setResponse] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
-  const getFn = useCallback(
+  const putFn = useCallback(
     async (params: PasswordParam) => {
       setLoading(true);
       await axios
@@ -192,5 +223,5 @@ export const usePutPassword = () => {
     },
     [url]
   );
-  return { loading, error, response, getFn };
+  return { loading, error, response, putFn };
 };

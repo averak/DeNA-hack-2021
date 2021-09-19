@@ -1,68 +1,58 @@
-package dev.abelab.hack.dena.api.response;
+package dev.abelab.hack.dena.api.request;
 
 import java.util.List;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import lombok.*;
 import dev.abelab.hack.dena.model.TripPlanItemModel;
-import dev.abelab.hack.dena.model.TripPlanAttachmentModel;
+import dev.abelab.hack.dena.model.TripPlanAttachmentSubmitModel;
 
 /**
- * 旅行プランレスポンス
+ * 旅行プラン更新リクエスト
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TripPlanResponse {
-
-    /**
-     * 旅行プランID
-     */
-    Integer id;
+public class TripPlanUpdateRequest {
 
     /**
      * タイトル
      */
+    @NotNull
+    @Size(max = 255)
     String title;
 
     /**
      * 説明文
      */
+    @NotNull
+    @Size(max = 255)
     String description;
-
-    /**
-     * 作成者
-     */
-    UserResponse author;
 
     /**
      * 都道府県ID
      */
+    @NotNull
     Integer regionId;
 
     /**
-     * いいね数
-     */
-    Integer likes;
-
-    /**
-     * いいね済みか
-     */
-    Boolean isLiked;
+     * 添付ファイル
+     * */
+    TripPlanAttachmentSubmitModel attachment;
 
     /**
      * タグリスト
      */
+    @NotNull
     List<String> tags;
 
     /**
      * 項目リスト
      */
+    @NotNull
     List<TripPlanItemModel> items;
-
-    /**
-     * 添付ファイル
-     */
-    TripPlanAttachmentModel attachment;
 
 }

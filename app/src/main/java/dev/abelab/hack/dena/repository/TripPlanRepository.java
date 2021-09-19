@@ -41,6 +41,18 @@ public class TripPlanRepository {
     }
 
     /**
+     * 旅行プランを更新
+     *
+     * @param tripPlan 旅行プラン
+     *
+     * @return 旅行プランID
+     */
+    public void update(final TripPlan tripPlan) {
+        tripPlan.setUpdatedAt(null);
+        this.tripPlanMapper.updateByPrimaryKeySelective(tripPlan);
+    }
+
+    /**
      * 旅行プランを削除
      *
      * @param tripPlanId 旅行プランID

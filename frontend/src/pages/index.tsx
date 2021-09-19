@@ -1,6 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import { XIcon } from "@heroicons/react/solid";
-import type { VFC } from "react";
+import Link from "next/link";
+import type { Dispatch, SetStateAction, VFC } from "react";
 import type { FormEvent } from "react";
 import { useCallback, useState } from "react";
 import { Layout } from "src/components/Layout";
@@ -44,14 +45,19 @@ const DownIcon: VFC<IconProps> = ({ className }) => {
 type AreaSelectType = {
   category: string;
   areas: { [key: string]: string };
+  setPrefectureFn: Dispatch<SetStateAction<string>>;
 };
-const AreaSelect: VFC<AreaSelectType> = ({ category, areas }) => {
-  const [value, setValue] = useState<string | null>(null);
+const AreaSelect: VFC<AreaSelectType> = ({
+  category,
+  areas,
+  setPrefectureFn,
+}) => {
+  const [value] = useState<string | null>(null);
   const handleClick = useCallback(
     (e: FormEvent<HTMLButtonElement>) => {
-      setValue(e.currentTarget.value);
+      setPrefectureFn(e.currentTarget.value);
     },
-    [value]
+    [setPrefectureFn]
   );
   return (
     <Menu className="inline" key={category} as="div">
@@ -87,25 +93,32 @@ const AreaSelect: VFC<AreaSelectType> = ({ category, areas }) => {
   );
 };
 
-const TagSelects = () => {
+type TagSelectsProps = {
+  setValue: Dispatch<SetStateAction<string[]>>;
+};
+
+const TagSelects: VFC<TagSelectsProps> = ({ setValue }) => {
   const [tags, setTags] = useState<string[]>([]);
   const [inputTag, setInputTag] = useState<string>("");
 
   const addTagToTags = (addtag: string) => {
+    if (!addtag) return;
+
     const newTags: string[] = tags.concat();
     newTags.push(addtag);
     setTags(newTags);
+    setValue(newTags);
     setInputTag("");
   };
 
   const removeTagFromTags = (removeTag: string) => {
-    setTags(
-      tags.filter((tag) => {
-        if (tag !== removeTag) {
-          return tag;
-        }
-      })
-    );
+    const newTags = tags.filter((tag) => {
+      if (tag !== removeTag) {
+        return tag;
+      }
+    });
+    setTags(newTags);
+    setValue(newTags);
   };
   const changeInputTag = (e: FormEvent<HTMLInputElement>) => {
     setInputTag(e.currentTarget.value);
@@ -152,43 +165,87 @@ const TagSelects = () => {
 };
 
 const HomePage: VFC = () => {
+  const [prefecture, setPrefecture] = useState<string>("");
+  const [minPrice, setMinPrice] = useState<string>();
+  const [maxPrice, setMaxPrice] = useState<string>();
+  const [tags, setTags] = useState<string[]>([]);
+
+  const changeMinPrice = (e: FormEvent<HTMLInputElement>) => {
+    setMinPrice(e.currentTarget.value);
+  };
+
+  const changeMaxPrice = (e: FormEvent<HTMLInputElement>) => {
+    setMaxPrice(e.currentTarget.value);
+  };
+
   return (
     <Layout title="トップ" pathList={[]}>
       <div className="p-0 m-0 w-full">
         <div className="py-7 font-bold text-white bg-gradient-to-r from-blue-c2 to-blue-c1">
           <p className="pt-4 text-center">プラン検索</p>
           <div className="py-4 mx-auto w-11/12">
-            <p className="py-4 text-left">エリア</p>
+            <div className="flex">
+              <p className="py-4 text-left">エリア</p>
+              <input
+                placeholder="下記より選択"
+                value={prefecture}
+                className="m-3 pl-2 h-8 font-bold text-gray-700 rounded-lg"
+                readOnly
+              />
+            </div>
             <div className="overflow-hidden rounded">
               {Object.entries(AREA).map(([category, value], i) => {
-                return <AreaSelect key={i} category={category} areas={value} />;
+                return (
+                  <AreaSelect
+                    key={i}
+                    category={category}
+                    areas={value}
+                    setPrefectureFn={setPrefecture}
+                  />
+                );
               })}
             </div>
             <p className=" pt-8 text-left">金額</p>
             <div className="flex gap-3 items-end w-full">
               <input
-                className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
+                className="pl-2 text-gray-500 bg-white rounded-xl max-w-[130px] h-[40px]"
                 placeholder="指定なし"
+                value={minPrice}
+                onChange={changeMinPrice}
               />
               <p className="leading-[45px]">~</p>
               <input
                 className="pl-2 max-w-[130px] h-[40px] text-gray-500 bg-white rounded-xl"
                 placeholder="指定なし"
+                value={maxPrice}
+                onChange={changeMaxPrice}
               />
               <p>円</p>
             </div>
             <p className="pt-8 text-left">タグを検索</p>
-            <TagSelects />
+            <TagSelects setValue={setTags} />
           </div>
-          <button className="flex justify-center items-center mx-auto w-full max-w-[260px] h-[54px] text-center bg-gradient-to-r from-yellow-c2 to-yellow-c1 rounded-md">
-            <p className="font-bold text-black">みんなのトリップを検索</p>
-            <img
-              src="/carry_case_icon.svg"
-              width={40}
-              height={40}
-              alt="キャリーケースのアイコン"
-            />
-          </button>
+          <Link
+            href={{
+              pathname: "/search",
+              query: {
+                minPrice: minPrice,
+                maxPrice: maxPrice,
+                tags: tags,
+                prefecture: prefecture,
+              },
+            }}
+          >
+            <button className="flex justify-center items-center mx-auto w-full text-center bg-gradient-to-r rounded-md max-w-[260px] h-[54px] from-yellow-c2 to-yellow-c1">
+              <p className="font-bold text-black">みんなのトリップを検索</p>
+              <img
+                src="/carry_case_icon.svg"
+                width={40}
+                height={40}
+                alt="キャリーケースのアイコン"
+              />
+            </button>
+          </Link>
         </div>
         <div className="mx-auto w-11/12">
           <p className="py-4 font-bold">新着トリップ</p>
@@ -204,6 +261,7 @@ const HomePage: VFC = () => {
             price={10000}
             likes={100}
             planner="まっさん"
+            isLike={false}
           />
         </div>
       </div>

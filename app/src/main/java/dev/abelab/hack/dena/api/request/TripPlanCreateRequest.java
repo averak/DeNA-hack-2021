@@ -40,7 +40,7 @@ public class TripPlanCreateRequest {
 
     /**
      * 添付ファイル
-     * */
+     */
     TripPlanAttachmentSubmitModel attachment;
 
     /**
