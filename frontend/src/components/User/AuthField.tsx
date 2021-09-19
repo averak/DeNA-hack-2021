@@ -14,8 +14,14 @@ type InputProps = {
   icon: ReactNode;
   placeholder: string;
   setValue: Dispatch<SetStateAction<string>>;
+  isPassword: boolean;
 };
-const InputField: VFC<InputProps> = ({ icon, placeholder, setValue }) => {
+const InputField: VFC<InputProps> = ({
+  icon,
+  placeholder,
+  setValue,
+  isPassword,
+}) => {
   const [inputValue, setInputValue] = useState<string>("");
 
   const changeInputValue = (e: FormEvent<HTMLInputElement>) => {
@@ -33,6 +39,7 @@ const InputField: VFC<InputProps> = ({ icon, placeholder, setValue }) => {
         placeholder={placeholder}
         value={inputValue}
         onChange={changeInputValue}
+        type={isPassword ? "password" : "text"}
       />
     </div>
   );
@@ -65,11 +72,13 @@ export const LoginAuthField: VFC<LoginAuthProps> = ({
         icon={<MailIcon className="w-9 h-9 text-white stroke-1" />}
         placeholder="メールアドレス"
         setValue={setMail}
+        isPassword={false}
       />
       <InputField
         icon={<KeyIcon className="w-9 h-9 text-white stroke-1" />}
         placeholder="パスワード"
         setValue={setPassword}
+        isPassword={true}
       />
       <div className="pt-8">
         <button
@@ -128,21 +137,25 @@ export const RegistAuthField: VFC<RegistAuthProps> = ({
         icon={<UserIcon className="w-9 h-9 text-white stroke-1" />}
         placeholder="姓"
         setValue={setLastName}
+        isPassword={false}
       />
       <InputField
         icon={<UserIcon className="w-9 h-9 text-white stroke-1" />}
         placeholder="名"
         setValue={setFirstName}
+        isPassword={false}
       />
       <InputField
         icon={<MailIcon className="w-9 h-9 text-white stroke-1" />}
         placeholder="メールアドレス"
         setValue={setMail}
+        isPassword={false}
       />
       <InputField
         icon={<KeyIcon className="w-9 h-9 text-white stroke-1" />}
         placeholder="パスワード"
         setValue={setPassword}
+        isPassword={true}
       />
       <div className="pt-8">
         <button
