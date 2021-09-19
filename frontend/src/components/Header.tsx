@@ -18,13 +18,17 @@ type HeaderProps = {
 
 export const Header: VFC<HeaderProps> = (props) => {
   const [url, setUrl] = useState<string>("/user/login");
+  const [loaded, setLoaded] = useState<boolean>(true);
+
+  const isLogin = isAccessToken();
 
   useEffect(() => {
-    isAccessToken() ? setUrl("/user/mypage") : setUrl("/user/login");
+    isLogin ? setUrl("/user/mypage") : setUrl("/user/login");
+    setLoaded(false);
   }, []);
 
   const ShowUser = () => {
-    return isAccessToken() ? (
+    return isLogin ? (
       <UserIcon className="w-8 h-8" />
     ) : (
       <LoginIcon className="w-8 h-8" />
@@ -45,9 +49,7 @@ export const Header: VFC<HeaderProps> = (props) => {
           {props.title}
         </p>
         <Link href={url}>
-          <a>
-            <ShowUser />
-          </a>
+          <a>{!loaded && <ShowUser />}</a>
         </Link>
       </div>
 
