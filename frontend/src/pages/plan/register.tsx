@@ -71,7 +71,7 @@ const PlanRegisterPage: VFC = () => {
     }
 
     if (response) {
-      const tagObj = response.tags?.map((v, i) => {
+      const tagObj = response.map((v, i) => {
         return { id: i, name: v };
       });
       setSuggestion(tagObj);
