@@ -124,7 +124,7 @@ export const useGetTags = () => {
     setLoading(true);
     const url = `${hostname}/api/tags`;
     await axios
-      .get<string[]>(url, {
+      .put<string[]>(url, {
         headers: { Authorization: getTokenHeader() },
       })
       .then(async (res) => {
