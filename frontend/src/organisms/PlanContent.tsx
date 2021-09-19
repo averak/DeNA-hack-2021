@@ -23,7 +23,6 @@ export const PlanContent: VFC<PlanProps> = (props) => {
   const { loading, error, response, putFn } = usePutLikes();
   const [likes, setLikes] = useState<number>(props.likes);
   const [isMyLike, setIsMyLike] = useState<boolean>(props.isLike);
-
   useEffect(() => {
     if (!error) {
       return;
