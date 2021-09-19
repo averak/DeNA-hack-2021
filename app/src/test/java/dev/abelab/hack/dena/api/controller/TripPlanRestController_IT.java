@@ -218,7 +218,8 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			assertThat(response.getTripPlans())
 				.extracting(TripPlanResponse::getId, TripPlanResponse::getTitle, TripPlanResponse::getDescription,
 					TripPlanResponse::getRegionId, TripPlanResponse::getIsLiked) //
-				.containsExactlyInAnyOrder(tuple(tripPlan.getId(), tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId(), false));
+				.containsExactlyInAnyOrder(
+					tuple(tripPlan.getId(), tripPlan.getTitle(), tripPlan.getDescription(), tripPlan.getRegionId(), false));
 
 			// 旅行プラン項目
 			assertThat(response.getTripPlans().get(0).getItems())
@@ -238,6 +239,45 @@ public class TripPlanRestController_IT extends AbstractRestController_IT {
 			assertThat(response.getTripPlans().get(0).getAttachment())
 				.extracting(TripPlanAttachmentModel::getFileName, TripPlanAttachmentModel::getUuid) //
 				.containsExactlyInAnyOrder(attachment.getFileName(), attachment.getUuid());
+		}
+
+		@Test
+		void 正_作成者IDで絞り込み検索() throws Exception {
+			// setup
+			final var loginUser = createLoginUser();
+			final var credentials = getLoginUserCredentials(loginUser);
+
+			final var user1 = UserSample.builder().email("email1").build();
+			final var user2 = UserSample.builder().email("email2").build();
+			userRepository.insert(user1);
+			userRepository.insert(user2);
+
+			final var tripPlans = Arrays.asList( //
+				TripPlanSample.builder().userId(user1.getId()).build(), //
+				TripPlanSample.builder().userId(user2.getId()).build() //
+			);
+			tripPlans.forEach(tripPlanRepository::insert);
+
+			// test
+			// 絞り込みなし
+			var request = getRequest(String.format(GET_TRIP_PLANS_PATH + "?userId=%d", user1.getId()));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			var response = execute(request, HttpStatus.OK, TripPlansResponse.class);
+			assertThat(response.getTripPlans().size()).isEqualTo(2);
+
+			// user1の旅行プランを取得
+			request = getRequest(String.format(GET_TRIP_PLANS_PATH + "?userId=%d", user1.getId()));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			response = execute(request, HttpStatus.OK, TripPlansResponse.class);
+			assertThat(response.getTripPlans().size()).isEqualTo(1);
+			assertThat(response.getTripPlans().get(0).getAuthor().getId()).isEqualTo(user1.getId());
+
+			// user2の旅行プランを取得
+			request = getRequest(String.format(GET_TRIP_PLANS_PATH + "?userId=%d", user2.getId()));
+			request.header(HttpHeaders.AUTHORIZATION, credentials);
+			response = execute(request, HttpStatus.OK, TripPlansResponse.class);
+			assertThat(response.getTripPlans().size()).isEqualTo(1);
+			assertThat(response.getTripPlans().get(0).getAuthor().getId()).isEqualTo(user2.getId());
 		}
 
 		@Test

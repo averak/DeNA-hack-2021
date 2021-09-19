@@ -63,6 +63,10 @@ public class TripPlanRestController {
      * 旅行プランの一覧取得API
      *
      * @param loginUser ログインユーザ
+     * @param maxPrice  上限金額
+     * @param tag       タグ名
+     * @param userId    作成者ID
+     * @param regionId  都道府県ID
      *
      * @return 旅行プラン一覧
      */
@@ -79,9 +83,13 @@ public class TripPlanRestController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public TripPlansResponse getTripPlans( //
-        @ModelAttribute("LoginUser") final User loginUser //
+        @ModelAttribute("LoginUser") final User loginUser, //
+        @ApiParam(required = false, value = "上限金額") @RequestParam(required = false) final Integer maxPrice, //
+        @ApiParam(required = false, value = "タグ名（カンマ区切りで複数指定可）") @RequestParam(name = "tag", required = false) final String tag, //
+        @ApiParam(required = false, value = "作成者ID") @RequestParam(name = "userId", required = false) final Integer userId, //
+        @ApiParam(required = false, value = "都道府県ID") @RequestParam(name = "regionId", required = false) final Integer regionId //
     ) {
-        return this.tripPlanService.getTripPlans(loginUser);
+        return this.tripPlanService.getTripPlans(loginUser, maxPrice, tag, userId, regionId);
     }
 
     /**
