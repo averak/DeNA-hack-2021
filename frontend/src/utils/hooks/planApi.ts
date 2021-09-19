@@ -315,11 +315,11 @@ export const usePutLikes = () => {
     setLoading(true);
     const url = `${hostname}/api/trip_plans/${tripPlanId}/likes`;
     await axios
-      .put<{ num: number }>(url, params, {
+      .put<{ likes: number }>(url, params, {
         headers: { Authorization: getTokenHeader() },
       })
       .then(async (res) => {
-        const responseNum = await res.data.num;
+        const responseNum = await res.data.likes;
         setResponse(responseNum);
       })
       .catch((err) => {
