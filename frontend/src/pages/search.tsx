@@ -7,8 +7,9 @@ import type { PathData } from "src/components/Layout";
 import { Layout } from "src/components/Layout";
 import AREA from "src/utils/static/area.json";
 
-// import { PlanContent } from "../organisms/PlanContent"
-// import type { TripPlanParam } from "../utils/hooks/planApi";
+import { PlanContent } from "../organisms/PlanContent";
+import type { GetSearchPlanParam } from "../utils/hooks/planApi";
+import { useGetAllPlans } from "../utils/hooks/planApi";
 
 const inputStyle =
   "font-normal rounded border border-solid border-gray-300 w-full";
@@ -21,16 +22,23 @@ const AREA_ARR = Object.values(AREA)
   })
   .flat();
 
+const findRegionId = (prefecture: string) => {
+  const id: number = AREA_ARR.findIndex((ARR) => {
+    return ARR === prefecture;
+  });
+  return id !== -1 ? (id + 1).toString() : "";
+};
+
 const pathList: PathData[] = [{ pathTitle: "検索結果", pathLink: "/search" }];
 
 const SearchPage: VFC = () => {
   const [prefecture, setPrefecture] = useState<string>("東京都");
-  const [minPrice, setMinPrice] = useState<string>();
-  const [maxPrice, setMaxPrice] = useState<string>();
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
   const [tags, setTags] = useState<string[]>([]);
   const [inputTag, setInputTag] = useState<string>("");
 
-  // const [plans, setPlans] = useState<TripPlanParam[]>([]);
+  const { getFn, response, loading } = useGetAllPlans();
 
   const router = useRouter();
 
@@ -38,17 +46,50 @@ const SearchPage: VFC = () => {
     if (!router.query) {
       return;
     }
-
     const query = router.query;
-    if (query.prefecture && typeof query.prefecture === "string")
+
+    let routerMaxPrice = "";
+    let routerPrefecture = "";
+    let routerTag: string[] = [];
+
+    if (query.prefecture && typeof query.prefecture === "string") {
       setPrefecture(query.prefecture);
+      routerPrefecture = query.prefecture;
+    }
     if (query.minPrice && typeof query.minPrice === "string")
       setMinPrice(query.minPrice);
-    if (query.maxPrice && typeof query.maxPrice === "string")
+    if (query.maxPrice && typeof query.maxPrice === "string") {
       setMaxPrice(query.maxPrice);
-    if (query.tags && typeof query.tags !== "string") setTags(query.tags);
-    if (query.tags && typeof query.tags === "string") setTags([query.tags]);
+      routerMaxPrice = query.maxPrice;
+    }
+    if (query.tags && typeof query.tags !== "string") {
+      setTags(query.tags);
+      routerTag = query.tags;
+    }
+    if (query.tags && typeof query.tags === "string") {
+      setTags([query.tags]);
+      routerTag = [query.tags];
+    }
+
+    const searchQuery: GetSearchPlanParam = {
+      maxPrice: routerMaxPrice,
+      regionId: findRegionId(routerPrefecture),
+      tag: routerTag.join(","),
+      userId: "",
+    };
+
+    getFn(searchQuery);
   }, [router.query]);
+
+  useEffect(() => {
+    const searchQuery: GetSearchPlanParam = {
+      maxPrice: maxPrice,
+      regionId: findRegionId(prefecture),
+      tag: tags.join(","),
+      userId: "",
+    };
+    getFn(searchQuery);
+  }, [maxPrice, prefecture, tags]);
 
   const changeMinPrice = (e: FormEvent<HTMLInputElement>) => {
     setMinPrice(e.currentTarget.value);
@@ -110,7 +151,7 @@ const SearchPage: VFC = () => {
                         value={area}
                         className="col-span-1 h-8 font-normal text-center border-gray-300 border-solid border-[0.1px]"
                       >
-                        <p className="text-sm font-bold text-gray-700 pt-1">
+                        <p className="pt-1 text-sm font-bold text-gray-700">
                           {area}
                         </p>
                       </Listbox.Option>
@@ -181,18 +222,26 @@ const SearchPage: VFC = () => {
 
           <p className="m-4 text-lg font-bold text-center">検索結果</p>
 
-          {
-            // loading 待ち
-            // plans.map(() => {
-            // <PlanContent
-            //   planId={plan.}
-            //   imgSrc={plan.}
-            //   title={plan.title}
-            //   description={plan.description}
-            //   tags={plan.tags}
-            // />
-            // })
-          }
+          {!loading && (
+            <div className="m-3">
+              {response?.tripPlans.map((plan, i) => {
+                return (
+                  <PlanContent
+                    key={i}
+                    planId={plan.id}
+                    imgSrc="https://scontent-nrt1-1.cdninstagram.com/v/t51.2885-15/240756876_985417928692918_6974685384653398632_n.jpg?_nc_cat=104&ccb=1-5&_nc_sid=8ae9d6&_nc_ohc=iCO56YT2vYoAX_RaIEl&_nc_ht=scontent-nrt1-1.cdninstagram.com&edm=APCawUEEAAAA&oh=4153bab858eb93077f45740424e6dad8&oe=6149EA1D"
+                    title={plan.title}
+                    description={plan.description}
+                    tags={plan.tags}
+                    price={plan.items[0].price}
+                    likes={plan.likes}
+                    planner={plan.author.lastName + plan.author.firstName}
+                    isLike={plan.isLiked}
+                  />
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
     </Layout>
