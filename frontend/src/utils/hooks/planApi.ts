@@ -30,7 +30,7 @@ export type GetSearchPlanParam = {
   maxPrice: string;
   regionId: string;
   tag: string;
-  userId: string;
+  userId: number;
 };
 
 export type UpdatePlanParam = {
@@ -79,6 +79,15 @@ export type TripPlanResponse = {
   title: string;
 };
 
+export type FormatTripPlan = TripPlanResponse & {
+  imgUrl: Blob;
+  price: number;
+};
+
+export type FormatTripPlans = {
+  tripPlans: FormatTripPlan[];
+};
+
 export type TripPlanResponses = {
   tripPlans: TripPlanResponse[];
 };
@@ -114,6 +123,46 @@ export type Attachment = {
   url: string;
 };
 
+const decodeBinary = (binary: Blob) => {
+  return new Promise((resolve, reject) => {
+    const blob = new Blob([binary], { type: "image/png" });
+    const reader = new FileReader();
+    // Sets up even listeners BEFORE you call reader.readAsDataURL
+    reader.onload = function () {
+      const result = reader.result;
+      return resolve(result);
+    };
+
+    reader.onerror = function (error) {
+      return reject(error);
+    };
+    // Calls reader function
+    reader.readAsDataURL(blob);
+  });
+};
+
+// 画像のuuidから画像pathを取得
+const getImgSrc = async (uuid: string) => {
+  const url = `${hostname}/api/trip_plans/attachments/${uuid}`;
+  const imgUrl = await axios
+    .get<Blob>(url, {
+      headers: { Authorization: getTokenHeader() },
+    })
+    .then(async (res) => {
+      const responseData = await res.data;
+      const b64 = (await decodeBinary(responseData)) as Blob;
+      console.log(b64);
+      return b64;
+    });
+  return imgUrl;
+};
+
+const sumPrice = (prices: number[]) => {
+  return prices.reduce((prev, current) => {
+    return prev + current;
+  });
+};
+
 // タグ一覧の取得
 export const useGetTags = () => {
   const [loading, setLoading] = useState<boolean>(false);
@@ -145,7 +194,7 @@ export const useGetTags = () => {
 // 全てのプランの取得
 export const useGetAllPlans = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<TripPlanResponses | null>(null);
+  const [response, setResponse] = useState<FormatTripPlans | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const getFn = useCallback(async (params?: GetSearchPlanParam) => {
@@ -171,7 +220,22 @@ export const useGetAllPlans = () => {
       })
       .then(async (res) => {
         const responseData = await res.data;
-        setResponse(responseData);
+        const planData: FormatTripPlan[] = await Promise.all(
+          responseData.tripPlans.map(async (tripPlan) => {
+            const imgUrl = await getImgSrc(tripPlan.attachment.uuid);
+            const price = sumPrice(
+              tripPlan.items.map((v) => {
+                return v.price;
+              })
+            );
+            return {
+              ...tripPlan,
+              imgUrl,
+              price,
+            };
+          })
+        );
+        setResponse({ tripPlans: planData });
       })
       .catch((err) => {
         console.error(err);
@@ -217,7 +281,7 @@ export const usePostPlan = () => {
 // idでプラン取得
 export const useGetPlan = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<TripPlanResponse | null>(null);
+  const [response, setResponse] = useState<FormatTripPlan | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const getFn = useCallback(async (tripPlanId: number) => {
@@ -229,7 +293,17 @@ export const useGetPlan = () => {
       })
       .then(async (res) => {
         const responseData = await res.data;
-        setResponse(responseData);
+        const imgUrl = await getImgSrc(responseData.attachment.uuid);
+        const price = sumPrice(
+          responseData.items.map((v) => {
+            return v.price;
+          })
+        );
+        setResponse({
+          ...responseData,
+          imgUrl,
+          price,
+        });
       })
       .catch((err) => {
         console.error(err);
@@ -364,19 +438,34 @@ export const useGetFiles = () => {
 // いいねした旅行プランの一覧取得
 export const useGetLikePlans = () => {
   const [loading, setLoading] = useState<boolean>(false);
-  const [response, setResponse] = useState<TripPlanResponses | null>(null);
+  const [response, setResponse] = useState<FormatTripPlans | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   const getFn = useCallback(async () => {
     setLoading(true);
     const url = `${hostname}/api/trip_plans/likes/me`;
     await axios
-      .put<TripPlanResponses>(url, {
+      .get<TripPlanResponses>(url, {
         headers: { Authorization: getTokenHeader() },
       })
       .then(async (res) => {
         const responseData = await res.data;
-        setResponse(responseData);
+        const planData: FormatTripPlan[] = await Promise.all(
+          responseData.tripPlans.map(async (tripPlan) => {
+            const imgUrl = await getImgSrc(tripPlan.attachment.uuid);
+            const price = sumPrice(
+              tripPlan.items.map((v) => {
+                return v.price;
+              })
+            );
+            return {
+              ...tripPlan,
+              imgUrl,
+              price,
+            };
+          })
+        );
+        setResponse({ tripPlans: planData });
       })
       .catch((err) => {
         console.error(err);

@@ -8,7 +8,7 @@ import { usePutLikes } from "src/utils/hooks/planApi";
 
 type PlanProps = {
   planId: number;
-  imgSrc: string;
+  imgSrc: Blob;
   title: string;
   description: string;
   tags: string[];
@@ -22,6 +22,8 @@ export const PlanContent: VFC<PlanProps> = (props) => {
   const { loading, error, response, putFn } = usePutLikes();
   const [likes, setLikes] = useState<number>(props.likes);
   const [isMyLike, setIsMyLike] = useState<boolean>(props.isLike);
+
+  const [imgSrc, setImgSrc] = useState("");
 
   useEffect(() => {
     if (!error) {
@@ -37,6 +39,12 @@ export const PlanContent: VFC<PlanProps> = (props) => {
     }
     setLikes(response);
   }, [response]);
+
+  useEffect(() => {
+    console.log(props.imgSrc);
+    const blobUrl = window.URL.createObjectURL(props.imgSrc);
+    setImgSrc(blobUrl);
+  }, []);
 
   const ShowMyLike = () => {
     return isMyLike ? (
@@ -62,7 +70,7 @@ export const PlanContent: VFC<PlanProps> = (props) => {
     <div className="pb-2 rounded-2xl border-2">
       <img
         className="object-cover w-full h-48 rounded-t-2xl"
-        src={props.imgSrc}
+        src={imgSrc}
         alt="旅行プランのサムネイルです"
       />
 
